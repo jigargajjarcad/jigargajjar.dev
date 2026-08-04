@@ -44,7 +44,7 @@ The scale is built on 4 px, but values divisible by 8 are the default choice. 4 
 | `--space-2` | 8 px | Inline element gaps, badge padding |
 | `--space-3` | 12 px | Compact vertical stacks, small button padding |
 | `--space-4` | 16 px | Default gap, standard button padding-inline |
-| `--space-5` | 20 px | Paragraph rhythm (one body line) |
+| `--space-5` | 20 px | General-purpose step between 16 and 24 px. Not paragraph rhythm — see below |
 | `--space-6` | 24 px | Card padding, list item separation |
 | `--space-8` | 32 px | Card padding at reading density, grouped element separation |
 | `--space-10` | 40 px | Sub-section separation |

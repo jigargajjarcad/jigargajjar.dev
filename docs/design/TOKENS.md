@@ -168,6 +168,7 @@ Frozen by `ARCHITECTURE.md` §9. Additions require an ADR.
 | `--icon-lg` | 24 px |
 | `--container-prose` | 68ch |
 | `--container-wide` | 1120 px |
+| `--container-full` | 100% |
 | `--bp-sm` | 640 px |
 | `--bp-md` | 900 px |
 | `--bp-lg` | 1280 px |

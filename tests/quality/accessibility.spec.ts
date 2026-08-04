@@ -8,9 +8,19 @@ for (const route of ROUTES) {
   test(`axe: ${route}`, async ({ page }) => {
     await page.goto(route);
     const { violations } = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      // `best-practice` is included so `heading-order` actually runs — it is
+      // not a WCAG-tagged rule, so a WCAG-only tag set never evaluates it, and
+      // ACCESSIBILITY.md §8 requires that heading levels never skip.
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
       .analyze();
-    const blocking = violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+    const blocking = violations.filter(
+      (v) =>
+        v.impact === 'serious' ||
+        v.impact === 'critical' ||
+        // ACCESSIBILITY.md §8 — "Heading levels never skip." axe rates this
+        // `moderate`, below the impact filter, so it is asserted by name.
+        v.id === 'heading-order',
+    );
     expect(blocking.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
   });
 }

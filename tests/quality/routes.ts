@@ -6,5 +6,6 @@ export const ROUTES = [
   '/workflow',
   '/resume',
   '/connect',
+  '/work/jigargajjar-dev', // exercises the MDX pipeline end to end
   '/does-not-exist', // exercises not-found.tsx
 ] as const;

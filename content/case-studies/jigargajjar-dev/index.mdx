@@ -1,0 +1,158 @@
+---
+title: jigargajjar.dev
+slug: jigargajjar-dev
+competency: methodology
+summary: A portfolio built specification-first, where the documentation is written before any code and the build is gated against it.
+role: Sole engineer — architecture, direction, verification
+stack:
+  - Next.js
+  - TypeScript
+  - Tailwind CSS
+  - MDX
+outcomes:
+  - Fifteen decision records written before implementation began
+  - Thirteen CI gates operational against an empty application
+  - A budget contradiction found on day one rather than at launch
+sourceUrl: https://github.com/jigargajjarcad/jigargajjar.dev
+disclosure: public
+lifecycle: experimental
+order: 4
+visibility: published
+updated: '2026-08-04'
+cover:
+  src: cover.svg
+  alt: The specification-first pipeline, from documentation through to gated build
+  width: 1200
+  height: 630
+---
+
+<Callout variant="note" heading="Pipeline demonstration">
+  This body exercises every component in the closed MDX set so that phase 4 of `ARCHITECTURE.md` §14
+  can be verified. Every statement in it is true of this repository. It is replaced with the full
+  nine-section document model in phase 6.
+</Callout>
+
+## Context and constraints
+
+The specification was written before any application code existed. Four phases of
+documentation preceded the first line of TypeScript, and the frozen documents are
+treated as the implementation contract rather than as guidance.
+
+## Timeline
+
+<Timeline
+  entries={[
+    {
+      stage: 'Planning',
+      period: 'Phase 1',
+      body: 'Foundation, architecture, and the first thirteen decision records.',
+    },
+    {
+      stage: 'Architecture',
+      period: 'Phase 2',
+      body: 'Design system: tokens, typography, colour, motion, accessibility.',
+    },
+    {
+      stage: 'Implementation',
+      period: 'Phase 5',
+      body: 'Toolchain and gates first, against an empty page, before any feature.',
+    },
+    {
+      stage: 'Major setbacks',
+      period: 'Phase 5, day 1',
+      body: 'The framework runtime exceeded its own budget with zero components authored.',
+    },
+    {
+      stage: 'Verification',
+      period: 'Phase 5, day 1',
+      body: 'Thirteen gates stood up before the first component was written.',
+    },
+    {
+      stage: 'Release',
+      period: 'Not yet',
+      body: 'Nothing has shipped. The site is under construction.',
+    },
+    {
+      stage: 'Future roadmap',
+      period: 'Phases 6–7',
+      body: 'Content authoring, then comprehension testing with real readers.',
+    },
+  ]}
+/>
+
+## Architecture
+
+<Figure caption="The content pipeline. Each stage refuses to pass malformed input to the next.">
+  <Diagram
+    title="Content pipeline"
+    description="Filesystem feeds the content loader, which feeds schema validation, which feeds MDX compilation, which feeds the component map, which produces semantic HTML."
+    viewBox="0 0 560 60"
+  >
+    <text x="0" y="34">
+      filesystem
+    </text>
+    <text x="96" y="34">
+      loader
+    </text>
+    <text x="166" y="34">
+      schema
+    </text>
+    <text x="242" y="34">
+      compile
+    </text>
+    <text x="322" y="34">
+      map
+    </text>
+    <text x="382" y="34">
+      semantic HTML
+    </text>
+  </Diagram>
+</Figure>
+
+## Key decisions
+
+<Decision
+  context="The shared framework chunk measured 100.3 KB gzipped with zero components authored, against a documented budget of 90 KB."
+  choice="Reclassify the line as a recorded baseline with a regression ceiling of 105 KB, and leave the first-load budget of 120 KB untouched."
+  alternatives="Change framework to Astro, which ships approximately zero JavaScript by default; or leave the gate permanently red."
+  consequence="A budget line that no engineering decision can influence is now labelled as the measurement it always was. ADR-015."
+/>
+
+<Comparison
+  caption="The three options considered for the budget contradiction"
+  columns={['Reaches 90 KB', 'Keeps ADR-007', 'Gate stays meaningful']}
+  rows={[
+    { label: 'Raise and reclassify', cells: ['No', 'Yes', 'Yes'] },
+    { label: 'Change framework', cells: ['Yes', 'No', 'Yes'] },
+    { label: 'Leave it red', cells: ['No', 'Yes', 'No'] },
+  ]}
+/>
+
+## Failures and mistakes
+
+<Callout variant="critical" heading="The budget was unreachable from the start">
+  The 90 KB figure was recorded in a table with no derivation. Nothing captured what runtime size it
+  assumed, so when React 19 grew the runtime the premise expired silently. It took an empty
+  production build to prove it.
+</Callout>
+
+## Verification
+
+Every gate runs against the production build and blocks merge. None is advisory.
+
+<CodeBlock language="bash">npm run ci</CodeBlock>
+
+## Outcomes
+
+<Metric
+  value="100.3"
+  unit="KB"
+  label="Shared framework chunk"
+  qualifier="gzipped, zero components authored"
+/>
+
+## Looking back
+
+The phase-one instruction to stand up quality gates against an empty page is the
+decision that has paid off most. The budget contradiction surfaced on the first
+production build rather than after a feature depended on it.

@@ -1,0 +1,11 @@
+.next
+node_modules
+package-lock.json
+src/styles/tokens.css
+.lighthouseci
+playwright-report
+test-results
+
+# Frozen documentation — ROADMAP.md §6. Tooling does not rewrite the specification.
+docs/
+README.md

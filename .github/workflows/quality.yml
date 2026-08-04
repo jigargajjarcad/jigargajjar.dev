@@ -1,0 +1,24 @@
+# ARCHITECTURE.md §12 — quality.yml, against the production build.
+name: quality
+on:
+  pull_request:
+  push:
+    branches: [main]
+env:
+  NEXT_TELEMETRY_DISABLED: 1
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      # 9. axe-core, 10. keyboard/focus/reduced-motion/no-JS, 11. third-party assertion
+      - run: npm run test:quality
+      # 8. Lighthouse CI across every route, asserting §10
+      - run: npm run lhci

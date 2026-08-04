@@ -1,0 +1,119 @@
+/*
+ * Global foundation only: reset, root variables, theme setup, base typography.
+ * No component styling, no layout, no page styling (Phase 5 Day 1 scope).
+ */
+@import './tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-surface-base);
+    color: var(--color-text-primary);
+    font-family: var(--type-body-family);
+    font-size: var(--type-body-size);
+    font-weight: var(--type-body-weight);
+    line-height: var(--type-body-line-height);
+    letter-spacing: var(--type-body-tracking);
+    /* TYPOGRAPHY.md §7 — tabular lining figures wherever numbers are compared. */
+    font-variant-numeric: lining-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  figure,
+  blockquote,
+  dl,
+  dd {
+    margin: 0;
+  }
+
+  /* Heading level is a structural claim, not a size (ACCESSIBILITY.md §8).
+     Sizes come from semantic type tokens, never from the element. */
+  h1 {
+    font: var(--type-heading-1-weight) var(--type-heading-1-size) /
+      var(--type-heading-1-line-height) var(--type-heading-1-family);
+    letter-spacing: var(--type-heading-1-tracking);
+  }
+
+  h2 {
+    font: var(--type-heading-2-weight) var(--type-heading-2-size) /
+      var(--type-heading-2-line-height) var(--type-heading-2-family);
+    letter-spacing: var(--type-heading-2-tracking);
+  }
+
+  h3 {
+    font: var(--type-heading-3-weight) var(--type-heading-3-size) /
+      var(--type-heading-3-line-height) var(--type-heading-3-family);
+    letter-spacing: var(--type-heading-3-tracking);
+  }
+
+  h4 {
+    font: var(--type-heading-4-weight) var(--type-heading-4-size) /
+      var(--type-heading-4-line-height) var(--type-heading-4-family);
+    letter-spacing: var(--type-heading-4-tracking);
+  }
+
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--type-code-family);
+    font-size: var(--type-code-size);
+  }
+
+  /* ACCESSIBILITY.md §4 — two-tone ring, :focus-visible, never removed. */
+  :focus-visible {
+    outline: var(--border-emphasis) solid var(--color-focus-ring);
+    outline-offset: var(--border-emphasis);
+  }
+
+  @media (forced-colors: active) {
+    :focus-visible {
+      outline-color: Highlight;
+      outline-offset: 0;
+    }
+  }
+
+  /* MOTION.md §9 — reduced motion is a first-class path. Transform-based
+     animation is removed, not shortened; colour transitions are retained. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation: none !important;
+      transition-duration: var(--duration-instant) !important;
+      transition-property: color, background-color, border-color, outline-color !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* ARCHITECTURE.md §7 — explicit dimensions are the CLS defence; media never
+     overflows its container. */
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+}

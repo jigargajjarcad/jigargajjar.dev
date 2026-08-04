@@ -1,0 +1,44 @@
+{
+  "name": "jigargajjar-dev",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "NEXT_TELEMETRY_DISABLED=1 next dev",
+    "build": "NEXT_TELEMETRY_DISABLED=1 next build",
+    "start": "NEXT_TELEMETRY_DISABLED=1 next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "test:quality": "playwright test",
+    "check:budget": "node scripts/check-bundle-budget.mjs",
+    "check:tokens": "node --experimental-strip-types scripts/check-tokens.mjs",
+    "check:links": "node scripts/check-links.mjs",
+    "lhci": "lhci autorun",
+    "tokens:generate": "node --experimental-strip-types scripts/generate-tokens-css.mjs",
+    "ci": "npm run typecheck && npm run lint && npm run format:check && npm run check:tokens && npm run test && npm run build && npm run check:budget && npm run check:links"
+  },
+  "dependencies": {
+    "next": "^15.5.22",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.1.2",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "autoprefixer": "^10.5.4",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^15.5.22",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "postcss": "^8.5.25",
+    "prettier": "^3.9.6",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
+  }
+}

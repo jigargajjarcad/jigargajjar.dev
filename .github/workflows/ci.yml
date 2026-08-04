@@ -1,0 +1,26 @@
+# ARCHITECTURE.md §12 — ci.yml. Every check blocks merge; none is advisory.
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+env:
+  NEXT_TELEMETRY_DISABLED: 1
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci # 1. frozen lockfile
+      - run: npm run typecheck # 2. tsc --noEmit, strict
+      - run: npm run lint # 3. eslint + jsx-a11y, zero warnings
+      - run: npm run format:check # 4. format check
+      - run: npm run check:tokens # token enforcement, TOKENS.md §7
+      - run: npm run test # 5. vitest unit suite
+      - run: npm run build # 6. production build
+      - run: npm run check:budget # 7. bundle budget, ARCHITECTURE.md §10
+      - run: npm run check:links # 12. link check

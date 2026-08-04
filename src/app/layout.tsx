@@ -4,7 +4,6 @@ import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
 import { SkipLink } from '@/components/layout/SkipLink';
 import { ThemeScript } from '@/components/layout/ThemeScript';
-import { Container } from '@/components/primitives/Container';
 
 import '../styles/globals.css';
 
@@ -31,11 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-color-surface-base text-color-text-primary">
         <SkipLink />
         <Header />
-        <main id="main">
-          <Container width="wide">
-            <div className="py-section-md">{children}</div>
-          </Container>
-        </main>
+        <main id="main">{children}</main>
         <Footer />
       </body>
     </html>

@@ -1,3 +1,9 @@
+import { Container } from '@/components/primitives/Container';
+
 export default function AboutPage() {
-  return <h1>About</h1>;
+  return (
+    <Container width="wide">
+      <h1>About</h1>
+    </Container>
+  );
 }

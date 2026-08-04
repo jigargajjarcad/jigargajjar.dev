@@ -82,7 +82,7 @@ One ramp, hue **250** (cool), chroma **0.004–0.012** — barely chromatic, eno
 
 One accent hue: **220** — an azure with a slight petrol lean.
 
-> **Requires approval before implementation** — open question 3 in `DESIGN_SYSTEM.md` §8. Low cost to change: one primitive ramp and a contrast re-verification.
+> **Frozen, Phase 2** (`ROADMAP.md` §2, monochrome colour posture). Reversal requires an ADR; the binding constraint is clearing 4.5:1 in both themes.
 
 **Why hue 220.** The selection criteria were, in order: (1) a single hue must reach 4.5:1 against both the lightest and darkest surfaces without hue-shifting, so that one accent serves both themes; (2) it must be distinguishable from the reference products it will be compared against; (3) it must be conventional enough that a link reads as a link.
 
@@ -128,7 +128,7 @@ This is the concrete implementation of `ARCHITECTURE.md` §8: "Reduced-opacity b
 
 Three surface levels. Elevation is expressed by **surface lightness plus a hairline border** — never by shadow, blur, or translucency.
 
-> **Requires approval before implementation** — open question 4 in `DESIGN_SYSTEM.md` §8.
+> **Frozen, Phase 2** (`ROADMAP.md` §2). Reversal requires an ADR.
 
 | Level | Light theme | Dark theme | Used by |
 |---|---|---|---|
@@ -224,7 +224,7 @@ Each resolves to a text-safe step and a surface-tint step per theme, both contra
 
 Light and dark are separate token sets, not inversions.
 
-> Theme default is open question 6 in `DESIGN_SYSTEM.md` §8.
+> **Frozen, Phase 3** (`ROADMAP.md` §2).
 
 **Default:** follow `prefers-color-scheme`, with an explicit override control persisted locally and applied via a `data-theme` attribute on the root element.
 

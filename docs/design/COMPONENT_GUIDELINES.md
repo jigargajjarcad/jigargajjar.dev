@@ -39,7 +39,7 @@ Server component.
 | Hover | `--color-interactive-hover`, underline thickness 2 px |
 | Focus | Focus ring (`ACCESSIBILITY.md` §4). Underline retained |
 | Active | `--color-interactive-pressed` |
-| Visited | Not styled. On a site with seven routes, visited state adds noise without navigational value |
+| Visited | Not styled. On a site with eight routes, visited state adds noise without navigational value |
 
 **Rules.**
 
@@ -52,7 +52,7 @@ Server component.
 
 Client component only when it carries an action; the majority of "buttons" on this site are links styled as buttons and remain server components.
 
-Two variants. A third would exceed what seven routes require.
+Two variants. A third would exceed what eight routes require.
 
 | Variant | Use |
 |---|---|
@@ -91,7 +91,7 @@ Server component; the mobile disclosure inside it is a client leaf.
 - **Current route is marked by two mechanisms** — `--color-text-primary` weight 600 plus `aria-current="page"`. Colour alone would fail the same test link colour does.
 - **Below `--bp-sm`, navigation collapses** to the `menu` toggle and an overlay panel (§3.2).
 - **The skip link is the first focusable element** on every page, visually hidden until focused, then rendered at full contrast above the header (`ACCESSIBILITY.md` §4).
-- **Maximum five primary items.** The site has seven routes; two of them (`/resume`, `/404`) do not belong in primary navigation.
+- **Maximum five primary items.** The site has eight routes; two of them (`/resume`, `/404`) do not belong in primary navigation.
 
 ### 3.2 Mobile navigation overlay
 

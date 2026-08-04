@@ -31,7 +31,7 @@ Non-negotiable, from frozen documents:
 
 ## 2. Typeface selection
 
-> **Requires approval before implementation.** This is open question 1 in `DESIGN_SYSTEM.md` §8 and the single most expensive decision to reverse — vertical rhythm, measure, and every optical adjustment are calibrated to specific font metrics.
+> **Frozen, Phase 2** (`ROADMAP.md` §2). The single most expensive decision to reverse — vertical rhythm, measure, and every optical adjustment are calibrated to specific font metrics. Reversal requires an ADR.
 
 ### Display — Newsreader
 

@@ -8,7 +8,7 @@
 
 This is the entry point to the design system. It defines what the system is, what it is not, how its documents relate, and how it changes over time. The specific rules live in the sibling documents.
 
-The system exists to make implementation mechanical. When Phase 3 begins, no component decision should require design deliberation — every value, state, and behavior should be resolvable by reading these documents. Where that is not yet true, this document says so explicitly in §8.
+The system exists to make implementation mechanical. When implementation begins in Phase 5, no component decision should require design deliberation — every value, state, and behavior should be resolvable by reading these documents. Where that is not yet true, this document says so explicitly in §8.
 
 ---
 
@@ -27,7 +27,7 @@ Three jobs, in priority order.
 ## 2. What this system is not
 
 - **Not a component library.** `FOUNDATION.md` §12 lists a design-system showcase as a non-goal. There will be no `/components` route, no Storybook deployment, no kitchen-sink page. Components exist because pages need them.
-- **Not general-purpose.** This system serves one site with seven routes and four content types. It is deliberately underpowered — no theming API beyond light/dark, no density API beyond three fixed modes, no variant matrix beyond what the pages use. Generality that nothing consumes is cost without benefit.
+- **Not general-purpose.** This system serves one site with eight routes and four content types. It is deliberately underpowered — no theming API beyond light/dark, no density API beyond three fixed modes, no variant matrix beyond what the pages use. Generality that nothing consumes is cost without benefit.
 - **Not an implementation guide.** These documents specify behavior, values, and rationale. They do not contain JSX, Tailwind class strings, or CSS beyond the occasional token declaration used to make a value unambiguous.
 - **Not a style guide in the branding sense.** There is no logo system, no illustration library, no photographic direction. The visual language is typographic (see `VISUAL_LANGUAGE.md`).
 
@@ -54,7 +54,7 @@ Three jobs, in priority order.
 
 | Document | Owns | Depends on |
 |---|---|---|
-| `DESIGN_SYSTEM.md` | Purpose, principles, governance, open questions | — |
+| `DESIGN_SYSTEM.md` | Purpose, principles, governance, declared authority | — |
 | `EXPERIENCE_PRINCIPLES.md` | Emotional register, reader journey, memorable moments, failure modes | Visual Language |
 | `EXPERIENCE_FLOW.md` | Entry points, route jobs, per-audience journeys, question ledger, leak points | Experience Principles |
 | `HOMEPAGE_NARRATIVE.md` | The homepage argument — belief over time, band order, emotional progression | Experience Flow |
@@ -156,20 +156,20 @@ Version is recorded in the header of this document. Each topic document carries 
 
 ---
 
-## 8. Open questions requiring approval before implementation
+## 8. Decisions previously held open
 
-These are decisions the system has made provisionally. Each is defensible as written and each is reversible now at near-zero cost; after implementation, each becomes expensive.
+All six were resolved and frozen at the close of Phase 2 and Phase 3. `ROADMAP.md` §2 is the freeze register; this table records where each is specified and what reversing it would now cost.
 
-| # | Question | Current position | Cost of changing later |
-|---|---|---|---|
-| 1 | **Typeface selection** — Newsreader (display) + Inter (text) | `TYPOGRAPHY.md` §2 | High. Every vertical rhythm value, measure, and optical adjustment is calibrated to specific font metrics |
-| 2 | **Serif display at all** — the single largest expressive decision | `VISUAL_LANGUAGE.md` §3 | Very high. Reverses the visual thesis |
-| 3 | **Accent hue** — OKLCH hue 220, an azure-petrol | `COLOR_SYSTEM.md` §4 | Low, but it is the tightest contrast pair in the system at 4.8:1. Any revision is constrained by having to clear 4.5:1 in *both* themes |
-| 4 | **Elevation without shadows** — surfaces distinguished by lightness plus hairline | `COLOR_SYSTEM.md` §6 | Medium. Affects every card, callout, and overlay specification |
-| 5 | **No page transitions** — declined, with reasoning | `MOTION.md` §8 | Low now, medium later. Adopting them requires an ADR per `ARCHITECTURE.md` §9 |
-| 6 | **Theme default** — follow `prefers-color-scheme`, with an explicit override control | `COLOR_SYSTEM.md` §8 | Low |
+| # | Decision | Status | Specified in | Cost of changing now |
+|---|---|---|---|---|
+| 1 | **Typeface selection** — Newsreader (display) + Inter (text) | Frozen, Phase 2 | `TYPOGRAPHY.md` §2 | High. Every vertical rhythm value, measure, and optical adjustment is calibrated to specific font metrics |
+| 2 | **Serif display thesis** | Frozen, Phase 2 | `VISUAL_LANGUAGE.md` §3 | Very high. Reverses the visual thesis |
+| 3 | **Accent hue** — OKLCH hue 220, an azure-petrol | Frozen, Phase 2 (monochrome posture) | `COLOR_SYSTEM.md` §4 | Low, but it is the tightest contrast pair in the system at 4.8:1. Any revision must clear 4.5:1 in *both* themes |
+| 4 | **Elevation without shadows** | Frozen, Phase 2 | `COLOR_SYSTEM.md` §6 | Medium. Affects every card, callout, and overlay specification |
+| 5 | **No page transitions** — declined, with reasoning | Frozen, Phase 2 (motion philosophy) | `MOTION.md` §8 | Adopting them requires an ADR per `ARCHITECTURE.md` §9 |
+| 6 | **Theme default** — follow `prefers-color-scheme`, with an explicit override control | Frozen, Phase 3 | `COLOR_SYSTEM.md` §8 | Low |
 
-Everything not listed here is settled and should be implemented as written.
+**Nothing in this system is provisional.** Changing any decision above requires an ADR (`ROADMAP.md` §6). The two questions that remain genuinely open are recorded in `EXPERIENCE_FLOW.md` §12 and neither blocks implementation.
 
 ---
 

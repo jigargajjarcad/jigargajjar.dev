@@ -88,6 +88,7 @@ jigargajjar.dev/
 │   │   ├── about/page.tsx
 │   │   ├── workflow/page.tsx
 │   │   ├── resume/page.tsx
+│   │   ├── connect/page.tsx
 │   │   ├── not-found.tsx
 │   │   ├── opengraph-image.tsx
 │   │   ├── sitemap.ts
@@ -337,7 +338,7 @@ Retrospective
 | Verification model | 3 | How confidence is established across stages: automated gates, review discipline, and what each catches that the others do not. The load-bearing section, mirroring §6.2 section 7 |
 | Failure modes | 3 | Where this process breaks down, what it costs, and what compensates. A process description with no stated failure modes is marketing |
 | Evidence | 3 | Links into the case studies and this repository where each stage is visible in practice — `docs/`, ADRs, CI configuration, pull requests |
-| Engineering notes | 3 | Durable essays examining one part of the method in depth. Capped at six. ADR-014 |
+| Engineering notes | 3 | Durable essays examining one part of the method in depth. Capped at six. **Rendered inline within this route; a note has no URL of its own, because ADR-014 declined notes as routes and the route table is closed.** ADR-014 |
 
 **Structural requirements.**
 

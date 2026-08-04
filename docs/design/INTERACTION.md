@@ -49,7 +49,7 @@ Focus behaviour is specified in full in `ACCESSIBILITY.md` §4. The behavioural 
 - **The focus indicator appears instantly** (`MOTION.md` §6.3). It is the one element in the system that never eases.
 - **Skip link first, always.** The first focusable element on every page, visually hidden until focused.
 
-**Why keyboard navigation mirrors pointer behaviour rather than adding shortcuts.** A command palette or single-key navigation would be enjoyable to build and would signal technical taste to the one audience most likely to try it. It is declined: shortcuts are undiscoverable without a help surface, they collide with screen-reader and browser bindings, and they optimise repeat navigation on a site with seven routes that nobody visits twice in a session. The keyboard path is the pointer path, and its quality comes from being complete rather than from being fast.
+**Why keyboard navigation mirrors pointer behaviour rather than adding shortcuts.** A command palette or single-key navigation would be enjoyable to build and would signal technical taste to the one audience most likely to try it. It is declined: shortcuts are undiscoverable without a help surface, they collide with screen-reader and browser bindings, and they optimise repeat navigation on a site with eight routes that nobody visits twice in a session. The keyboard path is the pointer path, and its quality comes from being complete rather than from being fast.
 
 ---
 
@@ -179,7 +179,7 @@ Behaviour only. Structure and states are in `COMPONENT_GUIDELINES.md`.
 
 **Not present, and not in the frozen route set** (`ARCHITECTURE.md` §4).
 
-Search solves a findability problem that four case studies and seven routes do not have. A client-side index would add JavaScript against a 120 KB budget; a server-side one contradicts the static architecture.
+Search solves a findability problem that four case studies and eight routes do not have. A client-side index would add JavaScript against a 120 KB budget; a server-side one contradicts the static architecture.
 
 **The conditions under which it would be reconsidered:** the content set grows past roughly a dozen documents, *and* Tier 3 comprehension testing shows readers failing to find known content. Both, not either. Adding a route is an architecture change and requires amending `ARCHITECTURE.md` §4, which is frozen — so this would be an ADR, not a design decision.
 
@@ -197,7 +197,7 @@ Specified in full in `MOTION.md` §9. The behavioural consequence: **under `pref
 |---|---|
 | Hover-revealed controls | Invisible to touch, keyboard, and screen readers |
 | Custom cursors, cursor followers | Prohibited (`ARCHITECTURE.md` §9); break a system affordance |
-| Command palette, keyboard shortcuts | Undiscoverable; collide with assistive bindings; optimise a problem seven routes do not have (§3) |
+| Command palette, keyboard shortcuts | Undiscoverable; collide with assistive bindings; optimise a problem eight routes do not have (§3) |
 | Skeleton screens, spinners, progress bars | Simulate a latency the architecture removed (§7) |
 | Toast notifications | No asynchronous events to report |
 | Infinite scroll, "load more" | Four case studies |

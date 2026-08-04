@@ -21,7 +21,8 @@ import type { CaseStudy } from '@/content/types';
  */
 const COMPETENCY_LABEL: Record<CaseStudy['frontmatter']['competency'], string> = {
   'ai-product': 'AI Product Engineering',
-  'ai-infrastructure': 'AI Infrastructure & Framework Engineering',
+  // ADR-019 — the framework claim is withdrawn; the `competency` slug is unchanged.
+  'ai-infrastructure': 'AI Infrastructure Engineering',
   enterprise: 'Enterprise Software Engineering',
   methodology: 'Engineering Methodology',
 };

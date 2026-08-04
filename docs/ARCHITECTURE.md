@@ -18,7 +18,7 @@ Every constraint here traces to a goal in `FOUNDATION.md` §3 or to a recorded d
 | Framework | Next.js (App Router) | Static rendering by default with React Server Components; per-route bundle control; first-party MDX and image handling. ADR-007 |
 | Language | TypeScript, `strict` | Content schema, route params, and component contracts are typed end to end. Type errors block merge. |
 | Styling | Tailwind CSS | Token-driven design system expressed in configuration rather than prose; no runtime CSS-in-JS cost; dead style elimination at build. §8 |
-| Motion | Motion (Framer Motion) | Declarative, interruptible, spring-capable animation with first-class reduced-motion support. Constrained by §9 and ADR-011. |
+| Motion | None — native `IntersectionObserver` and CSS transitions | No animation library is a dependency. The four sanctioned patterns need one observer and a transition; a library measured 95× more for the same behaviour. Constrained by §9, ADR-011 and ADR-018. |
 | Content | MDX on the filesystem | Case studies are documents, not database rows. Version-controlled, reviewable in pull requests, no runtime dependency. ADR-008 |
 | Validation | Zod schemas at build time | Frontmatter is a contract. A malformed case study fails the build rather than rendering wrong. §6.3 |
 | Hosting | Vercel | First-party App Router support: static generation, edge CDN, image optimization, no adapter layer. ADR-007 |
@@ -415,14 +415,14 @@ Easing: a standard emphasized curve for most transitions, a decelerating curve f
 **Sanctioned patterns.**
 - *Entrance reveal.* Opacity 0 → 1 with a translate of at most 16 px, triggered once at 20% viewport intersection. Never re-fires. Never applied to above-the-fold content, which must be visible immediately.
 - *Interaction feedback.* Hover and press states at `fast` or `instant`. Transform and color only.
-- *Shared continuity.* Layout animation between two states of the same element, used only where the continuity is real. Rare by design.
+- *Shared continuity.* ~~Layout animation between two states of the same element.~~ **Removed by ADR-018** — no consumer was identified through phase 6, and it was the only pattern requiring an animation library. Reinstating it requires a new decision record.
 - *Focus transitions.* Instant appearance, brief settle. The focus indicator never animates in slowly, because it must be perceptible the moment the key is released.
 
 **Prohibited outright.** Scroll-jacking or scroll hijacking of any kind. Parallax on text. Cursor followers and custom cursors. Staggered reveals of more than four elements. Animation on page load that delays content. Autoplaying video. Any animation exceeding 400 ms. Any animation that must complete before content is readable.
 
-**Reduced motion is a first-class path, not a degradation.** Under `prefers-reduced-motion: reduce`, transform-based animation is removed entirely and replaced with an instant or opacity-only transition. It is not sped up and it is not merely reduced in amplitude. `MotionConfig` is configured to respect the user setting globally, and the reduced-motion path is tested in CI (§11) rather than assumed.
+**Reduced motion is a first-class path, not a degradation.** Under `prefers-reduced-motion: reduce`, transform-based animation is removed entirely and replaced with an instant or opacity-only transition. It is not sped up and it is not merely reduced in amplitude. The rule is applied globally in the base stylesheet so a component author cannot forget it, and the reduced-motion path is tested in CI (§11) rather than assumed.
 
-**Bundle discipline.** Motion is imported through `LazyMotion` with the DOM-animation feature set only, keeping the animation runtime well under a full-library import. Motion components are client leaves under `components/motion/` and are the only sanctioned animation surface — a component elsewhere that imports the animation library directly is a defect. Animated content renders visible without JavaScript (§2).
+**Bundle discipline.** No animation library is a dependency (ADR-018). Entrance reveal is the only pattern requiring JavaScript: an `IntersectionObserver` sets a state attribute and a CSS transition carries the animation. Motion components are client leaves under `components/motion/` and are the only sanctioned animation surface — an animation implemented elsewhere is a defect. Animated content renders visible without JavaScript (§2).
 
 ---
 

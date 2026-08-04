@@ -83,7 +83,7 @@ Three densities, bound to surface rather than exposed as a preference (`VISUAL_L
 | Mode | Applied to | Section rhythm | Component multiplier |
 |---|---|---|---|
 | `compact` | Layer-1 region above the fold; navigation; footer | `sm` | ×0.75 on vertical gaps |
-| `default` | `/work`, `/about`, `/workflow`, `/resume` | `md` | ×1 |
+| `default` | `/work`, `/about`, `/workflow`, `/resume`, `/connect` | `md` | ×1 |
 | `reading` | Case-study bodies | `lg` | ×1.25 on vertical gaps |
 
 **Why density is a surface property.** The correct spacing for a thirty-second scan and the correct spacing for a twenty-minute read are different, and the system knows which surface is which. A recruiter with thirty seconds should not scroll past whitespace to reach the claim; a reader eight paragraphs into a case study benefits from every bit of separation. Exposing this as a user setting would push a decision with real consequences onto a reader who has no context for making it.

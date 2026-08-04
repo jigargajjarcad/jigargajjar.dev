@@ -1,6 +1,6 @@
 # Architecture
 
-**Status:** Planned — no implementation exists yet
+**Status:** Active — implementation began Phase 5 (`ROADMAP.md` §1)
 **Owner:** Jigar Gajjar
 **Last reviewed:** 2026-08-04
 **Governed by:** [`FOUNDATION.md`](./FOUNDATION.md) · Decisions recorded in [`DECISIONS.md`](./DECISIONS.md)

@@ -228,6 +228,8 @@ Measured ratios against `--color-surface-base` (`COLOR_SYSTEM.md` §7).
 
 Each token bundles size, family, weight, line height, and tracking (`TYPOGRAPHY.md` §3).
 
+A CSS custom property cannot hold a bundle, so each token below is emitted as five properties — `--type-body-size`, `--type-body-family`, `--type-body-weight`, `--type-body-line-height`, `--type-body-tracking`. There is no bare `--type-body`. Tailwind's `fontSize` tuple binds size, weight, line height, and tracking to a single class so a component cannot apply one and forget the rest; family is the one part applied separately, because it is the display/text boundary and should be visible at the call site.
+
 | Token | Step | Family | Weight | Line height | Tracking |
 |---|---|---|---|---|---|
 | `--type-display` | 800 | display | 400 | 1.05 | −0.025em |
@@ -267,11 +269,26 @@ Applied once, by the container (`SPACING.md` §5). Nested application compounds 
 
 ## 5. Component tokens
 
-**Currently: none.**
+**Currently: two.**
 
-Every component specified in `COMPONENT_GUIDELINES.md` is expressible in semantic tokens. This is the intended state — the component layer exists for cases the semantic layer cannot express, and a system that needs one on day one is under-specified at the semantic layer.
+The component layer exists for cases the semantic layer cannot express. Each entry records the component, the value, and why no semantic token expresses it — that statement is the check on whether the escape hatch is being used or abused.
 
-If Phase 3 requires a component token, it is added here with: the component, the value, and a statement of why no semantic token expresses it. That statement is the check on whether the escape hatch is being used or abused.
+| Token | Value | Component |
+|---|---|---|
+| `--target-min` | 44 px | Every interactive control |
+| `--link-underline-offset` | 0.15em | Link |
+
+**`--target-min`** — the minimum interactive target, applied to buttons, navigation items, and menu options. Specified in `COMPONENT_GUIDELINES.md` §2.2 and `ACCESSIBILITY.md` §2, both of which set 44 × 44 px against the WCAG 2.2 floor of 24 × 24, because the reference device is a phone and the cost is zero.
+
+*Why no semantic token expresses it.* It is an accessibility floor, not a spacing step. The nearest values on the component scale are `--space-10` (40 px) and `--space-12` (48 px), and neither is 44. More importantly, binding it to the spacing scale would make a conformance requirement move whenever the scale is retuned — a spacing change could silently drop targets below the minimum. It is a constant that must not drift, which is precisely what the component layer is for.
+
+**`--link-underline-offset`** — the distance between a link's baseline and its underline. Specified in `COMPONENT_GUIDELINES.md` §2.1, which sets the underline as the link affordance with an offset of 0.15em.
+
+*Why it is relative to typography rather than spacing.* The value is optical and proportional to type size: an offset that reads correctly under `--type-body` would collide with descenders at `--type-caption` and float away at `--type-heading-2`. Expressing it in `em` makes it scale with whatever type token the link inherits. Every value on the spacing scale is an absolute length in `rem` and cannot track type size, so no semantic spacing token can express it.
+
+Underline *thickness* deliberately adds no token: it reuses `--border-hairline` (1 px) at rest and `--border-emphasis` (2 px) on hover, which are the values `COMPONENT_GUIDELINES.md` §2.1 specifies.
+
+**The bar for a third entry is unchanged.** A component token is justified only when no semantic token expresses the value *and* binding it to one would be wrong. A proliferating component layer means the semantic layer is under-specified.
 
 ---
 

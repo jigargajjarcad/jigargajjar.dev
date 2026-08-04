@@ -20,9 +20,11 @@
     "ci": "npm run typecheck && npm run lint && npm run format:check && npm run check:tokens && npm run test && npm run build && npm run check:budget && npm run check:links"
   },
   "dependencies": {
+    "gray-matter": "^4.0.3",
     "next": "^15.5.22",
     "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react-dom": "^19.2.8",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",

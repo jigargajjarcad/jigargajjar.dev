@@ -194,3 +194,43 @@ describe('loader — ARCHITECTURE.md §3 rule 4, §6.3', () => {
     expect(loadCaseStudies('does/not/exist')).toEqual([]);
   });
 });
+
+describe('sitemap and route generation — ARCHITECTURE.md §6.3', () => {
+  it('drafts never reach the sitemap or generateStaticParams', () => {
+    const root = makeRoot({
+      published: { ...VALID, slug: 'published', order: 1 },
+      unpublished: { ...VALID, slug: 'unpublished', order: 2, visibility: 'draft' },
+    });
+    const slugs = loadCaseStudySlugs(root);
+    expect(slugs).toEqual(['published']);
+    expect(slugs).not.toContain('unpublished');
+  });
+
+  it('separates flagship studies from the methodology study', () => {
+    // ROUTE_SPECIFICATIONS.md §1 — the methodology case study is set apart, as
+    // a different kind of artifact rather than a demoted one.
+    const root = makeRoot({
+      orchestai: VALID,
+      'jigargajjar-dev': {
+        ...VALID,
+        slug: 'jigargajjar-dev',
+        competency: 'methodology',
+        order: 4,
+      },
+    });
+    const studies = loadCaseStudies(root);
+    expect(studies.filter((s) => s.frontmatter.competency !== 'methodology')).toHaveLength(1);
+    expect(studies.filter((s) => s.frontmatter.competency === 'methodology')).toHaveLength(1);
+  });
+
+  it('a restricted case study carries no source link', () => {
+    // INTERACTION.md §8 — the link is absent, not disabled.
+    const { sourceUrl: _omitted, ...withoutSource } = VALID;
+    const root = makeRoot({
+      edge10: { ...withoutSource, slug: 'edge10', disclosure: 'restricted' },
+    });
+    const [study] = loadCaseStudies(root);
+    expect(study?.frontmatter.sourceUrl).toBeUndefined();
+    expect(study?.frontmatter.disclosure).toBe('restricted');
+  });
+});

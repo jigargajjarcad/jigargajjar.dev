@@ -30,7 +30,7 @@ Hiring manager (sections 1–5, 8). Senior engineer (5–7, 9, plus source). Col
 | 8 Outcomes | Confirming |
 | 9 Looking back | Respecting |
 
-**Exit action:** source repository, an adjacent case study, or `/connect`.
+**Exit action:** source repository, the next case study (ADR-016), or `/connect`.
 
 Density `reading` — `--space-section-lg` between sections, ×1.25 vertical gaps.
 
@@ -311,4 +311,4 @@ One `<h1>` (project title). Nine `<h2>` sections; Decision region labels are not
 
 ## 12. Open questions
 
-**Adjacency rule for the "Next" link is unspecified.** `COMPONENT_GUIDELINES.md` §6 says "adjacent case study" without defining adjacency. Drawn here as next-by-`order`, which is competency-driven rather than chronological. Not blocking — one line to confirm before Phase 5.
+~~**Adjacency rule for the "Next" link is unspecified.**~~ **Resolved by ADR-016.** One forward link, no previous. "Next" is the case study with the next-highest `order`, wrapping from the last to the first; where only one case study is published, no next link renders and the footer's `/work` link carries the exit. The wireframe above shows the intended treatment.

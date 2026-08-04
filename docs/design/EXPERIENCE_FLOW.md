@@ -91,7 +91,7 @@ OG card or link  →  /  (above fold)  →  scan  →  /resume  →  forward or 
 ```
 /  →  qualification  →  featured flagship (evidence, on the homepage)
    →  OrchestAI case study  →  Summary → Architecture → Decisions
-   →  Failures  →  Outcomes  →  adjacent case study, /work, or exit to schedule
+   →  Failures  →  Outcomes  →  next case study, /work, or exit to schedule
 ```
 
 | Stage | Question | Consumes | State | Next |
@@ -104,7 +104,7 @@ OG card or link  →  /  (above fold)  →  scan  →  /resume  →  forward or 
 | Key decisions | "Do they think like me?" | Two to five decisions with rejected alternatives | **Recognition — the pivotal beat** | Continue |
 | Failures | "Are they honest?" | Wrong assumptions, reversals, what it cost | Surprise, then trust | Continue |
 | Outcomes | "Did it work?" | Metrics with qualifiers | Confirmation | Exit or second study |
-| Exit | "Do I want to talk to them?" | Contact path, adjacent case study | Intent | Schedule |
+| Exit | "Do I want to talk to them?" | Contact path, next case study (ADR-016) | Intent | Schedule |
 
 **The pivotal beat is Key decisions**, not the metrics. A hiring manager decides on whether this is someone they would enjoy arguing with. The moment that converts is encountering a constraint they have personally fought, resolved in a way they had not considered. Everything before it is qualification; everything after is confirmation.
 

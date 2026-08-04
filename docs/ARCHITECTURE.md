@@ -151,7 +151,7 @@ jigargajjar.dev/
 
 - **URLs are permanent.** `/work/[slug]` values are chosen once. A rename requires a redirect in `next.config.mjs`, which is maintained indefinitely. Links in an application, a message, or someone's notes must not rot.
 - **Flat depth.** No route exceeds two segments. Depth adds navigational cost with no benefit at this scale.
-- **No route is a dead end.** Every page terminates in a next action appropriate to its layer: contact for layer 1, an adjacent case study for layer 2, a source link for layer 3.
+- **No route is a dead end.** Every page terminates in a next action appropriate to its layer: contact for layer 1, the next case study for layer 2 (ADR-016 defines adjacency), a source link for layer 3.
 - **`/workflow` carries the positioning argument.** It exists because the AI-native claim in `FOUNDATION.md` §5 provokes a specific objection, and the objection deserves a dedicated surface rather than a paragraph on `/about`. It is also, in effect, the entry point to the fourth case study, and the primary surface for the collaborator audience in `FOUNDATION.md` §4.4. Its purpose and information architecture are defined in §6.6.
 - **`/work` orders by competency story, not by date.** Chronological ordering implies a career narrative; competency ordering implies breadth. `FOUNDATION.md` §9 is the ordering authority. Chronology is not discarded — it moves inside each case study as the Timeline section (§6.2), where it explains one project rather than implying a career arc across all of them.
 
@@ -249,7 +249,7 @@ Frontmatter is validated by a Zod schema at build time. A file that fails valida
 | `order` | number | yes | Position in `/work`; competency-driven, not chronological |
 | `visibility` | enum | yes | Where the *document* stands: `published` · `draft`. Drafts are excluded from the build and from the sitemap |
 | `updated` | ISO date | yes | Surfaced to readers; stale content is a credibility cost |
-| `cover` | object | yes | `{ src, alt, width, height }` — alt is required by schema (§7) |
+| `cover` | object | yes | `{ src, alt, width, height }` — alt is required by schema (§7). Metadata only: consumed by the Open Graph card, never rendered in a reading surface (ADR-017) |
 
 Types are inferred from the schema. There is no hand-written interface mirroring this table.
 
@@ -373,7 +373,7 @@ Images are the largest available regression risk against the performance budget,
 
 **Budgets.** Per image, ≤ 150 KB after optimization. Above the fold, at most one image on any route. Per case-study route, ≤ 400 KB of imagery total. A case study needing more imagery than that is describing rather than arguing.
 
-**Open Graph images are generated at build time** from title, competency, and stack using the framework's image generation, so they stay consistent with content and cost nothing to maintain.
+**Open Graph images are generated at build time** from title, competency, and stack using the framework's image generation, so they stay consistent with content and cost nothing to maintain. Where a case study declares a `cover` (§6.3), that image is used instead; the generated card is the fallback. The cover is never rendered in a reading surface (ADR-017).
 
 ---
 

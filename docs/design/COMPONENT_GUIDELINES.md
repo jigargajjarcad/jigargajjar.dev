@@ -200,7 +200,7 @@ Server component. The most important layout in the system — it hosts the nine-
 |---|---|---|
 | Header — title, lifecycle, summary, links, three outcomes | `--container-wide` | `compact` |
 | Body — sections 2–9 | `--container-prose`, break-outs per `SPACING.md` §6 | `reading` |
-| Footer — adjacent case study, source links | `--container-wide` | `default` |
+| Footer — next case study, source links | `--container-wide` | `default` |
 
 **Rules.**
 
@@ -209,6 +209,7 @@ Server component. The most important layout in the system — it hosts the nine-
 - **No sticky table of contents.** It consumes horizontal space at desktop, collapses to a disclosure at mobile, and duplicates a structure that the heading hierarchy already exposes to assistive technology. A reader who wants to skim uses the headings.
 - **No reading-progress indicator.** It measures scroll position, which is not reading progress, and it is decoration that updates on every scroll frame.
 - **Section boundaries are marked by `--space-section-md` and nothing else.** No rules, no numbers, no icons.
+- **The footer carries one forward link, not a previous/next pair** (ADR-016). "Next" is the case study with the next-highest `order`, wrapping from the last to the first; where only one case study is published, no next link is rendered and the footer's `/work` link carries the exit.
 
 ---
 

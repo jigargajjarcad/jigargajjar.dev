@@ -31,6 +31,8 @@ Records are immutable once accepted. A decision that changes gets a new record t
 | [013](#adr-013) | The portfolio demonstrates engineering judgement rather than programming speed | Accepted |
 | [014](#adr-014) | `/connect` is a route; engineering notes are not | Accepted |
 | [015](#adr-015) | The shared framework chunk is a recorded baseline, not a design budget | Accepted |
+| [016](#adr-016) | Case-study adjacency is a single forward link, cycling by `order` | Accepted |
+| [017](#adr-017) | The cover image is metadata, never rendered in the article | Accepted |
 
 ---
 
@@ -698,3 +700,87 @@ This is reclassification, not relaxation. The number moves because the line was 
 - A framework upgrade that inflates the runtime past 105 KB now fails CI, which is protection §10 did not previously provide.
 - **19.7 KB of first-load headroom remains for all client-side application code.** Motion's `LazyMotion` with the `domAnimation` feature set is approximately that on its own, before the theme control, mobile navigation, and copy affordance. `ARCHITECTURE.md` §14 phase 5 will test it. No pre-emptive relaxation is proposed; ADR-006 is right that budgets should not be relaxed before they fail.
 - ADR-006 is narrowed, not weakened: its rule now applies to every line in §10 except the one reclassified here, and reclassifying a line is itself an ADR.
+
+---
+
+<a id="adr-016"></a>
+## ADR-016 — Case-study adjacency is a single forward link, cycling by `order`
+
+**Status:** Accepted · 2026-08-04
+
+### Context
+
+`COMPONENT_GUIDELINES.md` §6 places an "adjacent case study" in the case-study footer region. `ARCHITECTURE.md` §4 requires an "adjacent case study" as the layer-2 next action. `EXPERIENCE_FLOW.md` §4.2 and §4.3 both route readers to one. None of the three defines what *adjacent* means.
+
+The gap was found during the Phase 4 wireframe review, recorded in `docs/wireframes/03-case-study.md` §12 as needing one line of confirmation before Phase 5, and reached Phase 5 Day 5 unresolved. It blocked the case-study footer, because every reading of the word produces different behaviour.
+
+### Decision
+
+**One forward link. No previous.**
+
+| Rule | Behaviour |
+|---|---|
+| Ordering | Ascending `order`, over published case studies only. Drafts are already excluded by the content layer and never enter the sequence |
+| Next | The case study with the next-highest `order` |
+| First case study | Nothing special — its next is the second |
+| Last case study | Wraps to the lowest `order` |
+| Only one published study | No next link is rendered. Linking a study to itself is not a next action |
+| Any case | The footer additionally carries "All case studies" and, where disclosure is public, the source link |
+
+**"No route is a dead end" (`ARCHITECTURE.md` §4) is satisfied twice over.** The cycle guarantees a next study whenever two or more exist, and the footer's `/work` link plus the site footer's contact path carry the requirement even when only one does.
+
+The methodology case study participates in the cycle. `/work` keeps its distinct job — side-by-side comparison, which a forward link cannot provide (`ROUTE_SPECIFICATIONS.md` §1).
+
+### Alternatives considered
+
+**A previous/next pair.** The conventional treatment. Rejected on two grounds. `COMPONENT_GUIDELINES.md` §6 says "adjacent case study" in the singular. More substantially, a pager implies a linear reading order the reader has not followed — they arrived from the homepage, from `/work`, or from a link a colleague forwarded (`EXPERIENCE_FLOW.md` §2). Offering "previous" invites them to reconstruct a sequence that never existed, and a numbered series reads as ranking, which ADR-012 exists to prevent.
+
+**No wrap: the last study offers only `/work`.** Rejected because it creates a special case the reader experiences as an arbitrary stop, and because `/work` is already on every case-study footer — the last study would simply have one fewer link for no reason the reader could name. A cycle has no terminus, so nothing reads as last or least.
+
+**Adjacency within a competency tier** — flagship studies cycling among themselves, methodology separate. Rejected because it would keep a reader inside one kind of engineering, which is precisely the opposite of the breadth argument in ADR-012. The value of the next link is that it crosses competencies, and `order` already encodes that crossing.
+
+**A curated `next` field in frontmatter.** Maximum control. Rejected because it adds a required field to keep correct, introduces the possibility of a broken or circular reference, and encodes by hand what `order` already encodes by rule.
+
+### Consequences
+
+- One rule, one special case. The behaviour is derivable from `order` alone and needs no additional content.
+- Reordering `/work` reorders the reading path automatically, because both derive from the same field.
+- A reader who works through all four studies returns to the first. That is a cycle rather than a loop with an exit, and it is intended: there is no natural end to a set of non-competing stories.
+- The single-study case renders no next link. That is the current state of the repository and it is correct, not a gap.
+- Adding a fifth case study changes the path silently. `order` is competency-driven (ADR-012), so a fifth study must be given an `order` deliberately, not appended.
+
+---
+
+<a id="adr-017"></a>
+## ADR-017 — The cover image is metadata, never rendered in the article
+
+**Status:** Accepted · 2026-08-04
+
+### Context
+
+`ARCHITECTURE.md` §6.3 makes `cover` a required frontmatter field with `src`, `alt`, `width`, and `height`. No document says where it renders.
+
+Three documents point away from rendering it. `COMPONENT_GUIDELINES.md` §4.1 states plainly: "No cover image on the card. An image per card would consume the entire above-the-fold image budget and would make the cards about screenshots rather than about the competency claim." §6's case-study header region lists title, lifecycle, summary, links, and three outcomes — no cover. `ARCHITECTURE.md` §7 opens with "Prefer no image" and caps above-the-fold imagery at one per route.
+
+Nothing points toward rendering it. The field was therefore required, shaped like something displayable, and consumed by nothing. Found during Phase 5 Day 5 while implementing the case-study detail route.
+
+### Decision
+
+**The cover is metadata. It is never rendered inside the article, on the card, or in any reading surface.**
+
+Its sole consumer is the Open Graph card for the case-study route. Where a case study declares a cover, that image is the Open Graph image; where the asset is absent, the generated card of `ARCHITECTURE.md` §7 — composed from title, competency, and stack — is used instead.
+
+### Alternatives considered
+
+**Render it in the case-study header.** The shape of the field suggests it: `alt`, `width`, and `height` are what a rendered image needs. Rejected because three frozen documents argue against it and none argues for it, and because it would fail the credibility test in `IMAGERY.md` §1 — a decorative header image increases no reader's ability to verify a claim, and `IMAGERY.md` §2 permits only diagrams, screenshots, terminal output, charts, one portrait, and brand marks. A cover is none of those.
+
+**Drop the field, or make it optional.** Honest, and the right answer if the field genuinely had no consumer. Rejected because under this decision it has one, and because changing schema requiredness is an implementation change outside a documentation task.
+
+**Use the generated card always and ignore the cover.** Simplest. Rejected because the Open Graph card is the first impression for a meaningful share of readers (`EXPERIENCE_FLOW.md` §2), and a case study whose strongest artifact is an architecture diagram is better represented by that diagram than by a text card.
+
+### Consequences
+
+- `alt`, `width`, and `height` are exactly what an Open Graph image needs. The field's shape is now explained rather than merely inherited.
+- No reading surface gains an image, so `ARCHITECTURE.md` §7's "prefer no image" and the one-image-above-the-fold cap are unaffected.
+- **A declared cover must exist on disk at build time.** `content/case-studies/jigargajjar-dev/index.mdx` currently declares `cover.svg`, which does not exist. That is latent: nothing reads it today, and it becomes a build failure when the Open Graph route is implemented. It must be resolved then — by creating the asset or by removing the declaration — and is recorded here so it is not discovered as a surprise.
+- The generated-card fallback means a case study is never without a social image.

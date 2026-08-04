@@ -445,11 +445,13 @@ These numbers are constraints agreed before implementation, not measurements tak
 | Asset class | Budget |
 |---|---|
 | First-load JavaScript | ≤ 120 KB |
-| Shared framework chunk | ≤ 90 KB |
+| Shared framework chunk | ≤ 105 KB — recorded baseline, not a design budget (ADR-015) |
 | CSS | ≤ 20 KB |
 | Fonts | ≤ 120 KB total, ≤ 4 files |
 | Images above the fold | ≤ 150 KB, at most one image |
 | Total route weight | ≤ 500 KB (≤ 900 KB for a case study including all lazy media) |
+
+> **The shared framework chunk is a measurement, not a choice.** It is the React and Next runtime fixed by ADR-007, and no per-change engineering decision moves it. The ceiling exists to catch a framework upgrade inflating the runtime, not to constrain design. Baseline at Next 15 + React 19: **100.3 KB gzipped**, re-recorded on any major framework upgrade. **First-load JavaScript is the budget that governs our decisions** — it bounds client components, the motion runtime, and the MDX component set, and it does not move.
 
 ### Absolute constraints
 
@@ -465,6 +467,8 @@ Performance ≥ 95 · Accessibility 100 · Best Practices ≥ 95 · SEO 100.
 ### Budget governance
 
 The budget precedes visual effects (ADR-006). A proposed treatment that exceeds a budget line is not implemented and then optimized — it is redesigned or dropped. Raising a budget number requires an ADR stating what was gained in exchange, because a budget that can be quietly raised when it becomes inconvenient is not a budget.
+
+One line in the table above is a recorded baseline rather than a budget: the shared framework chunk (ADR-015). Every other line is a budget and is subject to the rule in this section. A budget line that no engineering decision can influence should be reclassified rather than repeatedly raised — that reclassification is itself an ADR.
 
 ---
 

@@ -30,6 +30,7 @@ Records are immutable once accepted. A decision that changes gets a new record t
 | [012](#adr-012) | Each flagship project tells one non-overlapping story | Accepted |
 | [013](#adr-013) | The portfolio demonstrates engineering judgement rather than programming speed | Accepted |
 | [014](#adr-014) | `/connect` is a route; engineering notes are not | Accepted |
+| [015](#adr-015) | The shared framework chunk is a recorded baseline, not a design budget | Accepted |
 
 ---
 
@@ -641,3 +642,59 @@ Two surfaces were proposed during Phase 3A review that do not exist in the route
 - Notes inherit `/workflow`'s framing, which constrains what can be written there: a note that does not attach to a workflow stage or to the thesis is a case study or nothing. This is deliberate friction against the surface becoming a blog by accretion.
 - Notes are presented without dates and without recency ordering. A durable essay carries a position, not a timestamp, and dating them reintroduces the cadence signal this decision exists to avoid.
 - The notes region is capped (`ARCHITECTURE.md` §6.6). An uncapped set becomes a feed regardless of what it is called.
+
+---
+
+<a id="adr-015"></a>
+## ADR-015 — The shared framework chunk is a recorded baseline, not a design budget
+
+**Status:** Accepted · 2026-08-04
+
+### Context
+
+`ARCHITECTURE.md` §10 set the shared framework chunk at ≤ 90 KB gzipped. The first production build of an empty application — zero components, zero client directives — measured 100.3 KB. The budget was exceeded by 11% before any feature existed, and no engineering decision available to the project could reduce it.
+
+Two frozen documents disagreed. ADR-007 fixes Next.js App Router and React. §10 fixed the shared chunk at 90 KB. The framework could not fit its own budget.
+
+Measured from `.next/app-build-manifest.json`, gzipped, per route:
+
+| Component | Gzipped |
+|---|---|
+| React 19 runtime | 53.1 KB |
+| Next 15 App Router runtime | 45.4 KB |
+| webpack + main-app | 1.8 KB |
+| **Total** | **100.3 KB** |
+| Application code, worst route | 0.2 KB |
+
+First-load JavaScript measured 100.5 KB against its 120 KB budget and passed.
+
+Published figures put React 18.3.1 at 46.34 KB gzipped against React 19.0.0 at 58.96 KB. A delta of that order subtracted from 100.3 KB lands near 87.7 KB — under the original line. The 90 KB figure is consistent with a React 18-era runtime and was unreachable for the stack ADR-007 selected. Typical App Router production builds land at 80–130 KB first-load; 100.3 KB is a normal floor for this stack, not a defect.
+
+The underlying documentation failure: §10 stated 90 KB without derivation. No document recorded the runtime size it assumed, so the assumption could not be seen to expire. ADR-007 came closest, noting "the React runtime is a fixed cost against the bundle budget" — it identified the dependency and never quantified it.
+
+### Decision
+
+**The shared framework chunk line is reclassified from a design budget to a recorded baseline with a regression ceiling, set at 105 KB gzipped.**
+
+- The ceiling exists to catch framework-upgrade regressions — a risk ADR-007 recorded — not to constrain design.
+- The measured baseline is recorded alongside it and re-recorded on any major framework upgrade.
+- **First-load JavaScript remains ≤ 120 KB, unchanged.** It is the line that governs project decisions and it continues to gate every pull request.
+- Every other budget in §10 is unchanged.
+
+This is reclassification, not relaxation. The number moves because the line was measuring the wrong kind of thing, and the document now says which kind it is.
+
+### Alternatives considered
+
+**Change framework to reach 90 KB.** Astro ships approximately zero JavaScript by default and would clear the line. Rejected because ADR-007 rejected Astro *strategically*, not technically: React and Next are the stack the target roles use, and the site is an artifact those roles evaluate. This measurement does not touch that reasoning, and ADR-007 already recorded that the byte cost "is real and is accepted knowingly."
+
+**Leave the gate permanently red.** Rejected as the most damaging option available. A gate that is expected to fail is ignored within weeks, and it discredits the twelve gates that pass. On a repository whose thesis is verification discipline, a check the author routes around is exactly what a senior engineer looks for.
+
+**Raise 90 to 105 and call it a budget.** Rejected as the dishonest version of this decision. A budget line that no engineering choice can influence is not a budget; repeatedly raising it would hide that fact rather than record it.
+
+### Consequences
+
+- The bundle-budget gate turns green on the existing foundation with no code change beyond one constant.
+- The distinction between constraints the project chooses and constants it inherits is now explicit in §10, which is what the section was reaching for and never stated.
+- A framework upgrade that inflates the runtime past 105 KB now fails CI, which is protection §10 did not previously provide.
+- **19.7 KB of first-load headroom remains for all client-side application code.** Motion's `LazyMotion` with the `domAnimation` feature set is approximately that on its own, before the theme control, mobile navigation, and copy affordance. `ARCHITECTURE.md` §14 phase 5 will test it. No pre-emptive relaxation is proposed; ADR-006 is right that budgets should not be relaxed before they fail.
+- ADR-006 is narrowed, not weakened: its rule now applies to every line in §10 except the one reclassified here, and reclassifying a line is itself an ADR.

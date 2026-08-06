@@ -33,7 +33,7 @@ const LINKS: readonly { href: string; label: string; icon: IconName; external: b
 
 export function Footer() {
   return (
-    <footer className="mt-section-md border-t-hairline border-color-border-subtle">
+    <footer className="mt-section-sm border-t-hairline border-color-border-subtle">
       <Container width="wide">
         <div className="flex flex-col gap-8 py-section-sm sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-2">
@@ -54,13 +54,13 @@ export function Footer() {
                 <li key={link.label}>
                   <a
                     href={link.href}
-                    {...(link.external ? { rel: 'me noreferrer' } : {})}
+                    {...(link.external ? { target: '_blank', rel: 'me noopener noreferrer' } : {})}
                     className="flex min-h-target-min min-w-target-min items-center justify-center rounded-sm text-color-text-tertiary transition-colors duration-fast ease-standard hover:text-color-text-primary"
                   >
                     <Icon name={link.icon} size="md" />
                     <span className="sr-only">
                       {link.label}
-                      {link.external ? ' (opens an external site)' : ''}
+                      {link.external ? ' (opens in a new tab)' : ''}
                     </span>
                   </a>
                 </li>

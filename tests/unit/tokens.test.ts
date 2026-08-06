@@ -49,18 +49,26 @@ describe('primitives match TOKENS.md', () => {
     expect(typeScale[300]).toEqual({ mobile: 17, desktop: 18 });
     expect(typeScale[800]).toEqual({ mobile: 38, desktop: 55 });
     // ADR-020 — step 900 exists for the home page's opening statement.
-    expect(typeScale[900]).toEqual({ mobile: 40, desktop: 66 });
+    expect(typeScale[900]).toEqual({ mobile: 40, desktop: 58 });
   });
 
-  it('step 900 stays different in kind from the largest size beneath it', () => {
-    // ADR-024 lowered 900 from 80 to 66, so the old assertion — 900 against 800
-    // — no longer holds and should not: `type-display` has no consumer on the
-    // page 900 exists for. The relationship that governs the design is 900
-    // against `heading-1`, the largest size any section beneath the opening
-    // uses. Below about 1.4 the statement stops being different in kind from a
-    // section heading, which is the whole reason the step exists.
-    const heading1 = typeScale[semanticType['type-heading-1'].step].desktop;
-    expect(typeScale[900].desktop / heading1).toBeGreaterThanOrEqual(1.4);
+  it('step 900 is the top of the scale and has exactly one consumer', () => {
+    // This assertion has been rewritten twice to accommodate a design change,
+    // which is the signal that the thing it was testing — a ratio against
+    // whatever size happened to sit beneath it — was an opinion rather than an
+    // invariant. It kept needing revision because it was encoding a value, not
+    // a rule.
+    //
+    // What is actually true of step 900, and stays true: it is the largest step
+    // on the scale, and `type-hero` is the only token that reaches it. Its
+    // exact value is an art-direction decision recorded in ADR-025 and measured
+    // against the column it has to fit; a unit test is the wrong place to
+    // relitigate it.
+    const steps = Object.keys(typeScale).map(Number);
+    expect(Math.max(...steps)).toBe(900);
+
+    const atTop = Object.entries(semanticType).filter(([, token]) => token.step === 900);
+    expect(atTop.map(([name]) => name)).toEqual(['type-hero']);
   });
 
   it('space scale omits steps 7, 9, 11, 13-15, 17-19 deliberately', () => {

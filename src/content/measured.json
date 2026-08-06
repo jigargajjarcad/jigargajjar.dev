@@ -14,19 +14,19 @@
     "accessibility": 100,
     "bestPractices": 96,
     "seo": 100,
-    "lcpMs": 537,
-    "fcpMs": 216,
+    "lcpMs": 535,
+    "fcpMs": 217,
     "tbtMs": 0,
     "cls": 0,
     "measuredAt": "2026-08-06"
   },
   "gates": {
     "unitTests": 53,
-    "browserChecks": 121,
+    "browserChecks": 123,
     "ciSteps": 9
   },
   "repository": {
-    "decisionRecords": 24,
+    "decisionRecords": 25,
     "caseStudies": 4,
     "caseStudyWords": 8800,
     "semanticColours": 21,

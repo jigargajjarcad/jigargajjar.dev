@@ -100,13 +100,16 @@ export const status = {
  * Step 900 is the ninth step, added by ADR-020 for exactly one consumer — the
  * home page's opening statement.
  *
- * **ADR-024 lowered its desktop anchor from 80 to 66.** At 80 the statement ran
- * nearly the full width of a 1440 px viewport and read as heavy rather than
- * confident: it was the only thing on the screen, and it looked like it knew it.
- * The relationship that matters is not 900 against 800 — `type-display` has no
- * consumer on that page — but 900 against `heading-1`, the largest size any
- * section beneath it uses. At 66/44 that ratio is 1.5, so the opening is still
- * different in kind from everything under it, at a weight the page can carry.
+ * **Its desktop anchor is 58, and that number was measured rather than chosen**
+ * (ADR-024, then ADR-025). The opening statement is 43 characters; set in
+ * Newsreader it needs 1120 px to hold one line at 66 px, against a content
+ * column of 1024 px at every viewport from 1280 up. 60 px fits with six pixels
+ * to spare, which is not fitting — it is crowding both gutters. 58 leaves 40 px
+ * either side and sets the statement on a single line, which is what a
+ * statement should do.
+ *
+ * The clamp keeps it on one line down to roughly 1000 px, because the size and
+ * the column shrink together. Below that it wraps, and should.
  *
  * Its mobile anchor stays at 40. The constraint at 375 px is line count, and
  * lowering it there buys nothing.
@@ -120,7 +123,7 @@ export const typeScale = {
   600: { mobile: 28, desktop: 35 },
   700: { mobile: 32, desktop: 44 },
   800: { mobile: 38, desktop: 55 },
-  900: { mobile: 40, desktop: 66 },
+  900: { mobile: 40, desktop: 58 },
 } as const;
 
 /**
@@ -318,11 +321,21 @@ export const semanticType = {
    * every diagram look like a terminal.
    */
   'type-mono': {
-    step: 100,
+    step: 200,
     family: 'mono',
     weight: 'regular',
-    lineHeight: 1.35,
-    tracking: '0.04em',
+    // ADR-025. At step 100 this was 11.5 px, and the project metadata set in it
+    // did not read as quiet — it read as unavailable. A mono face is already
+    // optically smaller than a sans at the same size, so 11.5 px of mono sits
+    // somewhere below 10 px of Inter to the eye.
+    //
+    // Step 200 (14.5 px) is the smallest size at which it is comfortably
+    // readable. Tracking comes down with the size increase: 0.04em was opening
+    // up 11.5 px type that needed the help, and at 14.5 px the same value reads
+    // as spaced-out rather than as set. Line height rises to 1.5 because the one
+    // place this token wraps — the metadata line — wrapped tightly at 1.35.
+    lineHeight: 1.5,
+    tracking: '0.02em',
   },
   'type-display': {
     step: 800,

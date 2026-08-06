@@ -54,7 +54,7 @@ export function Link({
      * instead of sliding. That is the correct degradation and it is free.
      */
     const action =
-      'group inline-flex min-h-target-min items-center justify-center gap-3 rounded-sm ' +
+      'group inline-flex min-h-target-min items-center justify-center gap-2 rounded-sm ' +
       'border-hairline border-color-border-strong px-6 font-text text-type-label ' +
       'text-color-text-primary no-underline transition-colors duration-fast ease-standard ' +
       'hover:border-color-text-primary hover:bg-color-surface-raised active:bg-color-surface-sunken';
@@ -70,10 +70,10 @@ export function Link({
     );
 
     return external ? (
-      <a href={href} className={action}>
+      <a href={href} target="_blank" rel="noopener noreferrer" className={action}>
         {children}
         <Icon name="arrow-up-right" size="sm" />
-        <span className="sr-only">(opens an external site)</span>
+        <span className="sr-only">(opens in a new tab)</span>
       </a>
     ) : (
       <NextLink href={href} className={action}>
@@ -90,11 +90,35 @@ export function Link({
   const className = `text-color-text-accent transition-colors duration-fast ease-standard hover:text-color-interactive-hover active:text-color-interactive-pressed ${underline}`;
 
   if (external) {
+    /*
+     * ADR-025 reverses `INTERACTION.md` §6.
+     *
+     * §6 held that the new-tab decision belongs to the reader, which is the
+     * better default for a document a reader is moving *through*. It is the
+     * wrong default for the links this site actually has: every external link
+     * here is a repository, a profile, or a résumé — a reference someone opens
+     * *while* reading, and losing the page to reach one is the failure.
+     *
+     * `noopener` is what makes a new tab safe: without it the opened document
+     * gets a live `window.opener` handle back into this one. `noreferrer` goes
+     * with it. Both are stated rather than relied on — modern browsers imply
+     * `noopener` for `target="_blank"`, and a security property that depends on
+     * the browser being current is not a property.
+     *
+     * The announcement changes with the behaviour: "opens in a new tab" is what
+     * `ACCESSIBILITY.md` §5 requires when focus is about to move somewhere the
+     * back button will not return from.
+     */
     return (
-      <a href={href} className={`${className} inline-flex items-center gap-1`}>
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`${className} inline-flex items-center gap-1`}
+      >
         {children}
         <Icon name="arrow-up-right" size="sm" />
-        <span className="sr-only">(opens an external site)</span>
+        <span className="sr-only">(opens in a new tab)</span>
       </a>
     );
   }

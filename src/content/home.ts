@@ -73,8 +73,17 @@ export const METHOD_EVIDENCE = 'Nothing merges until';
 
 export type System = {
   readonly slug: string;
-  /** Set beneath the title in mono. Named technologies, never categories. */
-  readonly meta: string;
+  /**
+   * Set beneath the title in mono, on two deliberate lines.
+   *
+   * It was one string and it wrapped — leaving a separator stranded at the end
+   * of the first line, which is the specific defect a middot exists to avoid.
+   * Splitting the discipline from the stack fixes it structurally rather than by
+   * shortening until it happens to fit, and it is how a specification block
+   * would be set anyway: what this is, then what it is built from (ADR-025).
+   */
+  readonly kind: string;
+  readonly stack: string;
   /** The elegant idea, in one sentence. */
   readonly idea: string;
   /** Its consequence, in one sentence. Never a third. */
@@ -90,13 +99,15 @@ export type System = {
 export const SYSTEMS: readonly System[] = [
   {
     slug: 'orchestai',
-    meta: 'Agent orchestration · .NET 8 · PostgreSQL',
+    kind: 'Agent orchestration',
+    stack: '.NET 8 · PostgreSQL',
     idea: 'Every decision that can reject a run happens before the first model call.',
     consequence: 'Tenant, budget, rate. A rejected run costs nothing and leaves nothing behind.',
   },
   {
     slug: 'novamind-ai',
-    meta: 'Document intelligence · Python · pgvector',
+    kind: 'Document intelligence',
+    stack: 'Python · pgvector',
     // Three numerals and two arrows, at display size. This replaced a six-row
     // waterfall and says the same thing faster than the waterfall's labels could
     // be read — which is the only test a figure on this page has to pass.

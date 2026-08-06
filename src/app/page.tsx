@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import type { Metadata } from 'next';
 
 import { PageReading } from '@/components/instrument/PageReading';
@@ -73,7 +74,7 @@ export default function HomePage() {
           Nothing animates — it is above the fold (`MOTION.md` §5). */}
       <section>
         <Container width="wide">
-          <div className="flex flex-col gap-16 pb-section-md pt-section-md">
+          <div className="flex flex-col gap-12 pb-section-sm pt-section-md">
             <div className="flex flex-col gap-8">
               {/*
                 `text-balance` is what fixes the line breaks. At 66 px the
@@ -82,7 +83,7 @@ export default function HomePage() {
                 as a paragraph that happened to wrap. `max-w-prose` stops it
                 running the full 1120 px, which was most of why 80 px felt heavy.
               */}
-              <h1 className="max-w-prose text-balance font-display text-type-hero text-color-text-primary">
+              <h1 className="text-balance font-display text-type-hero text-color-text-primary">
                 {THESIS}
               </h1>
 
@@ -115,7 +116,16 @@ export default function HomePage() {
           clause answers it, and is the page's idea in its first form. */}
       <Reveal>
         <Screen>
-          <div className="grid gap-12 lg:grid-cols-12">
+          {/*
+            The column split is 8/4 and cannot usefully be tightened. The
+            longest clause needs 640 px at `heading-1`, which is more than seven
+            of twelve columns hold at any gap — narrowing the heading breaks
+            "Verification that blocks the merge." onto two lines, and three
+            clauses that each occupy one line is the entire form of this block.
+            The gap comes down from 48 px to 40 px, which is the whole of what
+            the grid has to give here. ADR-025.
+          */}
+          <div className="grid gap-x-10 gap-y-12 lg:grid-cols-12">
             <h2 className="flex flex-col gap-1 lg:col-span-8">
               {METHOD.map((clause) => (
                 <span key={clause} className="font-display text-type-heading-1">
@@ -143,13 +153,31 @@ export default function HomePage() {
         <Reveal key={system.slug}>
           <Screen>
             <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
-              <div className="flex flex-col gap-3 lg:col-span-4">
-                <Text token="heading-2" as="h2">
+              <div className="flex flex-col gap-2 lg:col-span-4">
+                {/*
+                  `heading-3`, not `heading-2`. At 35 px the project name sat
+                  within nine points of the 44 px statement beside it, so the two
+                  columns competed. At 28 px the name reads as what it is — a
+                  label on a statement — which is the editorial relationship this
+                  layout was drawn for. ACCESSIBILITY.md §8 explicitly permits
+                  two headings at the same level to take different sizes; the
+                  level is a structural claim and the size is not.
+                */}
+                <Text token="heading-3" as="h2">
                   {study?.frontmatter.title}
                 </Text>
-                <Text token="mono" color="tertiary">
-                  {system.meta}
-                </Text>
+                {/* `secondary`, not `tertiary`: 7:1 against the surface rather
+                    than 4.5:1. Combined with the token's size increase this is
+                    the fix for the weakest area on the page. Two lines, set
+                    rather than wrapped — see `System.kind`. */}
+                <div className="flex flex-col">
+                  <Text token="mono" color="secondary">
+                    {system.kind}
+                  </Text>
+                  <Text token="mono" color="secondary">
+                    {system.stack}
+                  </Text>
+                </div>
               </div>
 
               <div className="flex flex-col gap-10 lg:col-span-8">
@@ -218,7 +246,7 @@ export default function HomePage() {
               {REFUSALS.map((refusal) => (
                 <li
                   key={refusal.id}
-                  className="grid gap-x-16 gap-y-3 border-t-hairline border-color-border-subtle py-8 last:border-b-hairline md:grid-cols-12 md:items-baseline"
+                  className="grid gap-x-16 gap-y-3 border-t-hairline border-color-border-subtle py-10 last:border-b-hairline md:grid-cols-12 md:items-baseline"
                 >
                   <div className="md:col-span-5">
                     <Text token="heading-3" as="span">
@@ -246,7 +274,14 @@ export default function HomePage() {
           `EXPERIENCE_PRINCIPLES.md` §3 refuses urgency and obligation. */}
       <Reveal>
         <Screen last>
-          <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+          {/*
+            `items-baseline` aligns the first baseline of each column, so
+            "Available" and "BASED IN" sit on exactly the same line. Bottom
+            alignment had them within twenty pixels of each other, which is the
+            worst of both — near enough to look intended, far enough to look
+            missed. ADR-025.
+          */}
+          <div className="grid gap-12 lg:grid-cols-12 lg:items-baseline lg:gap-16">
             <div className="flex flex-col gap-8 lg:col-span-7">
               <Text token="heading-2" as="h2">
                 Available
@@ -266,13 +301,19 @@ export default function HomePage() {
               </div>
             </div>
 
-            <dl className="flex flex-col gap-5 lg:col-span-4 lg:col-start-9 lg:justify-end">
+            {/*
+              A two-column grid rather than three rows of `justify-between`.
+              Spread across the full column the label and its value sat 140 px
+              apart and read as two lists; sized to the widest label, they read
+              as one specification block.
+            */}
+            <dl className="grid grid-cols-[auto_1fr] items-baseline gap-x-8 gap-y-4 lg:col-span-4 lg:col-start-9">
               {[
                 ['Based in', contact.location],
                 ['Hours', contact.timezone],
                 ['Email', contact.email],
               ].map(([term, value]) => (
-                <div key={term} className="flex items-baseline justify-between gap-6">
+                <Fragment key={term}>
                   <dt>
                     <Text token="mono" as="span" color="tertiary" uppercase>
                       {term}
@@ -283,7 +324,7 @@ export default function HomePage() {
                       {value}
                     </Text>
                   </dd>
-                </div>
+                </Fragment>
               ))}
             </dl>
           </div>

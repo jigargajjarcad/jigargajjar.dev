@@ -40,6 +40,7 @@ Records are immutable once accepted. A decision that changes gets a new record t
 | [022](#adr-022) | The home page reports measurements, and prints what it cannot measure | Superseded by ADR-023 |
 | [023](#adr-023) | The home page is one idea in two hundred words | Accepted |
 | [024](#adr-024) | Art direction pass: the home page is finished as a composition | Accepted |
+| [025](#adr-025) | Final polish: the headline is measured, and outbound links open away | Accepted |
 
 ---
 
@@ -1238,3 +1239,48 @@ What it did not do was look at the page as a *composition*. A page can be correc
 - **`FOUNDATION.md` §5 has now been amended three times** (ADR-020, ADR-022, this record). The sentence has never been paraphrased and never appeared twice, which is what §5 actually protects. That the *position* has moved three times suggests §5 was specifying layout inside a content document, and a future revision should probably say so.
 - **The icon set is at ten of a documented maximum of fifteen**, and two of them are not ours. That exception should not be extended: a third brand mark would mean the footer is turning into a social bar.
 - **Nothing here was verifiable by a gate**, and that is the honest summary of this record. Every defect it fixes was visible only by looking at the page beside the work it wants to be compared to. The word budget from ADR-023 catches length; nothing catches *heavy*.
+
+---
+
+<a id="adr-025"></a>
+## ADR-025 — Final polish: the headline is measured, and outbound links open away
+
+**Status:** Accepted · 2026-08-06 · Amends `TOKENS.md` §3.2 and §4.5 · **Reverses `INTERACTION.md` §6**
+
+### Context
+
+ADR-024 art-directed the page. This record covers the pass after it, which was a section-by-section review against a specific list rather than a redesign — and two items on that list turned out to be decisions rather than adjustments.
+
+**The headline.** It set on two lines at 66 px, and two lines is one line too many for a statement of forty-three characters. The instruction was to reduce it 5–8% and fit it on one line, and those two things are not compatible: the string needs 1120 px at 66 px against a content column of 1024 px, so a 5–8% reduction lands at 60–61 px and still needs 1018–1035 px. Fitting is not the same as fitting well.
+
+**Outbound links.** `INTERACTION.md` §6 held that opening in a new tab is the reader's decision, not the author's. That is the correct default for a document a reader moves through, and it is the wrong default for the links this site has.
+
+### Decision
+
+**The headline anchor is 58 px, and the number was measured.** At 58 the statement occupies 984 px of a 1024 px column, leaving 40 px either side — the difference between a line that fits and a line that is wedged. The fluid clamp keeps it on one line down to roughly 1000 px of viewport, because the size and the column shrink together; below that it wraps, and should.
+
+**Outbound links open in a new tab, with `rel="noopener noreferrer"`, announced.** Every external link on this site is a repository, a profile, or a résumé — a *reference*, opened while reading rather than instead of it. §6's principle is sound and its application here was wrong.
+
+`noopener` is the part that matters: without it the opened document holds a live `window.opener` handle back into this one. Browsers imply it for `target="_blank"` now, and a security property that depends on the browser being current is not a property, so both tokens are written out and `tests/quality/shell.spec.ts` asserts them on every outbound link on every route.
+
+**The rest of the pass, briefly.** `type-mono` moves from step 100 to step 200 — at 11.5 px the project metadata did not read as quiet, it read as unavailable, and a mono face is optically smaller than a sans at the same size. Project titles drop from `heading-2` to `heading-3`, because at 35 px a project name sat within nine points of the 44 px statement beside it and the two columns competed. The metadata splits into two authored lines rather than one wrapping string, which is what fixes the stranded separator. Contact columns align on their first baseline so "Available" and "BASED IN" sit on the same line. The hero closes ~54 px tighter. Refusal rows gain 16 px each.
+
+### Alternatives considered
+
+**Reduce the headline only 5–8%, as asked, and accept the wrap.** Rejected — the single line was the priority, and it was the right one. A statement that wraps is a sentence; a statement on one line is a statement.
+
+**Widen the container for the hero.** Rejected. `SPACING.md` §6 allows three widths on the grounds that a fourth would mean the layout has more cases than the content does, and one headline is not a case. Reducing the type solved it without touching the layout system.
+
+**Bring the method screen's right column 40–60 px closer, as asked.** Not done, and it is worth recording why rather than quietly leaving it. The longest clause needs 640 px at `heading-1`, which is more than seven of twelve columns hold at any gap — narrowing the heading breaks "Verification that blocks the merge." across two lines, and three clauses that each occupy one line is the entire form of that block. The grid gap came down from 48 px to 40 px, which is all the geometry has to give. Closing the remaining distance means moving the evidence line beneath the clauses, which is a layout change and was out of scope for a polish pass.
+
+**Reduce the action control's vertical padding, as asked.** Not done. Its height is `--target-min`, 44 px, which `ACCESSIBILITY.md` §2 sets above the WCAG 2.2 floor of 24 px on the grounds that the reference device is a phone and the cost is zero. The control was made to feel more compact by closing the gap between label and arrow instead, which changes the proportion without touching the target.
+
+**Keep `justify-between` on the contact specification rows.** Rejected. Across a 300 px column the label and its value sat 140 px apart and read as two lists rather than one block.
+
+### Consequences
+
+- **246 words across 4.5 screens**, from 248 across 4.7. Nothing was cut; the reduction is spacing.
+- **`type-mono` grew everywhere it is used**, not only in the metadata — the hero footnote and the contact labels are larger too. Both are better for it, but that is a site-wide change made for one call site, and if a future consumer needs 11.5 px mono it will need its own token rather than a smaller `type-mono`.
+- **Two items on the polish list were declined with reasons** rather than approximated. Both are geometry: one bounded by the longest clause, one by an accessibility floor. Recording them here means the next pass does not rediscover them.
+- **`INTERACTION.md` §6 is reversed rather than amended**, and this is the first outright reversal of a frozen design rule on this project. The rule was not wrong in principle; it was applied to a class of link it was not written about. That distinction is worth preserving, because the principle still governs internal navigation.
+- The step-900 assertion in `tests/unit/tokens.test.ts` was rewritten a third time and then replaced. It had been asserting a *ratio*, which is an art-direction value and changed with every pass; it now asserts what is actually invariant — that 900 is the top of the scale and `type-hero` is its only consumer. A test that needs editing every time the design moves was testing the design, not the system.

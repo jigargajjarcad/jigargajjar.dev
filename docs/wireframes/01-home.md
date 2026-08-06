@@ -460,7 +460,7 @@ The four tests in `HOMEPAGE_NARRATIVE.md` §4.1, plus:
 
 ## 15. Version 4 layout contract
 
-**Authorised by ADR-023; art-directed by ADR-024.** Supersedes §§4–6, §13 and §14. Narrative source: `HOMEPAGE_NARRATIVE.md` §4, version 0.5.0.
+**Authorised by ADR-023; art-directed by ADR-024 and ADR-025.** Supersedes §§4–6, §13 and §14. Narrative source: `HOMEPAGE_NARRATIVE.md` §4, version 0.5.0.
 
 ### 15.1 Screens
 
@@ -483,12 +483,14 @@ The page has no visual system beyond this. Five sizes carry everything.
 
 | Role | Token | Desktop |
 |---|---|---|
-| Thesis, and the one figure | `hero` | 66 px |
+| Thesis, and the one figure | `hero` | 58 px — measured to set the statement on one line at ≥1000 px |
 | Method clauses, system ideas | `heading-1` | 44 px |
 | Screen headings, closing line | `heading-2` | 35 px |
-| Refusal subjects | `heading-3` | 28 px |
+
+Project names take `heading-3` while screen headings take `heading-2`, though both are `<h2>`. `ACCESSIBILITY.md` §8 sanctions this explicitly: the level is a structural claim and the size is not, and a project name beside a 44 px statement is a label rather than a section heading.
+| Project names, refusal subjects | `heading-3` | 28 px |
 | Consequences, positioning | `lede` | 22.5 px |
-| Metadata and the footnote | `mono` | 11.5 px |
+| Metadata and the footnote | `mono` | 14.5 px |
 
 Mono is demoted to metadata only. It carried node labels, axis captions, gauge readouts and status chips in V2 and V3; it now appears in four places.
 
@@ -510,6 +512,7 @@ A visualisation ships only if it communicates **faster than the sentence it woul
 | Screens | 6 | ADR-023 |
 | Route JavaScript | — | 906 B measured; the footnote is the only client component |
 | Motion | 1 | ADR-024 — the arrow on an action control. A second would make the first ordinary |
+| Outbound links | — | ADR-025 — `target="_blank"` + `rel="noopener noreferrer"`, announced. Asserted in CI |
 
 The word budget is the one this project did not previously have. Bytes, types, contrast and axe were all green across thirteen screens and 1,914 words, because none of them measures attention.
 

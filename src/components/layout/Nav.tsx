@@ -47,7 +47,7 @@ export function Nav({ orientation = 'horizontal' }: { orientation?: 'horizontal'
             <NextLink
               href={item.href}
               aria-current={current ? 'page' : undefined}
-              className={`flex min-h-target-min items-center font-text text-type-body-sm no-underline transition-colors duration-fast ease-standard hover:text-color-interactive ${
+              className={`flex min-h-target-min items-center font-text text-type-body-sm no-underline transition-colors duration-fast ease-standard hover:text-color-text-primary ${
                 current ? 'font-semibold text-color-text-primary' : 'text-color-text-secondary'
               }`}
             >

@@ -2,13 +2,13 @@
 
 **Specification source:** [`HOMEPAGE_NARRATIVE.md`](../design/HOMEPAGE_NARRATIVE.md) · [`EXPERIENCE_FLOW.md`](../design/EXPERIENCE_FLOW.md) §6
 **Shell:** see [`README.md`](./README.md) §4
-**Status:** §§1–3 current. **§§4–6 describe Version 1 and are superseded by §13** (ADR-020, 2026-08-06).
+**Status:** §§1–3 current. **§§4–6 describe Version 1; §13 describes Version 2. Both are superseded by §14** (ADR-022, 2026-08-06).
 
 ---
 
-> **Read §13 first.** The layouts drawn in §4, §5 and §6 are the Version 1 page, which shipped at the end of Phase 5 and was replaced on 2026-08-06. They are retained rather than deleted, in keeping with this project's convention that a superseded record is more useful than a tidy one — the V2 rationale in ADR-020 is largely an argument about what was wrong with those layouts, and it is unreadable without them.
+> **Read §14 first.** The layouts drawn in §4, §5 and §6 are the Version 1 page, which shipped at the end of Phase 5 and was replaced on 2026-08-06. They are retained rather than deleted, in keeping with this project's convention that a superseded record is more useful than a tidy one — each version's rationale is largely an argument about what was wrong with the one before it, and those arguments are unreadable without the thing they criticise.
 >
-> §§1–3 (purpose, audience, narrative goal) survived the redesign and remain the contract, with the band renumbering noted in §13.
+> §§1–3 (purpose, audience, narrative goal) survived both redesigns and remain the contract, with the band renumbering noted in §14.4.
 
 ---
 
@@ -388,3 +388,70 @@ Both orientations of every rail are keyboard-navigable on both axes, because the
 | Widening | 4 | 4 and 5 |
 | Substantiation | 5 | 6 |
 | Intent | 6 | 7 |
+
+---
+
+## 14. Version 3 layout contract
+
+**Authorised by ADR-022. Supersedes §§4–6 and §13.** Narrative source: `HOMEPAGE_NARRATIVE.md` §4, version 0.4.0.
+
+### 14.1 Band structure
+
+| # | Label | Surface | Heading | Form | Component |
+|---|---|---|---|---|---|
+| 1 | — | base + grid | `<h1>` thesis | Statement, then a live page-load waterfall at full width | `sections/Hero` → `instrument/LiveTrace` |
+| 2 | Verification | sunken | Everything here is checkable | Pipeline grid, four gauges, counts, then the limits | `sections/Verification` → `instrument/Gauge` |
+| 3 | Systems | base | Two systems, one notation | Two containment waterfalls, then a quiet index | `sections/Systems` → `instrument/Trace` |
+| 4 | Failure | sunken | What breaks, and where it stops | Failure rows, and a topology that lights the containment | `instrument/FailureMatrix` |
+| 5 | Judgement | base | What I didn’t build | Six refusals, each with its cost | `sections/Refusals` |
+| 6 | Availability | sunken | Work with me | Two columns; invitation left, contact right | `app/page.tsx` |
+
+Surfaces alternate; `layout/Band` owns the numbered rule and the section rhythm, applied in exactly one place.
+
+### 14.2 The instrument
+
+One notation for all three waterfalls, and it is the page's visual signature. `Trace` renders rows; producers supply them.
+
+| Trace | Axis | Producer | Source of truth |
+|---|---|---|---|
+| Page load | **milliseconds, live** | `LiveTrace` | `PerformanceNavigationTiming`, paint and LCP entries, on the reader's device |
+| Agent run | **span containment, not time** | `containmentRows` | `AGENT_TRACE` in `content/home.ts` |
+| Retrieval | **span containment, not time** | `containmentRows` | `RETRIEVAL_TRACE` in `content/home.ts` |
+
+**A duration column on rows two and three is prohibited**, and the prohibition is enforced in CI. Neither system has production traffic, so a latency figure there would be the only unverifiable number on the page.
+
+### 14.3 Where numbers come from
+
+Nothing on this page is a hand-typed figure.
+
+```
+build output ──▶ scripts/measure.mjs ──▶ src/content/measured.json ──▶ page
+                        ▲                                    │
+                        └──── scripts/check-measured.mjs ◀────┘
+                             recomputes on every CI run;
+                             any drift fails the build
+```
+
+`measured.json` must be read on the **server** side of every client boundary. The page renders its own first-load JavaScript size, so importing the figures into a client component ships them inside the chunk they describe, and re-measuring never converges.
+
+### 14.4 Band renumbering against §3
+
+| §3 beat | V1 | V2 | V3 |
+|---|---|---|---|
+| Recognition | 1 | 1 | 1 |
+| Disarmament | 2 | 2 | 2 |
+| Engagement | 3 | 3 | 3 |
+| Widening | 4 | 4 and 5 | 3 (index) |
+| Substantiation | 5 | 6 | 2 and 4 |
+| Judgement | — | — | 5 |
+| Intent | 6 | 7 | 6 |
+
+*Judgement* is a beat V1 and V2 did not have. §3's table predates it and is otherwise unchanged.
+
+### 14.5 Rules a band must satisfy
+
+The four tests in `HOMEPAGE_NARRATIVE.md` §4.1, plus:
+
+1. **Nothing in band 1 animates on entrance** (`MOTION.md` §5). Trace bars growing to a measured length are data arriving, not an entrance.
+2. **Ambient diagram motion is removable without loss** (ADR-021).
+3. **Every interaction teaches a relationship.** A control that only swaps a paragraph is a control that should have been a paragraph — this is the test that removed V2's three tablists.

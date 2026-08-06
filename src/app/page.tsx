@@ -1,59 +1,51 @@
 import type { Metadata } from 'next';
 
+import { FailureMatrix } from '@/components/instrument/FailureMatrix';
 import { Band } from '@/components/layout/Band';
 import { Reveal } from '@/components/motion/Reveal';
 import { Link } from '@/components/primitives/Link';
 import { Text } from '@/components/primitives/Text';
 import { Hero } from '@/components/sections/Hero';
-import { ArchitectureExplorer } from '@/components/system/ArchitectureExplorer';
-import { LifecycleRail } from '@/components/system/LifecycleRail';
-import { PipelineFlow } from '@/components/system/PipelineFlow';
+import { Refusals } from '@/components/sections/Refusals';
+import { Systems } from '@/components/sections/Systems';
+import { Verification } from '@/components/sections/Verification';
 import { loadCaseStudies } from '@/content/loader';
-import { PHILOSOPHY } from '@/content/home';
 import { AVAILABILITY, NAME, POSITIONING, contact } from '@/content/site';
-import type { CaseStudy } from '@/content/types';
 import { pageMetadata } from '@/app/metadata';
 
 /**
- * `/` — Version 2. Specified in `docs/wireframes/01-home.md`, decided in
- * ADR-020, and it replaces the six-band document that preceded it.
+ * `/` — Version 3. Decided in ADR-022; layout contract in
+ * `docs/wireframes/01-home.md` §14.
  *
- * **What changed, and why.** V1 was correct and unmemorable. It answered the
- * reader's objections in the right order and it answered every one of them in
- * prose, so a visitor's experience was reading six paragraphs that made claims
- * about engineering. This page makes the same claims by *being* the thing it
- * describes: the argument for "I design systems" is a system the reader can walk
- * through, and the argument for "verification is the scarce part" is a lifecycle
- * where implementation is stage four of seven.
+ * **What V2 got wrong.** It was correct and it was ordinary. Every claim was a
+ * claim: a topology that illustrated a system rather than measuring one, three
+ * tablists whose interaction revealed a paragraph, and a page that argued
+ * verification was the scarce skill while showing no verification anywhere. A
+ * reader had to take all of it on trust, and the whole point of the thesis is
+ * that trust should not be necessary.
  *
- * **The objection sequence survived the redesign.** `FOUNDATION.md` §3 goal 4
- * requires the workflow objection — *agents wrote this, so what did you do* — to
- * be answered before the evidence, because an unresolved objection discounts
- * everything after it. Band 2 still holds that position. What changed is that it
- * is now answered by structure rather than by assertion.
+ * **What V3 does instead: it makes the page checkable.**
  *
- * **Band 5 is new and deliberately slim.** The brief for this page names six
- * sections; the site has four case studies, and two of them appear in no other
- * band. A low-weight index is the smallest thing that stops them from silently
- * disappearing, and it is kept visually quiet so it cannot compete with bands 3
- * and 4 — equal weight would recreate the menu that featuring exists to avoid.
+ *   Band 1  measures the reader's own page load, live, in milliseconds
+ *   Band 2  shows the gates and budgets, from the build, re-verified in CI
+ *   Band 3  reads two real systems in the notation band 1 just taught
+ *   Band 4  names what breaks and where it stops — including where it does not
+ *   Band 5  names what was refused, and what refusing it cost
  *
- * **Motion.** Band 1 carries no entrance reveal (`MOTION.md` §5, above the
- * fold). Bands 2–7 do. The ambient flow inside the diagrams is a separate system
- * governed by ADR-021 and is not an entrance animation.
+ * Every band produces a belief the others cannot, which is the test
+ * `HOMEPAGE_NARRATIVE.md` §4 sets. Two V2 bands are gone: the lifecycle merged
+ * into band 2, where the method now arrives with a receipt; and the philosophy
+ * quotes were deleted outright, because band 5 demonstrates the same positions
+ * at cost, and a principle that is visibly expensive is worth more than a
+ * principle that is well phrased.
+ *
+ * **The objection sequence is intact.** `FOUNDATION.md` §3 goal 4 puts the
+ * *agents wrote this* objection before any evidence; band 2 holds that position
+ * with "Claude Code" as stage four of seven.
  */
 
-/** `HOMEPAGE_NARRATIVE.md` §4 names the featured project explicitly. */
-const FEATURED_SLUG = 'orchestai';
-const PIPELINE_SLUG = 'novamind-ai';
-
-const COMPETENCY_LABEL: Record<CaseStudy['frontmatter']['competency'], string> = {
-  'ai-product': 'AI Product Engineering',
-  // ADR-019 — the framework claim is withdrawn; the `competency` slug is unchanged.
-  'ai-infrastructure': 'AI Infrastructure Engineering',
-  enterprise: 'Enterprise Software Engineering',
-  methodology: 'Engineering Methodology',
-};
+const ORCHESTRAI = 'orchestai';
+const NOVAMIND = 'novamind-ai';
 
 /**
  * §3 — the home page sets an absolute title rather than using the template,
@@ -66,184 +58,58 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  // `/work` houses the methodology study; it has no homepage band
-  // (`ROUTE_SPECIFICATIONS.md` §1).
-  const flagship = loadCaseStudies().filter((s) => s.frontmatter.competency !== 'methodology');
-  const featured = flagship.find((s) => s.frontmatter.slug === FEATURED_SLUG);
-  const pipeline = flagship.find((s) => s.frontmatter.slug === PIPELINE_SLUG);
-  // Whatever is left after the two bands that name a project explicitly. Derived
-  // rather than listed, so a new case study appears here without an edit.
-  const remaining = flagship.filter((s) => s !== featured && s !== pipeline);
+  const published = loadCaseStudies();
+  const orchestrai = published.find((s) => s.frontmatter.slug === ORCHESTRAI);
+  const novamind = published.find((s) => s.frontmatter.slug === NOVAMIND);
+  const others = published.filter((s) => s !== orchestrai && s !== novamind);
 
   return (
     <>
       <Hero />
 
-      {/* ── Band 2 · The lifecycle ─────────────────────────────────────────
-          Produces: this person designs the process, and implementation is one
-          stage inside it. Answers the workflow objection structurally — the
-          reader finds "Claude Code" at position four and draws the conclusion
-          themselves, which is worth more than being told it. */}
+      {/* ── Band 2 · Verification ──────────────────────────────────────────
+          Produces: the method is real, and here is its output. Holds the
+          objection-sequence position V2's lifecycle band held. */}
       <Reveal>
-        <Band index={2} label="Method" title="What actually happens" surface="sunken">
-          <LifecycleRail />
+        <Band index={2} label="Verification" title="Everything here is checkable" surface="sunken">
+          <Verification />
         </Band>
       </Reveal>
 
-      {/* ── Band 3 · Featured system ───────────────────────────────────────
-          Produces: I have explored a real production architecture and I did not
-          have to go looking for it. A taste of the case study, never a
-          compression of it — a reader who feels they have read it will not open
-          it. One exit only: the case study. */}
-      {featured ? (
-        <Reveal>
-          <Band index={3} label={COMPETENCY_LABEL[featured.frontmatter.competency]}>
-            <div className="flex flex-col gap-16">
-              <div className="flex flex-col gap-5">
-                <Text token="heading-2" as="h2">
-                  {featured.frontmatter.title}
-                </Text>
-                <div className="max-w-prose">
-                  <Text token="lede" color="secondary">
-                    {featured.frontmatter.summary}
-                  </Text>
-                </div>
-              </div>
-
-              <ArchitectureExplorer />
-
-              <div>
-                <Link href={`/work/${featured.frontmatter.slug}`} variant="action">
-                  Read the full case study
-                </Link>
-              </div>
-            </div>
-          </Band>
-        </Reveal>
-      ) : null}
-
-      {/* ── Band 4 · The retrieval pipeline ────────────────────────────────
-          Produces: a second competency, shown rather than claimed. Deliberately
-          a different visual form from band 3 — a sequence, not a stack —
-          because two projects presented in the same component read as two
-          instances of one thing. */}
-      {pipeline ? (
-        <Reveal>
-          <Band
-            index={4}
-            label={COMPETENCY_LABEL[pipeline.frontmatter.competency]}
-            surface="sunken"
-          >
-            <div className="flex flex-col gap-16">
-              <div className="flex flex-col gap-5">
-                <Text token="heading-2" as="h2">
-                  {pipeline.frontmatter.title}
-                </Text>
-                <div className="max-w-prose">
-                  <Text token="lede" color="secondary">
-                    {pipeline.frontmatter.summary}
-                  </Text>
-                </div>
-              </div>
-
-              <PipelineFlow />
-
-              <div>
-                <Link href={`/work/${pipeline.frontmatter.slug}`} variant="action">
-                  Read the full case study
-                </Link>
-              </div>
-            </div>
-          </Band>
-        </Reveal>
-      ) : null}
-
-      {/* ── Band 5 · The rest of the work ──────────────────────────────────
-          Produces: there is more, and it is a different kind. Intentionally the
-          quietest band on the page. */}
-      {remaining.length > 0 ? (
-        <Reveal>
-          {/* The heading states no count. `remaining` is derived — currently one
-              study, two the moment another non-methodology case study is
-              published — and a title reading "Two more" would have been wrong
-              from the day it shipped. */}
-          <Band index={5} label="Also on this site" title="The rest of the work">
-            <div className="flex flex-col gap-8">
-              <ul className="flex flex-col border-t-hairline border-color-border-subtle">
-                {remaining.map((study) => (
-                  <li
-                    key={study.frontmatter.slug}
-                    className="border-b-hairline border-color-border-subtle py-6"
-                  >
-                    <div className="grid gap-3 md:grid-cols-12 md:items-baseline md:gap-6">
-                      <div className="md:col-span-3">
-                        <Text token="mono" as="span" color="tertiary" uppercase>
-                          {COMPETENCY_LABEL[study.frontmatter.competency]}
-                        </Text>
-                      </div>
-                      <div className="flex flex-col gap-2 md:col-span-9">
-                        <Text token="heading-4" as="h3">
-                          <Link href={`/work/${study.frontmatter.slug}`} variant="bare">
-                            {study.frontmatter.title}
-                          </Link>
-                        </Text>
-                        <Text token="body-sm" color="secondary">
-                          {study.frontmatter.summary}
-                        </Text>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <div>
-                <Link href="/work">Compare every case study</Link>
-              </div>
-            </div>
-          </Band>
-        </Reveal>
-      ) : null}
-
-      {/* ── Band 6 · Philosophy ────────────────────────────────────────────
-          Produces: a position I could disagree with, which is what makes it a
-          position. Four lines, no supporting paragraph — a philosophy that
-          needs explaining is not yet a philosophy. */}
+      {/* ── Band 3 · Systems ───────────────────────────────────────────────
+          Produces: this person builds real systems, and I can read them.
+          One notation, deliberately the same as band 1's — with the axis
+          caption doing the work of saying what these traces do not claim. */}
       <Reveal>
-        <Band index={6} label="Position" surface="sunken">
-          <h2 className="sr-only">Engineering philosophy</h2>
-          <ul className="flex flex-col">
-            {PHILOSOPHY.map((entry, index) => (
-              <li
-                key={entry.id}
-                className="border-t-hairline border-color-border-subtle py-10 first:border-t-0 first:pt-0 last:pb-0"
-              >
-                <div className="grid gap-4 md:grid-cols-12 md:gap-8">
-                  <div aria-hidden="true" className="md:col-span-1">
-                    <Text token="mono" as="span" color="tertiary">
-                      {String(index + 1).padStart(2, '0')}
-                    </Text>
-                  </div>
-                  <div className="flex flex-col gap-4 md:col-span-11">
-                    <Text token="heading-1" as="p">
-                      {entry.line}
-                    </Text>
-                    <Text token="mono" color="tertiary">
-                      {entry.source}
-                    </Text>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+        <Band index={3} label="Systems" title="Two systems, one notation">
+          <Systems orchestrai={orchestrai} novamind={novamind} others={others} />
         </Band>
       </Reveal>
 
-      {/* ── Band 7 · Connect ───────────────────────────────────────────────
-          Produces: I know what to do if I want to act. A distinct band, not
-          merged into the footer. No call to action — `EXPERIENCE_PRINCIPLES.md`
-          §3 refuses urgency and obligation, and that survives the redesign
-          unchanged. */}
+      {/* ── Band 4 · Failure modes ─────────────────────────────────────────
+          Produces: this person thinks about production, not demos. The band a
+          staff engineer reads first, and the one most portfolios omit. */}
       <Reveal>
-        <Band index={7} label="Availability" title="Work with me">
+        <Band index={4} label="Failure" title="What breaks, and where it stops" surface="sunken">
+          <FailureMatrix />
+        </Band>
+      </Reveal>
+
+      {/* ── Band 5 · Refusals ──────────────────────────────────────────────
+          Produces: this person has judgement, including about AI itself.
+          Replaces V2's philosophy band — the same positions, demonstrated at a
+          stated cost rather than asserted in a quotable sentence. */}
+      <Reveal>
+        <Band index={5} label="Judgement" title="What I didn’t build">
+          <Refusals />
+        </Band>
+      </Reveal>
+
+      {/* ── Band 6 · Connect ───────────────────────────────────────────────
+          Produces: I know what to do if I want to act. No call to action —
+          `EXPERIENCE_PRINCIPLES.md` §3 refuses urgency and obligation. */}
+      <Reveal>
+        <Band index={6} label="Availability" title="Work with me" surface="sunken">
           <div className="grid gap-10 md:grid-cols-12">
             <div className="flex flex-col gap-6 md:col-span-7">
               <Text token="lede" color="secondary">

@@ -20,6 +20,7 @@ import {
   typeScale,
   type Oklch,
 } from '../../src/design/tokens';
+import { TYPE_CLASS } from '../../src/design/typeClasses';
 
 /** CIE L* -> relative luminance, then the WCAG contrast ratio. */
 const luminance = (l: number): number => ((l * 100 + 16) / 116) ** 3;
@@ -175,6 +176,40 @@ describe('contrast floors — ACCESSIBILITY.md §3', () => {
     expect(
       contrast(semanticColor['color-text-on-accent'].dark, accent[500]),
     ).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
+describe('type tokens reach the stylesheet', () => {
+  /**
+   * Guards a defect that shipped and was invisible for weeks.
+   *
+   * `Text` built its size class as a template literal, so Tailwind — which finds
+   * class names by scanning source text — generated only the five that happened
+   * to appear as complete literals elsewhere. Nine tokens were missing from the
+   * stylesheet entirely. It looked correct because `globals.css` styles h1–h4 as
+   * elements, so headings resolved through the element rule; what silently broke
+   * was `lede`, `display`, and any heading token applied to a non-heading, which
+   * is a combination the `Text` API exists to support.
+   */
+  it('every semantic type token has a literal class name', () => {
+    for (const key of Object.keys(semanticType)) {
+      const token = key.replace('type-', '') as keyof typeof TYPE_CLASS;
+      expect(TYPE_CLASS[token]).toBe(`text-${key}`);
+    }
+  });
+
+  it('the class map carries no token the scale does not define', () => {
+    for (const token of Object.keys(TYPE_CLASS)) {
+      expect(Object.keys(semanticType)).toContain(`type-${token}`);
+    }
+  });
+
+  it('every class name is a complete literal, never assembled', () => {
+    // The failure mode is a value like `text-type-${x}`. A literal contains no
+    // interpolation and matches the class-name grammar exactly.
+    for (const value of Object.values(TYPE_CLASS)) {
+      expect(value).toMatch(/^text-type-[a-z0-9-]+$/);
+    }
   });
 });
 

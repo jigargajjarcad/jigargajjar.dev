@@ -1,7 +1,7 @@
 # Homepage Narrative
 
-**Status:** Active — narrative specification. Frozen Phase 3; §4–§5 amended by ADR-020
-**Version:** 0.3.0
+**Status:** Active — narrative specification. Frozen Phase 3; §4–§5 amended by ADR-020, superseded by ADR-022
+**Version:** 0.4.0
 **Last reviewed:** 2026-08-06
 **Governed by:** [`FOUNDATION.md`](../FOUNDATION.md) §3 · [`EXPERIENCE_FLOW.md`](./EXPERIENCE_FLOW.md) · [`EXPERIENCE_PRINCIPLES.md`](./EXPERIENCE_PRINCIPLES.md)
 
@@ -65,98 +65,82 @@ Belief has become appetite, and the reader has already received evidence rather 
 
 ---
 
-## 4. The seven bands
+## 4. The five bands
 
-**Amended by ADR-020 (2026-08-06).** This section previously specified six bands and froze that count. Version 1 shipped against it and was correct against it, and it was flat — because every band made its argument by asserting it in prose, and a reader is asked to accept six assertions from a stranger on the strength of the prose alone. ADR-020 replaces the count freeze with a stronger constraint, stated at the end of this section.
+**Superseded by ADR-022 (2026-08-06).** This section has now specified six bands, then seven, then five. The count was never the thing worth freezing — §4.1 states what actually is.
 
-**What did not change is §5.** The order is still the objection sequence, and qualification still precedes evidence. The bands below occupy the same positions in the same argument; what changed is the form each one takes.
+**§5 is unchanged in substance and always has been.** The order is the objection sequence; qualification precedes evidence. Every revision has kept that and changed only the *form* each answer takes.
 
-Each band is defined by the belief it produces. Bands 1–4 carry the argument; bands 5–7 route.
+### Band 1 — The claim, and the instrument
 
-### Band 1 — Hero
+**Produces:** *this person instruments systems — and I have just watched one do it.*
 
-**Produces:** *this is a specific person making a specific claim, not a category.*
+The thesis at the largest type on the site, `POSITIONING` verbatim beneath it (`FOUNDATION.md` §5), and then a live span waterfall of the reader's own page load: DNS, connect, request, response, parse, first paint, largest paint, hydrate, in milliseconds read from the Performance API on their machine.
 
-The thesis — "I build AI systems that survive production" — carried at the largest type on the site, with `POSITIONING` verbatim (`FOUNDATION.md` §5) on the line beneath it, and a live topology drawn from OrchestAI's real admission path beside it. Present without scroll at 375 px. Answers R1, R2, R3, and provides the R5 exit.
+**Why this and not an architecture diagram:** V2 drew OrchestAI's topology here with a pulse looping along its edges. Nothing was flowing. A well-made architecture drawing is reproducible in an afternoon and proves nothing, which places it in the same category as the decorative gradients this site's visual language exists to refuse. A measurement of the reader's own visit cannot be copied, cannot be faked, and is confirmed by the reader having already experienced it.
 
-**Why the thesis leads and the positioning sentence follows:** a category is not a claim. "AI-Native Full-Stack Engineer designing reliable software systems through architecture, orchestration, and verification" tells a machine what terms to match and tells a person nothing they will still hold in a minute. The thesis can be *wrong*, which is what makes the six bands of evidence beneath it worth reading. ADR-020 has the full reasoning.
+**It also teaches the notation** used by bands 3 and 4, which is why it is a waterfall rather than a readout.
 
-**Why a topology and not a photograph:** the diagram is the first argument, not the first decoration. A reader who knows what an admission stage is has learned something true about the work before reading a sentence; a reader who does not has learned that this person draws systems. Neither is available from a portrait or a gradient.
+**Constraint:** nothing animates on entrance (`MOTION.md` §5). Script supplies numbers, never structure — every span label and description is in the HTML response.
 
-**Constraint:** the positioning sentence still appears exactly once. Nothing here animates on entrance — it is above the fold (`MOTION.md` §5).
+### Band 2 — Verification
 
-### Band 2 — Qualification, as a lifecycle
+**Produces:** *the method is real, and here is its output.*
 
-**Produces:** *the claim is a position, not a shortcut.*
+The seven-stage pipeline with the artefact each stage leaves behind, then stage five opened in full: four budget gauges, the check and gate counts, the Lighthouse scores — every figure produced by a script from the build and re-verified on every CI run. Then, immediately beneath, what none of it reaches.
 
-The seven-stage delivery lifecycle, explorable: problem, architecture, decision, Claude Code, verification, release, retrospective. Each stage names what it produces and the failure it prevents.
+**Why it holds the second position:** unchanged from V2's lifecycle band and from V1's qualification band. `FOUNDATION.md` §3 goal 4 requires the *agents wrote this, so what did you do* objection to be answered before any evidence, because an unresolved objection discounts everything after it. "Claude Code" is stage four of seven, and the reader draws the conclusion themselves.
 
-**Why it exists:** unchanged — the only band that removes a belief rather than creating one, mandated by `FOUNDATION.md` §3 goal 4.
+**What changed:** the answer now arrives with a receipt. V2 asserted a method; this band shows what the method produced, in numbers a reader can check.
 
-**What changed:** the objection is no longer answered by a paragraph saying implementation is delegated and judgement is not. It is answered by *position in a sequence*. A reader who walks the rail finds "Claude Code" at stage four of seven, after problem, architecture and decision, and before verification, release and retrospective — and draws the conclusion themselves. A conclusion a reader reaches is held more firmly than one they are handed.
+**Constraint, and it is the important one:** `NOT_VERIFIED` is not optional and not a disclaimer. Four green gauges with no adjacent statement of limits describe a system nobody has looked at hard enough. It is asserted by `tests/quality/homepage.spec.ts`.
 
-**Constraint:** unchanged. States a position; does not argue with an imagined critic. Does not link away — band 5 of the old structure, now `/workflow`, owns the depth.
+### Band 3 — Systems
 
-### Band 3 — Featured flagship: OrchestAI
+**Produces:** *this person builds real systems, and I can read them.*
 
-**Produces:** *I have explored a real production architecture, and I did not have to go looking for it.*
+OrchestAI and NovaMind, each as a span waterfall in the notation band 1 taught. Then the remaining published case studies as a quiet index.
 
-Six layers — edge, admission, orchestration, agents, persistence, telemetry — each carrying the decision that shapes it and one property that holds. Then the link into the case study.
+**Why one notation for both:** V2 gave each project a bespoke visual — a layer stack and a staged pipeline. Two forms to learn, and the reader's attention spent on the diagrams instead of their contents. Sameness of form is what makes difference of content legible.
 
-**Why OrchestAI specifically:** unchanged (`FOUNDATION.md` §9, as corrected by ADR-019).
+**Constraint:** these traces carry **no timings**, and the axis caption says so. Neither system has production traffic; a latency column would be the one fabricated number on a page whose argument is that its numbers are checkable. Asserted in CI.
 
-**Why layers and not a second topology:** the hero already draws this system's shape. Drawing it again would be the second time a reader is told the same thing. What a layer stack adds is the axis a topology cannot show — *why each layer is shaped the way it is*.
+### Band 4 — Failure
 
-**Constraint:** unchanged, and now sharper. A taste, never a compression. Every layer states a **property**, never a measurement: OrchestAI has no users, and a latency figure here would be a benchmark of nothing that a reader could disprove by opening the case study.
+**Produces:** *this person thinks about production, not demos.*
 
-### Band 4 — NovaMind AI, as a pipeline
+Each failure mode, the mechanism that contains it, and a topology that lights the components doing the containing. One row is not contained at all, and selecting it dims the entire map.
 
-**Produces:** *a second competency, genuinely different in kind.*
+**Why it exists:** it is the band a staff engineer reads first and the band almost no portfolio has. Everything else describes a happy path, and a reader who has run something in production knows the happy path is the easy half.
 
-The retrieval pipeline in seven stages, each naming its implementation and — the part that matters — the shape of what leaves it: one document, n passages, n × 1024, ten candidates, five passages, one answer, n citations.
+**Constraint:** at least one uncontained row, always. A failure matrix in which everything is contained is a failure matrix nobody stress-tested. Asserted in CI.
 
-**Why a pipeline and not the same layer stack:** two projects presented in the same component read as two instances of one thing, which is the exact failure ADR-012 exists to prevent. A sequence and a stack are different claims about how a system is organised.
+### Band 5 — Judgement
 
-**Why the shape line:** every RAG diagram draws these seven boxes and almost none say what leaves each one. Reading ten narrow to five tells a reader who knows the domain that reranking is present and that generation never sees the full candidate set — the one non-obvious decision in the pipeline.
+**Produces:** *this person has judgement, including about AI itself.*
 
-### Band 5 — The rest of the work
+Six decisions where the obvious modern answer was declined, each with the reasoning and the cost.
 
-**Produces:** *there is more, and it is a different kind.*
+**Why it replaced the philosophy band:** four aphorisms with citations create the impression of someone who enjoys writing aphorisms. Six refusals with costs attached create the impression of someone who has had to decide something. The positions are identical; only one of them is expensive, and only the expensive one is evidence.
 
-A compact index of every published case study not named in bands 3 and 4, with its competency, plus the route to `/work`.
+**Constraint:** every entry states a cost. A refusal with no consequence is a preference, and a list of preferences is a personality test. Asserted in CI.
 
-**Why it exists:** bands 3 and 4 name two projects. The site has four case studies, and without this band two of them appear nowhere on the home page — invisible, because the page still looks complete. It is derived from content rather than listed, so a new case study appears here without an edit.
+### Band 6 — Connect
 
-**Constraint:** deliberately the quietest band on the page. Equal weight with bands 3 and 4 would recreate the menu that featuring exists to avoid.
-
-### Band 6 — Position
-
-**Produces:** *this person has a view, and it is one I could disagree with.*
-
-Four lines, each attributed to where it is load-bearing in this repository. No supporting paragraph.
-
-**Why it exists:** the bands above establish that the work is real. This establishes that there is a mind behind the choices, which is what separates an engineer a team wants from an engineer a team can hire. It is placed after the evidence because a philosophy asserted before any work is a slogan.
-
-**Constraint:** a line nobody could argue with is not a philosophy, it is a platitude, and it does not belong here. No line may need explaining.
-
-### Band 7 — Connect
-
-**Produces:** *I know what to do if I want to act.*
-
-Unchanged from the previous band 6: the invitation to `/connect`, plus `/resume`, plus location, hours and address (ADR-014).
-
-**Constraint:** unchanged. Not a call to action. `EXPERIENCE_PRINCIPLES.md` §3 refuses urgency and obligation. The page ends; the reader decides.
+**Produces:** *I know what to do if I want to act.* Unchanged across all three versions. Not a call to action — `EXPERIENCE_PRINCIPLES.md` §3 refuses urgency and obligation.
 
 ---
 
-### The constraint that replaced the count freeze
+### 4.1 What is actually frozen
 
-The six-band freeze existed to stop bands accumulating by drift. It is replaced by two tests, both of which a proposed band must pass:
+Not a count. A band ships only if it passes all four:
 
-1. **It produces a belief no other band produces.** Stated in the terms above — what the reader believes after it that they did not believe before.
-2. **Its form is justified by its content.** Two bands presenting different arguments in the same component is a signal that one of them is not needed.
+1. **It produces a belief no other band produces**, stated in the terms above.
+2. **Its form is justified by its content.** Two bands making the same argument in the same component means one is decoration.
+3. **It is checkable.** Every number comes from a tool; every structural claim cites the file it can be verified against; anything that is neither is stated as unknown.
+4. **It renders completely without JavaScript.** Script adds exploration, never content.
 
-Band 5 is the test case: it earns its place on test 1 and is kept visually quiet because it barely passes test 2.
+Test 3 is what ADR-022 added, and it is the one that changed the page most.
 
 ---
 
@@ -165,20 +149,21 @@ Band 5 is the test case: it earns its place on test 1 and is kept visually quiet
 **The order is the objection sequence.** A skeptical reader's questions arrive predictably, and each must be answered before the next can be heard.
 
 ```
-"Who is this?"                      → Band 1  Hero
-"So you don't write your own code?" → Band 2  Lifecycle
-"Show me something hard."           → Band 3  OrchestAI
-"Is that all you do?"               → Band 4  NovaMind AI
-"Is there more?"                    → Band 5  The rest of the work
-"Do they think, or just build?"     → Band 6  Position
-"What now?"                         → Band 7  Connect
+"Who is this?"                      → Band 1  Claim and instrument
+"So you don't write your own code?" → Band 2  Verification
+"Show me something real."           → Band 3  Systems
+"Would it survive contact?"         → Band 4  Failure
+"Do they have judgement?"           → Band 5  Refusals
+"What now?"                         → Band 6  Connect
 ```
 
-**Qualification precedes evidence, and this is the load-bearing ordering decision.** `FOUNDATION.md` §3 goal 4 requires the workflow objection be answered *before the reader has to ask it*. Evidence presented to a skeptical reader does not accumulate — it gets discounted, and discounted evidence cannot be re-presented later. This survived the V2 redesign unchanged and is asserted in `tests/quality/homepage.spec.ts`.
+**Qualification precedes evidence, and this is the load-bearing ordering decision.** `FOUNDATION.md` §3 goal 4 requires the workflow objection be answered *before the reader has to ask it*. Evidence presented to a skeptical reader does not accumulate — it gets discounted, and discounted evidence cannot be re-presented later. Unchanged since V1 and asserted in `tests/quality/homepage.spec.ts`.
 
-**Depth precedes breadth.** Bands 3 and 4 before band 5 is the guide-don't-ask decision. A reader given four options chooses none; a reader given two systems to explore and then told there are more has already started.
+**Measurement precedes argument.** Band 1 establishes that this page reports rather than claims, before it claims anything. Every band after it is read in that light.
 
-**Position follows work, not the reverse.** A philosophy is credible in proportion to the evidence already in hand. Band 6 before band 3 would be a stranger's opinions.
+**Failure follows the systems, never precedes them.** A failure-mode table for a system the reader has not yet seen is a list of nouns.
+
+**Judgement is last of the substantive bands.** A refusal is only interesting once the reader believes the thing could have been built.
 
 **Departure is last.** Interaction is requested only after belief exists (§1).
 
@@ -259,6 +244,8 @@ None. The three questions carried in version 0.1.0 — whether band 2 links to `
 ---
 
 ## Changelog
+
+**0.4.0 — 2026-08-06.** §4 and §5 superseded by ADR-022: seven bands become five, and §4.1 replaces the band-count freeze with four tests a band must pass — of which “it is checkable” is new and reshaped the page. The objection sequence is unchanged for the third consecutive version.
 
 **0.3.0 — 2026-08-06.** §4 and §5 amended by ADR-020: six bands become seven, the count freeze is replaced by a produces-a-belief test, and every band's *form* is specified alongside its content. The objection sequence is unchanged.
 

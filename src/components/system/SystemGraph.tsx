@@ -82,6 +82,7 @@ export function SystemGraph({
   edges,
   viewBox,
   label,
+  highlight,
   className = '',
 }: {
   nodes: readonly GraphNode[];
@@ -94,9 +95,23 @@ export function SystemGraph({
    * usually a diagram that is doing too much (`ACCESSIBILITY.md` §6).
    */
   label: string;
+  /**
+   * Node ids to emphasise. When supplied and non-empty the graph switches from
+   * *depicting a system* to *answering a question about it*: matched nodes are
+   * drawn in the flow colour, everything else recedes, and the ambient pulse is
+   * suppressed entirely — a topology that is still animating while pointing at
+   * something is competing with itself for the reader's attention.
+   *
+   * An empty array is meaningful and is not the same as `undefined`. It means
+   * "nothing contains this", which is the honest answer for at least one failure
+   * mode on this site, and the graph renders fully dimmed to say so.
+   */
+  highlight?: readonly string[];
   className?: string;
 }) {
   const byId = new Map(nodes.map((node) => [node.id, node]));
+  const focused = highlight !== undefined;
+  const isLit = (id: string) => !focused || highlight.includes(id);
   const [width, height] = viewBox;
 
   const resolved = edges
@@ -124,7 +139,7 @@ export function SystemGraph({
           <path key={`${edge.from}-${edge.to}`} d={d} className="system-edge" />
         ))}
         {resolved
-          .filter(({ edge }) => !edge.quiet)
+          .filter(({ edge }) => !edge.quiet && !focused)
           .map(({ edge, from, d }) => (
             <path
               key={`flow-${edge.from}-${edge.to}`}
@@ -140,29 +155,32 @@ export function SystemGraph({
         const h = heightOf(node);
         const x = node.x - node.w / 2;
         const y = node.y - h / 2;
+        const lit = isLit(node.id);
         return (
-          <g key={node.id}>
+          <g key={node.id} className={focused && !lit ? 'system-dim' : undefined}>
             <rect
               x={x}
               y={y}
               width={node.w}
               height={h}
               rx={4}
-              className="system-node"
+              className={`system-node ${focused && lit ? 'system-node-lit' : ''}`}
               strokeDasharray={node.kind === 'boundary' ? '3 3' : undefined}
             />
             {/* The halo is a second rect inset by nothing and simply overdrawn;
                 a filter-based glow would be a paint cost on every frame for a
                 mid-range device, which §10 is written for. */}
-            <rect
-              x={x}
-              y={y}
-              width={node.w}
-              height={h}
-              rx={4}
-              className="system-node-halo"
-              style={offset(node.depth)}
-            />
+            {focused ? null : (
+              <rect
+                x={x}
+                y={y}
+                width={node.w}
+                height={h}
+                rx={4}
+                className="system-node-halo"
+                style={offset(node.depth)}
+              />
+            )}
             <text
               x={node.x}
               y={node.sub ? node.y - 3 : node.y}

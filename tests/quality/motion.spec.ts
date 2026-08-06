@@ -24,7 +24,7 @@ test.describe('entrance reveal', () => {
     const page = await context.newPage();
     await page.goto('/');
 
-    await expect(page.getByRole('heading', { name: 'What actually happens' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Everything here is checkable' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Work with me' })).toBeVisible();
     expect(await page.locator(REVEALED).count()).toBe(0);
 
@@ -79,7 +79,7 @@ test.describe('entrance reveal', () => {
     // Nothing is hidden, so there is nothing to reveal and no observer to run.
     expect(await page.locator(REVEALED).count()).toBe(0);
 
-    await expect(page.getByRole('heading', { name: 'What actually happens' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Everything here is checkable' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Work with me' })).toBeVisible();
 
     await context.close();

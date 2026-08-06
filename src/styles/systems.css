@@ -135,6 +135,23 @@
   }
 }
 
+/*
+ * Containment highlighting (ADR-022). A topology stops being a picture of a
+ * system and becomes an answer to a question: which parts of this stop that
+ * failure. Everything unrelated recedes rather than disappearing, because the
+ * shape of the whole system is the context that makes the answer legible.
+ */
+.system-node-lit {
+  stroke: var(--color-flow);
+  stroke-width: var(--border-emphasis);
+  fill: var(--color-surface-raised);
+}
+
+.system-dim {
+  opacity: 0.32;
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
 /* ────────────────────────────────────────────────────────────────────────────
  * 4. Interactive diagram surfaces
  *

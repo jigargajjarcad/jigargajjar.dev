@@ -19,7 +19,9 @@
     "resume:pdf": "node scripts/generate-resume-pdf.mjs",
     "lhci": "lhci autorun",
     "tokens:generate": "node --experimental-strip-types scripts/generate-tokens-css.mjs",
-    "ci": "npm run typecheck && npm run lint && npm run format:check && npm run check:tokens && npm run test && npm run build && npm run check:budget && npm run check:links"
+    "ci": "npm run typecheck && npm run lint && npm run format:check && npm run check:tokens && npm run test && npm run build && npm run check:budget && npm run check:measured && npm run check:links",
+    "measure": "node --experimental-strip-types scripts/measure.mjs",
+    "check:measured": "node --experimental-strip-types scripts/check-measured.mjs"
   },
   "dependencies": {
     "@mdx-js/mdx": "^3.1.1",

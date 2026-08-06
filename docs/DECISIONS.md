@@ -37,6 +37,7 @@ Records are immutable once accepted. A decision that changes gets a new record t
 | [019](#adr-019) | OrchestAI is an orchestration service; the framework claim is withdrawn | Accepted |
 | [020](#adr-020) | The home page argues by demonstration, not by description | Accepted |
 | [021](#adr-021) | Ambient system motion is a second motion system, bounded separately | Accepted |
+| [022](#adr-022) | The home page reports measurements, and prints what it cannot measure | Accepted |
 
 ---
 
@@ -1041,3 +1042,69 @@ The separation is enforced rather than documented: `flow` is a distinct export, 
 - **There are now two motion systems to learn**, and a contributor can pick the wrong one. The mitigation is that picking wrong is visible: `flow.cycle` on a hover state is a 2.6-second hover.
 - **`flow.origin` exists solely so that a zero delay is a token.** It looks like over-engineering and it is deliberate: `check-tokens.mjs` rejects a bare duration in CSS, and an exemption for "it is only zero" is how a scale starts leaking.
 - The `flow` cycle values are chosen, not measured. There is no user research behind 2.6 seconds; it is the value at which a pulse crossing the hero topology reads as deliberate rather than as either urgent or stalled, judged by looking at it.
+
+---
+
+<a id="adr-022"></a>
+## ADR-022 — The home page reports measurements, and prints what it cannot measure
+
+**Status:** Accepted · 2026-08-06 · Supersedes the band structure of ADR-020; amends `HOMEPAGE_NARRATIVE.md` §4–§5
+
+### Context
+
+Version 2 shipped a home page that was, by every gate this project owns, correct: seven bands in the objection sequence, 100 on accessibility, inside every budget, explorable diagrams with full keyboard support and a complete no-JavaScript path.
+
+It was also ordinary, and the owner's reaction — *"this is well designed"* rather than *"this engineer builds world-class AI systems"* — identified the failure precisely. Four things were wrong, and none of them was a defect any gate could have caught.
+
+**The diagrams illustrated systems rather than measuring them.** The hero drew OrchestAI's topology with a pulse looping along its edges. Nothing was flowing; the pulse was an animation. A tasteful architecture drawing is reproducible in an afternoon and is evidence of nothing, which puts it in the same category as the gradient blobs the visual language exists to avoid — better executed, equally unfalsifiable.
+
+**The page argued that verification is the scarce skill and showed no verification.** The thesis is *systems that survive production*. V2 wrote `npm run ci` in a lifecycle stage and stopped. Meanwhile the most credible artefact this project owns — a site with hard budgets that actually block merges, 170 checks, a token pipeline, and 21 decision records, all currently green — appeared nowhere on it.
+
+**Every interaction was a tablist.** Three of them. Click a thing, a paragraph swaps. That is the lowest-information interaction that exists: it reveals prose, it does not teach a relationship, and it was reaching for interactivity rather than for meaning.
+
+**Nothing on the page required AI engineering to have built**, and nothing showed judgement about *not* using AI — which is the rarest signal in this market and the one the material already supported.
+
+### Decision
+
+**The home page reports measurements of itself, teaches the notation those measurements are in, and applies that notation to two real systems. Then it prints what it cannot measure, and what it refused to build.**
+
+Five bands, each producing a belief no other band produces:
+
+| Band | Produces | Mechanism |
+|---|---|---|
+| 1 Hero | This person instruments things — and I just watched it | Live span waterfall of the reader's own page load, from the Performance API |
+| 2 Verification | Everything here is checkable | Budgets, gates and scores from the build, re-verified every CI run — then what none of it reaches |
+| 3 Systems | They build real systems, and I can read them | OrchestAI and NovaMind in the notation band 1 taught |
+| 4 Failure | They think about production, not demos | Failure modes, containment mechanisms, and a map that dims when nothing contains one |
+| 5 Judgement | They know when the AI-shaped answer is wrong | Six refusals, each with its cost stated |
+
+Three things carry it, and each is a rule rather than a component.
+
+**1. Numbers on this page are produced by a tool and verified by CI.** `scripts/measure.mjs` reads the build output and writes `src/content/measured.json`; `scripts/check-measured.mjs` recomputes everything on every CI run and fails on any drift. Nothing is typed by hand. A portfolio that states figures which were true once is worse than one that states none.
+
+**2. One notation, and it is honest about which axis it is on.** The same `Trace` component renders all three waterfalls. The hero's bars are milliseconds. The two system traces encode *span containment*, and their axis caption says so, because neither system has production traffic and a latency column on either would be the one fabricated number on a page whose whole argument is that its numbers are checkable. The contrast between the two — real milliseconds two screens above, an explicit refusal below — is a stronger demonstration of where the line sits than any statement about integrity would be.
+
+**3. The unflattering material is load-bearing, and it is protected by tests.** `NOT_VERIFIED` sits directly beneath four green gauges. One failure mode has an empty `enforcedBy` and dims the whole containment map. Every refusal states what it cost, including nine days rebuilding a solved problem and a system shipped with no automated tests. `tests/quality/homepage.spec.ts` asserts each of these, because softening them would break no build, fail no lint, and look like an improvement in review.
+
+Two V2 bands are gone. The lifecycle merged into band 2, where the method now arrives with its output attached. The philosophy quotes were deleted: band 5 demonstrates the same positions at a stated cost, and a principle that is visibly expensive is worth more than one that is well phrased.
+
+### Alternatives considered
+
+**Iterate on V2 — better typography, richer diagrams, more motion.** Rejected, and the owner ruled it out explicitly, but the reason stands on its own: V2's problem was not that its assertions were badly set. It was that they were assertions. No amount of typographic care converts a claim into evidence.
+
+**Use an animation library, as requested, to make the page feel richer.** Declined for the third time, and the arithmetic is now on the page: `/` renders at 110.1 KB against a 120 KB first-load budget, 8% headroom. The library alone is roughly four times the total client cost of every interaction here. More to the point, nothing in this design needed it — the trace bars are `scaleX`, the containment highlight is a class, and the honest place to spend the remaining budget was the instrumentation. A portfolio arguing that budgets are not negotiable cannot exceed its own for a tween library, and the refusal is now band 5, entry 5.
+
+**Fabricate plausible latencies for the system traces.** Rejected, and it is worth recording that it was considered, because a duration column would make those two diagrams unambiguously better-looking. It would also be the only unverifiable number on the page, in the section a reader is most likely to check against the repository.
+
+**Show live figures without a stale-check.** Rejected. Recorded measurements with no verification are claims with a timestamp. `check:measured` is what converts them back into measurements.
+
+**Keep the philosophy band as well.** Rejected under the page's own rule: it produced no belief that band 5 does not produce better, and two bands making the same argument is a signal that one of them is decoration.
+
+### Consequences
+
+- **`/` is now the tightest route in the project**: 110.1 KB against 120 KB, and the framework runtime sits at 4% headroom. The next feature wanting client JavaScript on this page has to displace something. That is a budget working, and it is visible to the reader, which is the point.
+- **`measured.json` cannot be edited by hand without CI failing**, which is the property that makes the numbers worth printing. It also means `npm run measure` must be re-run and committed after any change that moves the bundle — a real workflow cost, and the correct one.
+- **A circularity had to be designed out.** The page renders its own first-load JavaScript size. Importing `measured.json` into a client component would ship the figures inside the chunk they describe, so re-measuring would change the number that changes the number. The recorded values are read on the server and passed down; `npm run measure` now converges on the first run, which was verified by running it twice against the same build.
+- **The editorial tests are unusual and deliberate.** Asserting that a page still admits NovaMind has no test suite is not a normal use of a test suite. It is the only mechanism that makes the admission durable, and ADR-019 established that this project's characteristic failure is description drifting away from truth.
+- **A latent defect surfaced while building this and is fixed here.** `Text` composed its size class as `` `text-type-${token}` ``, which Tailwind's extractor cannot see, so nine of fourteen type utilities were never generated. It was invisible because `globals.css` styles `h1`–`h4` as elements: headings resolved correctly through the element rule, while `lede`, `display`, and any heading token on a non-heading element silently rendered at body size. `src/design/typeClasses.ts` maps every token to a complete literal and `tests/unit/tokens.test.ts` asserts the map stays exhaustive. **V1 and V2 both shipped with this bug**, which is a direct instance of the failure mode ADR-019 named: nothing checked the artefact against its specification until someone measured it.
+- **The page is longer than V2 and reading it takes real effort.** That is accepted rather than mitigated. The audience this page is written for reads a failure-mode table carefully or not at all, and shortening band 4 to save a screen would remove the reason they stayed.

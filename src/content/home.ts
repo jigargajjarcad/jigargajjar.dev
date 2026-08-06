@@ -48,6 +48,18 @@ export const METHOD = [
   'Verification that blocks the merge.',
 ] as const;
 
+/**
+ * The evidence under the method, and the reason it is not `<code>main</code>`.
+ *
+ * The sentence read "Nothing reaches `main` until N checks pass", with the
+ * branch name set in the code face — 14.5 px against 22.5 px of surrounding
+ * lede. At that ratio an inline technical term stops reading as an intentional
+ * change of voice and starts reading as a stylesheet that failed to load
+ * (ADR-024). "Merges" carries the same fact, needs no second typeface, and is
+ * one word shorter.
+ */
+export const METHOD_EVIDENCE = 'Nothing merges until';
+
 /* ────────────────────────────────────────────────────────────────────────────
  * 3–4. The two systems — belief: these are elegant
  *
@@ -78,20 +90,20 @@ export type System = {
 export const SYSTEMS: readonly System[] = [
   {
     slug: 'orchestai',
-    meta: 'Multi-tenant agent orchestration · .NET 8 · PostgreSQL',
-    idea: 'Every decision that can reject a run — tenant, budget, rate — resolves before the first model call.',
-    consequence: 'So a rejected run costs nothing and leaves nothing behind.',
+    meta: 'Agent orchestration · .NET 8 · PostgreSQL',
+    idea: 'Every decision that can reject a run happens before the first model call.',
+    consequence: 'Tenant, budget, rate. A rejected run costs nothing and leaves nothing behind.',
   },
   {
     slug: 'novamind-ai',
-    meta: 'Document intelligence · Python · pgvector · Claude',
+    meta: 'Document intelligence · Python · pgvector',
     // Three numerals and two arrows, at display size. This replaced a six-row
     // waterfall and says the same thing faster than the waterfall's labels could
     // be read — which is the only test a figure on this page has to pass.
     figure: '10 → 5 → 1',
     idea: 'Vector search returns what is relevant, not what is best.',
     consequence:
-      'So ten candidates are reranked to five before the model sees anything, and every claim resolves to the passage behind it.',
+      'Ten candidates become five before the model sees anything. Every claim resolves to the passage behind it.',
   },
 ];
 
@@ -118,22 +130,22 @@ export const REFUSALS: readonly Refusal[] = [
   {
     id: 'framework',
     what: 'A framework.',
-    line: 'The extension points never existed, so the claim was withdrawn from documents that were already frozen.',
+    line: 'The extension points never existed. I withdrew the claim.',
   },
   {
     id: 'library',
     what: 'A retrieval library.',
-    line: 'The project existed to learn retrieval end to end, and a framework would have skipped the part worth learning.',
+    line: 'It would have skipped the part worth learning.',
   },
   {
     id: 'animation',
     what: 'An animation layer.',
-    line: 'Ninety-five times the cost of the behaviour actually needed. This page has none.',
+    line: 'Ninety-five times the cost of the behaviour needed. This page has none.',
   },
   {
     id: 'drift',
     what: 'A guard against my own drift.',
-    line: 'The description drifted away from the software for weeks. Nothing caught it, and nothing catches it now.',
+    line: 'The description drifted for weeks. Nothing caught it, and nothing does now.',
   },
 ];
 

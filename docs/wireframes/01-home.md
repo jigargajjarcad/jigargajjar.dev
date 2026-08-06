@@ -460,7 +460,7 @@ The four tests in `HOMEPAGE_NARRATIVE.md` §4.1, plus:
 
 ## 15. Version 4 layout contract
 
-**Authorised by ADR-023. Supersedes §§4–6, §13 and §14.** Narrative source: `HOMEPAGE_NARRATIVE.md` §4, version 0.5.0.
+**Authorised by ADR-023; art-directed by ADR-024.** Supersedes §§4–6, §13 and §14. Narrative source: `HOMEPAGE_NARRATIVE.md` §4, version 0.5.0.
 
 ### 15.1 Screens
 
@@ -483,7 +483,7 @@ The page has no visual system beyond this. Five sizes carry everything.
 
 | Role | Token | Desktop |
 |---|---|---|
-| Thesis, and the one figure | `hero` | 80 px |
+| Thesis, and the one figure | `hero` | 66 px |
 | Method clauses, system ideas | `heading-1` | 44 px |
 | Screen headings, closing line | `heading-2` | 35 px |
 | Refusal subjects | `heading-3` | 28 px |
@@ -491,6 +491,10 @@ The page has no visual system beyond this. Five sizes carry everything.
 | Metadata and the footnote | `mono` | 11.5 px |
 
 Mono is demoted to metadata only. It carried node labels, axis captions, gauge readouts and status chips in V2 and V3; it now appears in four places.
+
+**No inline `<code>` anywhere on this page** (ADR-024). At 14.5 px against 22.5 px of lede an inline technical term reads as a broken stylesheet rather than as a change of voice. Asserted in CI.
+
+**`text-balance` on the statement, the hero subtitle, and the closing line.** All three set in two lines; balanced, the lines are near-equal and each block reads as a shape rather than as text that wrapped.
 
 ### 15.3 The figure test
 
@@ -505,6 +509,7 @@ A visualisation ships only if it communicates **faster than the sentence it woul
 | Words in `<main>` | 340 | ADR-023, `tests/quality/homepage.spec.ts` |
 | Screens | 6 | ADR-023 |
 | Route JavaScript | — | 906 B measured; the footnote is the only client component |
+| Motion | 1 | ADR-024 — the arrow on an action control. A second would make the first ordinary |
 
 The word budget is the one this project did not previously have. Bytes, types, contrast and axe were all green across thirteen screens and 1,914 words, because none of them measures attention.
 

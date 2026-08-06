@@ -35,8 +35,40 @@ export function Link({
   children: ReactNode;
 }) {
   if (variant === 'action') {
+    /*
+     * ADR-024 — art direction.
+     *
+     * Four changes, each of which is the difference between a default control
+     * and a designed one. The radius drops to `sm`: 4 px on a 44 px target reads
+     * as a generic rounded button, 2 px reads as a printed rule and belongs to
+     * the same family as every hairline on the page. Horizontal padding opens to
+     * 24 px, because at 20 px the label sat closer to the border than the border
+     * sat to its neighbours. The arrow is set in the label's own optical weight
+     * and moves 4 px on hover — the only motion on this page, and it is
+     * directional rather than decorative: it points where the control goes.
+     * And the transition now covers `transform` as well as colour, so the
+     * movement is eased rather than snapped.
+     *
+     * Under reduced motion the global rule in `globals.css` narrows
+     * `transition-property` to colour alone, so the arrow arrives instantly
+     * instead of sliding. That is the correct degradation and it is free.
+     */
     const action =
-      'inline-flex min-h-target-min items-center justify-center gap-2 rounded-md border-hairline border-color-border-strong px-5 font-text text-type-label text-color-text-primary no-underline transition-colors duration-fast ease-standard hover:border-color-text-primary hover:bg-color-surface-raised active:bg-color-surface-sunken';
+      'group inline-flex min-h-target-min items-center justify-center gap-3 rounded-sm ' +
+      'border-hairline border-color-border-strong px-6 font-text text-type-label ' +
+      'text-color-text-primary no-underline transition-colors duration-fast ease-standard ' +
+      'hover:border-color-text-primary hover:bg-color-surface-raised active:bg-color-surface-sunken';
+
+    // Decorative: the link text already says where it goes.
+    const arrow = (
+      <span
+        aria-hidden="true"
+        className="transition-transform duration-fast ease-standard group-hover:translate-x-1"
+      >
+        &rarr;
+      </span>
+    );
+
     return external ? (
       <a href={href} className={action}>
         {children}
@@ -46,6 +78,7 @@ export function Link({
     ) : (
       <NextLink href={href} className={action}>
         {children}
+        {arrow}
       </NextLink>
     );
   }

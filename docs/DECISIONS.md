@@ -39,6 +39,7 @@ Records are immutable once accepted. A decision that changes gets a new record t
 | [021](#adr-021) | Ambient system motion is a second motion system, bounded separately | Superseded by ADR-023 |
 | [022](#adr-022) | The home page reports measurements, and prints what it cannot measure | Superseded by ADR-023 |
 | [023](#adr-023) | The home page is one idea in two hundred words | Accepted |
+| [024](#adr-024) | Art direction pass: the home page is finished as a composition | Accepted |
 
 ---
 
@@ -1176,3 +1177,64 @@ The idea is stated outright exactly once, as the last line of screen 5, after fo
 - **ADR-022's measurement pipeline survives, and only one number from it reaches the page.** `measure` and `check:measured` still run in CI, still fail on drift, and the home page renders a single figure from them. That ratio — an entire verification pipeline behind one sentence — is the right one, and it took writing the wrong version to see it.
 - **The word budget will be inconvenient**, which is the point. The next genuinely good idea for this page will have to displace something rather than be appended, and appending is precisely how the page reached thirteen screens without any individual change ever looking wrong.
 - **Four versions in one day is not a process to be proud of.** The first three were each defensible and each wrong in the same way, and what corrected it was not a gate — it was being told the page felt like documentation. This project's characteristic failure, named in ADR-019, is description drifting from reality; the equivalent here is *effort drifting from effect*, and nothing in CI can see it.
+
+---
+
+<a id="adr-024"></a>
+## ADR-024 — Art direction pass: the home page is finished as a composition
+
+**Status:** Accepted · 2026-08-06 · Amends `FOUNDATION.md` §5, `TOKENS.md` §3.2 and §4.6, `ICONOGRAPHY.md` §3, `COMPONENT_GUIDELINES.md` §3.3
+
+### Context
+
+ADR-023 settled what the home page says and how long it is: one idea, six screens, under three hundred words. That decision was about structure, and structure is where the previous three versions had gone wrong.
+
+What it did not do was look at the page as a *composition*. A page can be correctly structured, correctly budgeted, and still read as a set of components that happen to be stacked — and reviewing V4 against the work it is meant to sit beside surfaced a list of specific, unglamorous defects, none of which any gate can see:
+
+- The opening statement at 80 px ran nearly the full width of a 1440 px viewport. It was the only thing on the screen and it looked like it knew it: heavy rather than confident.
+- The line beneath it was `POSITIONING` — a category description, doing the one job a subtitle must not do, which is restate the headline in duller words.
+- The evidence line read "Nothing reaches `main` until N checks pass", with the branch name set at 14.5 px against 22.5 px of surrounding lede. At that ratio an inline technical term stops reading as a change of voice and starts reading as a stylesheet that failed to load.
+- Section rhythm at 192 px between screens had passed the point where a gap reads as deliberate and become a gap that reads as empty.
+- The primary control was a default-shaped button: 4 px radius, tight padding, no indication of direction.
+- Navigation put "Work" next to "Workflow" — two items sharing a stem, so the eye had to read both to tell them apart.
+- The footer restated the contact screen it sat directly beneath, heading and all.
+
+### Decision
+
+**Sixteen changes, none of which alters the structure ADR-023 fixed.** The ones that carry a principle:
+
+**1. The opening statement drops from 80 px to 66 px, gains `text-balance`, and is held at prose width.** Size was only part of it — most of what made 80 px feel heavy was measure. Balanced and constrained, the statement sets in two near-equal lines and reads as a shape rather than as a paragraph that wrapped.
+
+**2. `POSITIONING` leaves the hero and stays in the metadata.** It is replaced by `VOICE`: *"I care more about what a system does when it fails than what it does when it works."* This amends `FOUNDATION.md` §5 for the third time, and the amendment is narrower than it looks — §5 exists to stop the canonical sentence being *paraphrased* across surfaces, and it still is not. It is defined once, used verbatim, and now sits where a category description belongs: the `<meta name="description">` a search engine reads. What replaced it is the only sentence on the page written in a human voice, which is the correct number.
+
+**3. Every remaining number and label was reviewed as typography, not as content.** Section rhythm down ~17% at every step. The two systems' metadata shortened until each sets on one line — the OrchestAI string had been breaking inside ".NET 8", splitting a version number across two lines. Refusal rows widened to 5/7 so no subject wraps, and set to share a first baseline across the serif and the sans. The closing line balanced so it no longer ends on a two-word orphan.
+
+**4. `10 → 5 → 1` splits its colour.** Numerals in the primary text colour, arrows in the tertiary. Set uniformly it read as a string of characters; split, the eye lands on the three numbers and the arrows fall back to punctuation. That is the difference between a line of text and a diagram, and it cost one `map`.
+
+**5. The action control becomes a designed one.** Radius to 2 px so it belongs to the same family as every hairline on the page; padding to 24 px; and a trailing arrow that moves 4 px on hover. That arrow is the only motion on the page and it is directional rather than decorative — it points where the control goes. Under reduced motion the global rule narrows `transition-property` to colour and the arrow arrives instantly, which is the correct degradation and is free.
+
+**6. Two navigation labels change; no routes do.** "Workflow" becomes "Method", because four items of navigation must never require reading two of them to tell them apart. "Connect" becomes "Contact", because that is the word people look for — ADR-014 decided the route should exist, not what to call it.
+
+**7. The footer stops being the contact section a second time.** It is now one row: wordmark, four marks, the year. It still satisfies `ARCHITECTURE.md` §4 — no route is a dead end — at the weight a footer should carry.
+
+**8. Brand marks are the one exception to `ICONOGRAPHY.md` §3.** GitHub's and LinkedIn's marks drawn at 1.5 stroke with no fill are outlines nobody recognises, which is the single failure an icon cannot survive. They are reproductions of someone else's mark and their recognisability *is* their meaning, so they are drawn filled, on the same 24 grid, in the same `currentColor`. Every icon link keeps a visually-hidden label — §6 is unchanged, and an icon still never carries meaning alone.
+
+### Alternatives considered
+
+**Leave the hero at 80 px and fix only the measure.** Rejected, but it was close, and constraining the measure did most of the work. 66 px is the size at which the statement stops competing with itself for the reader's attention while remaining 1.5× the largest heading beneath it.
+
+**Keep `POSITIONING` in the hero and add the human sentence as a third line.** Rejected. Three lines under a headline is a paragraph, and the category line was the one contributing least. Adding rather than replacing is the exact instinct that produced V3.
+
+**Set the branch name larger instead of removing it.** Rejected. Raising `type-code` to fix one sentence changes every inline code span on the site, including the case studies, to solve a problem that exists in one place. "Merges" carries the same fact, needs no second typeface, and is a word shorter.
+
+**Draw GitHub and LinkedIn in the house stroke grammar.** Rejected — see above. Consistency that destroys recognition is not consistency.
+
+**Add a second micro-interaction somewhere.** Rejected. One directional arrow is the whole motion budget of this page, and a second would make the first ordinary.
+
+### Consequences
+
+- **The page is 251 words across 4.7 screens**, from 274 across 5.6. Nothing was cut for length; the reduction is entirely tightened sentences and tightened rhythm.
+- **`text-balance` is now load-bearing in three places** — the statement, the hero subtitle, and the closing line. It is well supported and degrades to normal wrapping, but it is a rendering behaviour rather than a layout we control, and a browser without it will set those lines less elegantly rather than incorrectly.
+- **`FOUNDATION.md` §5 has now been amended three times** (ADR-020, ADR-022, this record). The sentence has never been paraphrased and never appeared twice, which is what §5 actually protects. That the *position* has moved three times suggests §5 was specifying layout inside a content document, and a future revision should probably say so.
+- **The icon set is at ten of a documented maximum of fifteen**, and two of them are not ours. That exception should not be extended: a third brand mark would mean the footer is turning into a social bar.
+- **Nothing here was verifiable by a gate**, and that is the honest summary of this record. Every defect it fixes was visible only by looking at the page beside the work it wants to be compared to. The word budget from ADR-023 catches length; nothing catches *heavy*.

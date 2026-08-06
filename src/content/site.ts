@@ -63,16 +63,22 @@ export const AVAILABILITY =
   'Open to AI Engineer and Full-Stack roles, and collaboration on AI infrastructure.';
 
 /**
- * The status-badge form of `AVAILABILITY`, for the home page hero eyebrow.
+ * The line beneath the home page's opening statement — ADR-024.
  *
- * Not a second source of truth — a second *register*. The eyebrow is set in
- * uppercase mono at 11.5 px, and the full sentence there wrapped to two lines
- * and read as a paragraph that happened to be shouted, which is the opposite of
- * what a status indicator does. Anything longer than about thirty characters
- * stops being a badge.
+ * **This replaced `POSITIONING` in that slot, and the swap is the point.**
+ * "AI-Native Full-Stack Engineer designing reliable software systems through
+ * architecture, orchestration, and verification" is an accurate description of a
+ * category. It is the right sentence to hand a search engine, which is where it
+ * still lives — `POSITIONING` is unchanged and remains the document
+ * description. It was the wrong sentence to put under a claim, because a
+ * category cannot explain a claim; it can only restate it in duller words.
  *
- * The two are reviewed together whenever availability changes (ADR-014). If they
- * ever disagree, this one is wrong: `AVAILABILITY` is the statement, and this is
- * its abbreviation.
+ * This sentence explains what "survive production" means, in the words an
+ * engineer would actually use, and it is a position someone could disagree
+ * with — which is what makes it worth reading and worth remembering.
+ *
+ * It is also the only sentence on the home page written in a human voice rather
+ * than a technical one, and one is the correct number.
  */
-export const AVAILABILITY_STATUS = 'Open to AI Engineer roles';
+export const VOICE =
+  'I care more about what a system does when it fails than what it does when it works.';

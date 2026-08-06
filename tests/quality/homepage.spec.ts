@@ -1,7 +1,14 @@
 import { expect, test } from '@playwright/test';
 
-import { CLOSING, METHOD, REFUSALS, SYSTEMS, THESIS } from '../../src/content/home';
-import { POSITIONING } from '../../src/content/site';
+import {
+  CLOSING,
+  METHOD,
+  METHOD_EVIDENCE,
+  REFUSALS,
+  SYSTEMS,
+  THESIS,
+} from '../../src/content/home';
+import { POSITIONING, VOICE } from '../../src/content/site';
 
 /**
  * Home page contract — Version 4, ADR-023.
@@ -31,10 +38,19 @@ test('band 1 leads with the thesis, as the only h1', async ({ page }) => {
   await expect(h1).toHaveText(THESIS);
 });
 
-test('the positioning sentence is still on the page, verbatim', async ({ page }) => {
-  // FOUNDATION.md §5. Moved out of the `<h1>` by ADR-020, never dropped.
+test('the claim is explained in a human voice, not a category', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('main')).toContainText(POSITIONING);
+  await expect(page.locator('main')).toContainText(VOICE);
+});
+
+test('the positioning sentence remains the document description', async ({ page }) => {
+  // FOUNDATION.md §5, as amended by ADR-024. The canonical sentence is still
+  // defined once and still used verbatim — it moved from the hero to the place
+  // a category description actually belongs, which is the metadata a search
+  // engine reads. What §5 forbids is paraphrase, and nothing here paraphrases.
+  await page.goto('/');
+  const description = await page.locator('meta[name="description"]').getAttribute('content');
+  expect(description).toBe(POSITIONING);
 });
 
 test('the page stays inside its word budget', async ({ page }) => {
@@ -64,7 +80,7 @@ test('screens appear in the frozen order', async ({ page }) => {
     'OrchestAI',
     'NovaMind AI',
     'What I didn’t build',
-    'Work with me',
+    'Available',
   ]);
 });
 
@@ -75,6 +91,10 @@ test('the workflow objection is answered before any project appears', async ({ p
   const headings = await page.locator('main h2').allTextContents();
   expect(headings.indexOf(METHOD.join(''))).toBe(0);
   await expect(page.locator('main')).toContainText('Verification that blocks the merge');
+  // ADR-024 — the evidence line carries no inline `<code>`; at 14.5 px against
+  // 22.5 px of lede an inline technical term read as a broken stylesheet.
+  await expect(page.locator('main')).toContainText(METHOD_EVIDENCE);
+  await expect(page.locator('main code')).toHaveCount(0);
 });
 
 test('no screen carries a call to action', async ({ page }) => {
@@ -115,8 +135,12 @@ test.describe('the one idea', () => {
     const drift = REFUSALS.find((refusal) => refusal.id === 'drift');
     expect(drift).toBeDefined();
 
+    // Asserted against the constant rather than a copy of its wording. The
+    // sentence is edited from time to time; what must never change is that a
+    // refusal admitting an uncaught failure is on the page at all.
+    expect(drift?.what).toContain('drift');
     await page.goto('/');
-    await expect(page.locator('main')).toContainText('nothing catches it now');
+    await expect(page.locator('main')).toContainText(drift!.line);
   });
 });
 

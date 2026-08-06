@@ -6,10 +6,10 @@ import { Reveal } from '@/components/motion/Reveal';
 import { Container } from '@/components/primitives/Container';
 import { Link } from '@/components/primitives/Link';
 import { Text } from '@/components/primitives/Text';
-import { CLOSING, METHOD, REFUSALS, SYSTEMS, THESIS } from '@/content/home';
+import { CLOSING, METHOD, METHOD_EVIDENCE, REFUSALS, SYSTEMS, THESIS } from '@/content/home';
 import { loadCaseStudies } from '@/content/loader';
 import { totalChecks } from '@/content/measured';
-import { AVAILABILITY, NAME, POSITIONING, contact } from '@/content/site';
+import { AVAILABILITY, NAME, POSITIONING, VOICE, contact } from '@/content/site';
 import { pageMetadata } from '@/app/metadata';
 
 /**
@@ -73,26 +73,32 @@ export default function HomePage() {
           Nothing animates — it is above the fold (`MOTION.md` §5). */}
       <section>
         <Container width="wide">
-          <div className="flex flex-col gap-12 pb-section-md pt-section-md">
-            <div className="flex flex-col gap-10">
-              <Text token="hero" as="h1">
+          <div className="flex flex-col gap-16 pb-section-md pt-section-md">
+            <div className="flex flex-col gap-8">
+              {/*
+                `text-balance` is what fixes the line breaks. At 66 px the
+                statement sets in two lines either way; balanced, the two are
+                near-equal in length and the block reads as a shape rather than
+                as a paragraph that happened to wrap. `max-w-prose` stops it
+                running the full 1120 px, which was most of why 80 px felt heavy.
+              */}
+              <h1 className="max-w-prose text-balance font-display text-type-hero text-color-text-primary">
                 {THESIS}
-              </Text>
+              </h1>
 
-              {/* `POSITIONING` verbatim (`FOUNDATION.md` §5) — the category,
-                  beneath the claim. Held at prose width so it reads as a
-                  subtitle rather than as a second headline. */}
-              <div className="max-w-prose">
-                <Text token="lede" color="secondary">
-                  {POSITIONING}
-                </Text>
-              </div>
+              {/* ADR-024 — the one sentence on this page in a human voice.
+                  `POSITIONING` remains the document description; it is no longer
+                  the line beneath the claim, because a category cannot explain
+                  a claim. */}
+              <p className="max-w-prose text-balance font-text text-type-lede text-color-text-secondary">
+                {VOICE}
+              </p>
+            </div>
 
-              <div>
-                <Link href="/work" variant="action">
-                  Read the work
-                </Link>
-              </div>
+            <div>
+              <Link href="/work" variant="action">
+                Read the engineering
+              </Link>
             </div>
 
             {/* The one surviving instrument. A footnote, deliberately. */}
@@ -117,9 +123,9 @@ export default function HomePage() {
                 </span>
               ))}
             </h2>
-            <div className="flex flex-col gap-6 lg:col-span-4 lg:justify-end">
+            <div className="flex flex-col gap-5 lg:col-span-4 lg:justify-end">
               <Text token="lede" color="secondary">
-                Nothing reaches <code>main</code> until {totalChecks} checks pass.
+                {`${METHOD_EVIDENCE} ${totalChecks} checks pass.`}
               </Text>
               <div>
                 <Link href="/workflow">How it works</Link>
@@ -146,24 +152,42 @@ export default function HomePage() {
                 </Text>
               </div>
 
-              <div className="flex flex-col gap-8 lg:col-span-8">
+              <div className="flex flex-col gap-10 lg:col-span-8">
                 {/* The figure exists only where three numerals arrive faster
                     than a sentence. One system has one; one does not. */}
                 {system.figure ? (
-                  <p aria-hidden="true">
-                    <Text token="hero" as="span" color="secondary">
-                      {system.figure}
-                    </Text>
+                  /*
+                    The page's only figure, and the craft is in the split:
+                    numerals in the primary colour, arrows in the tertiary. Set
+                    uniformly they read as one string of characters; set this way
+                    the eye lands on 10, 5 and 1 and the arrows fall back to
+                    being punctuation. That is the difference between a line of
+                    text and a diagram. ADR-024.
+                  */
+                  <p
+                    aria-hidden="true"
+                    className="flex items-baseline gap-4 font-display text-type-hero"
+                  >
+                    {system.figure.split(' → ').map((value, index) => (
+                      <span key={value} className="flex items-baseline gap-4">
+                        {index > 0 ? (
+                          <span className="text-color-text-tertiary">&rarr;</span>
+                        ) : null}
+                        <span className="text-color-text-primary">{value}</span>
+                      </span>
+                    ))}
                   </p>
                 ) : null}
 
-                <Text token="heading-1" as="p">
-                  {system.idea}
-                </Text>
-                <div className="max-w-prose">
-                  <Text token="lede" color="secondary">
-                    {system.consequence}
-                  </Text>
+                <div className="flex flex-col gap-5">
+                  <p className="max-w-prose text-balance font-display text-type-heading-1 text-color-text-primary">
+                    {system.idea}
+                  </p>
+                  <div className="max-w-prose">
+                    <Text token="lede" color="secondary">
+                      {system.consequence}
+                    </Text>
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-8">
@@ -185,7 +209,7 @@ export default function HomePage() {
           named — after four demonstrations of it rather than before. */}
       <Reveal>
         <Screen>
-          <div className="flex flex-col gap-16">
+          <div className="flex flex-col gap-12">
             <Text token="heading-2" as="h2">
               What I didn’t build
             </Text>
@@ -194,14 +218,14 @@ export default function HomePage() {
               {REFUSALS.map((refusal) => (
                 <li
                   key={refusal.id}
-                  className="grid gap-x-16 gap-y-3 border-t-hairline border-color-border-subtle py-8 last:border-b-hairline md:grid-cols-12"
+                  className="grid gap-x-16 gap-y-3 border-t-hairline border-color-border-subtle py-8 last:border-b-hairline md:grid-cols-12 md:items-baseline"
                 >
-                  <div className="md:col-span-4">
+                  <div className="md:col-span-5">
                     <Text token="heading-3" as="span">
                       {refusal.what}
                     </Text>
                   </div>
-                  <div className="md:col-span-8">
+                  <div className="md:col-span-7">
                     <Text token="body" as="span" color="secondary">
                       {refusal.line}
                     </Text>
@@ -210,11 +234,9 @@ export default function HomePage() {
               ))}
             </ul>
 
-            <div className="max-w-prose">
-              <Text token="heading-2" as="p">
-                {CLOSING}
-              </Text>
-            </div>
+            <p className="mt-4 max-w-prose text-balance font-display text-type-heading-2 text-color-text-primary">
+              {CLOSING}
+            </p>
           </div>
         </Screen>
       </Reveal>
@@ -227,7 +249,7 @@ export default function HomePage() {
           <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
             <div className="flex flex-col gap-8 lg:col-span-7">
               <Text token="heading-2" as="h2">
-                Work with me
+                Available
               </Text>
               <div className="max-w-prose">
                 <Text token="lede" color="secondary">
@@ -236,7 +258,7 @@ export default function HomePage() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <Link href="/connect" variant="action">
-                  What to bring
+                  Start a conversation
                 </Link>
                 <Link href="/resume" variant="action">
                   Résumé
@@ -244,7 +266,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <dl className="flex flex-col gap-5 lg:col-span-5 lg:justify-end">
+            <dl className="flex flex-col gap-5 lg:col-span-4 lg:col-start-9 lg:justify-end">
               {[
                 ['Based in', contact.location],
                 ['Hours', contact.timezone],

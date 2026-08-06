@@ -1,65 +1,77 @@
 import { Container } from '@/components/primitives/Container';
-import { Link } from '@/components/primitives/Link';
-import { Stack } from '@/components/primitives/Stack';
+import { Icon, type IconName } from '@/components/primitives/Icon';
 import { Text } from '@/components/primitives/Text';
-import { AVAILABILITY, NAME, contact } from '@/content/site';
+import { NAME, contact } from '@/content/site';
 
 import { ThemeControl } from './ThemeControl';
 
 /**
- * COMPONENT_GUIDELINES.md §3.3 and `docs/wireframes/README.md` §4.
+ * The end of every route — COMPONENT_GUIDELINES.md §3.3, rewritten by ADR-024.
  *
- * The terminal action for every route (ARCHITECTURE.md §4 — no route is a dead
- * end). It resolves ledger R5 and C9 everywhere, and it is retained alongside
- * `/connect` rather than replaced by it: a reader decides mid-page, and a route
- * cannot reach that moment (ADR-014).
+ * **It used to be the contact section again.** A heading, the availability
+ * sentence, the address, and four text links — all of which the home page had
+ * just said one screen above. Repeating a section verbatim beneath itself is the
+ * clearest signal a page can send that it does not trust the reader to have read
+ * it, and on every other route it was simply four links wearing a paragraph.
  *
- * The address is selectable plaintext beside the `mailto:` link — `mailto:`
- * fails for readers without a configured mail client (INTERACTION.md §16).
+ * What remains is one row: the wordmark, four marks, the year. It still answers
+ * `ARCHITECTURE.md` §4 — no route is a dead end — and it now does so at the
+ * weight a footer should carry, which is barely any.
  *
- * The theme control appears here below `--bp-sm` only; above it the control
- * lives in the header.
+ * **The icons keep their names.** `ICONOGRAPHY.md` §6 is explicit that an icon
+ * never carries meaning alone; each link has a visually-hidden label, so the
+ * accessible name is a word and the icon is reinforcement. That is also what
+ * keeps the row usable at 44 px targets rather than becoming a puzzle.
  */
+
+const LINKS: readonly { href: string; label: string; icon: IconName; external: boolean }[] = [
+  { href: contact.github, label: 'GitHub', icon: 'github', external: true },
+  { href: contact.linkedin, label: 'LinkedIn', icon: 'linkedin', external: true },
+  { href: `mailto:${contact.email}`, label: 'Email', icon: 'mail', external: false },
+  { href: '/resume', label: 'Résumé', icon: 'document', external: false },
+];
+
 export function Footer() {
   return (
-    <footer className="mt-section-lg border-t-hairline border-color-border-subtle">
+    <footer className="mt-section-md border-t-hairline border-color-border-subtle">
       <Container width="wide">
-        <div className="py-section-sm">
-          <Stack gap={6}>
-            <Text as="h2" token="heading-4">
-              Get in touch
+        <div className="flex flex-col gap-8 py-section-sm sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-2">
+            <Text token="mono" color="tertiary">
+              © 2026 {NAME}
             </Text>
-            <Text token="body" color="secondary">
-              {AVAILABILITY}
+            {/* The address stays selectable plaintext beside the mail link:
+                `mailto:` fails for a reader with no configured mail client
+                (INTERACTION.md §16), and a footer is where they look for it. */}
+            <Text token="mono" color="tertiary">
+              {contact.email}
             </Text>
-            <Stack gap={2} as="ul">
-              <li className="list-none">
-                <Text token="body-sm" color="secondary" as="span">
-                  {contact.email}
-                </Text>{' '}
-                <Link href={`mailto:${contact.email}`}>Send an email</Link>
-              </li>
-              <li className="list-none">
-                <Link href={contact.github} external>
-                  GitHub
-                </Link>
-              </li>
-              <li className="list-none">
-                <Link href={contact.linkedin} external>
-                  LinkedIn
-                </Link>
-              </li>
-              <li className="list-none">
-                <Link href="/resume">Résumé</Link>
-              </li>
-            </Stack>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <ul className="flex list-none items-center gap-1">
+              {LINKS.map((link) => (
+                <li key={link.label}>
+                  <a
+                    href={link.href}
+                    {...(link.external ? { rel: 'me noreferrer' } : {})}
+                    className="flex min-h-target-min min-w-target-min items-center justify-center rounded-sm text-color-text-tertiary transition-colors duration-fast ease-standard hover:text-color-text-primary"
+                  >
+                    <Icon name={link.icon} size="md" />
+                    <span className="sr-only">
+                      {link.label}
+                      {link.external ? ' (opens an external site)' : ''}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            {/* Below `--bp-sm` the theme control lives here; above it, in the
+                header. Exactly one exists at any width. */}
             <div className="sm:hidden">
               <ThemeControl />
             </div>
-            <Text token="caption" color="tertiary">
-              © 2026 {NAME}
-            </Text>
-          </Stack>
+          </div>
         </div>
       </Container>
     </footer>

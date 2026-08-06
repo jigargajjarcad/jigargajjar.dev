@@ -49,15 +49,18 @@ describe('primitives match TOKENS.md', () => {
     expect(typeScale[300]).toEqual({ mobile: 17, desktop: 18 });
     expect(typeScale[800]).toEqual({ mobile: 38, desktop: 55 });
     // ADR-020 — step 900 exists for the home page's opening statement.
-    expect(typeScale[900]).toEqual({ mobile: 40, desktop: 80 });
+    expect(typeScale[900]).toEqual({ mobile: 40, desktop: 66 });
   });
 
-  it('step 900 is a step change from 800, not another rung of the ramp', () => {
-    // The point of the step is that it is different in kind from a section
-    // heading. At the 1.25 ratio the rest of the ramp uses it would land at 69,
-    // which is a slightly bigger heading rather than an opening statement.
-    const ratio = typeScale[900].desktop / typeScale[800].desktop;
-    expect(ratio).toBeGreaterThan(1.4);
+  it('step 900 stays different in kind from the largest size beneath it', () => {
+    // ADR-024 lowered 900 from 80 to 66, so the old assertion — 900 against 800
+    // — no longer holds and should not: `type-display` has no consumer on the
+    // page 900 exists for. The relationship that governs the design is 900
+    // against `heading-1`, the largest size any section beneath the opening
+    // uses. Below about 1.4 the statement stops being different in kind from a
+    // section heading, which is the whole reason the step exists.
+    const heading1 = typeScale[semanticType['type-heading-1'].step].desktop;
+    expect(typeScale[900].desktop / heading1).toBeGreaterThanOrEqual(1.4);
   });
 
   it('space scale omits steps 7, 9, 11, 13-15, 17-19 deliberately', () => {

@@ -74,7 +74,7 @@ test('navigation is a plain visible list without JavaScript', async ({ browser }
   const page = await context.newPage();
   await page.goto('http://localhost:3000/');
   // Markup first, disclosure second (INTERACTION.md §9).
-  for (const label of ['Work', 'Workflow', 'About', 'Connect']) {
+  for (const label of ['Work', 'Method', 'About', 'Contact']) {
     await expect(page.getByRole('link', { name: label, exact: true })).toHaveCount(1);
   }
   await context.close();

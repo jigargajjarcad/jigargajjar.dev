@@ -43,13 +43,10 @@ Density `compact` for band 1 — the layer-1 region above the fold. `default` fo
 ├───────────────────────────────────────┤
 │                          ⟨--space-section-sm⟩
 │ H1                                    │
-│ Senior Full-Stack Engineer            │
-│ building production systems           │
-│ through an AI-native                  │
-│ engineering workflow —                │
-│ architecting, directing, and          │
-│ verifying while AI agents             │
-│ implement.                            │
+│ AI-Native Full-Stack Engineer         │
+│ designing reliable software systems   │
+│ through architecture, orchestration,  │
+│ and verification.                     │
 │                                       │
 │ .NET · TypeScript · React ·           │
 │ PostgreSQL · MCP                      │
@@ -164,11 +161,9 @@ Changes from mobile only. Everything not listed is identical.
 ┌─────────────────────────────────────────────────────┐
 │ Jigar Gajjar      Work Workflow About Connect {theme}│  ← nav expands, ≥ --bp-sm
 ├─────────────────────────────────────────────────────┤
-│ H1  Senior Full-Stack Engineer building              │
-│     production systems through an AI-native          │
-│     engineering workflow — architecting,             │
-│     directing, and verifying while AI agents         │
-│     implement.                                       │
+│ H1  AI-Native Full-Stack Engineer designing reliable │
+│     software systems through architecture,           │
+│     orchestration, and verification.                 │
 │                                                      │
 │ .NET · TypeScript · React · PostgreSQL · MCP         │
 │ ‹Read the work›   ‹Résumé›                           │
@@ -201,10 +196,9 @@ Changes from mobile only. Everything not listed is identical.
 ├───────────────────────────────────────────────────────────────┤
 │  ⟨--container-wide, 1120⟩                                      │
 │                                                                │
-│  H1  Senior Full-Stack Engineer building production            │
-│      systems through an AI-native engineering workflow —       │
-│      architecting, directing, and verifying while              │
-│      AI agents implement.                                      │
+│  H1  AI-Native Full-Stack Engineer designing reliable software │
+│      systems through architecture, orchestration, and          │
+│      verification.                                             │
 │                          ⟨measure capped at 32ch display⟩      │
 │      .NET · TypeScript · React · PostgreSQL · MCP              │
 │      ‹Read the work›   ‹Résumé›                                │

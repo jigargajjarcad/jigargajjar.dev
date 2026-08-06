@@ -99,7 +99,7 @@ The objection answered before it is asked. Not the full method — one compresse
 
 The primary story, carried far enough to be evidence rather than a summary: what it is, the constraint that made it hard, one architectural decision with its rejected alternative, and how correctness was established. Then the link into the full case study.
 
-**Why OrchestAI specifically:** it is the AI Infrastructure & Framework Engineering story (`FOUNDATION.md` §9) — designing systems other engineers build on. Of the three competencies, it is the one that most directly evidences the positioning claim, because framework design is judged by abstraction quality and verification methodology, which are precisely the capabilities the site argues are scarce. It is also public, so every claim in the band is checkable in one click.
+**Why OrchestAI specifically:** it is the AI Infrastructure Engineering story (`FOUNDATION.md` §9) — the infrastructure that has to hold when the workload it carries is non-deterministic. Of the three competencies, it is the one that most directly evidences the positioning claim, because it is carried by decision records and verification methodology rather than by features, which are precisely the capabilities the site argues are scarce. It is also public, so every claim in the band is checkable in one click.
 
 **Why featured rather than three equal doors:** three equal doors is a menu, and a menu asks the reader to choose before they have grounds to. One story carried to depth gives the reader evidence *and* a demonstration of what the other two will be like. This is the guide-don't-ask decision.
 
@@ -231,7 +231,7 @@ Mapped to `EXPERIENCE_PRINCIPLES.md` §1–§2.
 No analytics (ADR-009). Validated by observation in the Tier 3 sessions (`FOUNDATION.md` §11), with three homepage-specific protocol additions:
 
 1. **The 30-second belief test.** Show the homepage for thirty seconds, then ask: *"does this person write their own code?"* Pass: the reader states the position accurately and does not treat it as an open question. Tests band 2 directly and is the single most important homepage measurement.
-2. **The specificity test.** After a full read, ask what they learned about OrchestAI. Pass: they can name one engineering decision and why it was made. Failure: "it's an AI framework." This tests whether band 3 delivered evidence or a summary.
+2. **The specificity test.** After a full read, ask what they learned about OrchestAI. Pass: they can name one engineering decision and why it was made. Failure: "it's an AI agent thing." This tests whether band 3 delivered evidence or a summary.
 3. **The exit-path observation.** Record whether readers leave via a band or via the header. Header-dominant behaviour indicates the narrative did not carry (§7).
 
 ---

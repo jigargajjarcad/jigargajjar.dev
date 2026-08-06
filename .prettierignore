@@ -5,6 +5,7 @@ src/styles/tokens.css
 .lighthouseci
 playwright-report
 test-results
+.impeccable
 
 # Frozen documentation — ROADMAP.md §6. Tooling does not rewrite the specification.
 docs/

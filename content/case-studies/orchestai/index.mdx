@@ -1,0 +1,362 @@
+---
+title: OrchestAI
+slug: orchestai
+competency: ai-infrastructure
+summary: A multi-tenant agent orchestration service on .NET 8, where tenant isolation, cost control, and trace integrity are enforced by infrastructure rather than by convention.
+role: Sole engineer — architecture, decision records, and verification strategy. Implementation through AI-assisted development under my direction, review, and acceptance.
+stack:
+  - .NET 8
+  - ASP.NET Core
+  - MediatR
+  - EF Core 8
+  - PostgreSQL
+outcomes:
+  - Tenant isolation fails closed, enforced by query filters and a database constraint rather than by developer discipline
+  - Admission, budget, and rate decisions resolve before any model call, so rejected work never partially executes
+  - Every run emits OpenTelemetry-shaped trace and span identifiers, making execution reconstructable end to end
+sourceUrl: https://github.com/jigargajjarcad/orchestai
+disclosure: public
+lifecycle: released
+order: 1
+visibility: published
+updated: '2026-08-05'
+cover:
+  src: cover.svg
+  alt: The admission path, from authenticated request through budget reservation to agent execution
+  width: 1200
+  height: 630
+---
+
+## Context and constraints
+
+OrchestAI began as an attempt at something it did not become.
+
+The original intent was a framework: a library that .NET developers would install and
+extend, defining their own agents while the framework owned the orchestration
+lifecycle. The motivating observation was real enough — mature multi-agent
+orchestration tooling is concentrated in Python, and a .NET team wanting to adopt it
+faces a choice between leaving its ecosystem and writing coordination logic by hand.
+
+That is not what got built. The repository contains a deployable multi-tenant
+orchestration service with six fixed agent types, and this document describes what was
+built, because that is what exists.
+
+The consumer surface is HTTP and an API key, not a NuGet package. `AgentType` is a
+closed enum of six values. Agents and MCP tools are registered by concrete type in
+`DependencyInjection.cs` — there is no `AddAgent<T>()`, no assembly scanning, no
+public extension point. Adding an agent means editing the enum, writing the class,
+registering it, and updating orchestrator routing, from inside the repository rather
+than from outside it.
+
+<Callout variant="note" heading="On comparison with existing frameworks">
+  Semantic Kernel was reviewed during early problem exploration, at the level of documentation,
+  architecture, and published samples. No equivalent implementation was ever built with it, and no
+  application was migrated between the two. The comparison informed a direction; it is not evidence
+  of anything, and this document draws no conclusion from it. LangGraph, AutoGen, and CrewAI are
+  extensible libraries and are not the same category of software as this service.
+</Callout>
+
+The constraints that shaped the result were a single engineer working with AI-assisted
+implementation, a five-and-a-half-week calendar window, and no users. The last of
+these matters most: every decision here was made against imagined load rather than
+observed load, and the document says so wherever it is relevant.
+
+## Timeline
+
+<Timeline
+  entries={[
+    {
+      stage: 'Planning',
+      period: 'Before implementation',
+      body: 'Scope divided into twelve sequential delivery milestones, with clean architecture and CQRS chosen before implementation began.',
+    },
+    {
+      stage: 'Architecture',
+      period: 'Early milestones',
+      body: 'Domain, Application, Infrastructure, and API projects; the six-agent roster; MCP tool registry; EF Core persistence.',
+    },
+    {
+      stage: 'Implementation',
+      period: '25 June – 2 August 2026',
+      body: 'Orchestration, parallel and sequential execution, SSE streaming, checkpointing, memory extraction, and the React demo surface.',
+    },
+    {
+      stage: 'Major setbacks',
+      period: 'Early implementation',
+      body: 'The Anthropic SDK wrapper proved not to be an abstraction boundary. Correcting it required new domain records and rewriting the agent base class.',
+    },
+    {
+      stage: 'Verification',
+      period: 'Milestones 8–12',
+      body: 'Evaluation and scoring model, post-hoc scoring of historical traces, tenant isolation, abuse and cost protection, then an accessibility and verification pass.',
+    },
+    {
+      stage: 'Release',
+      period: '2 August 2026',
+      body: 'v1.0 closure. Six closure documents written so that returning to the repository later does not require reconstructing context from the commit log.',
+    },
+    {
+      stage: 'Future roadmap',
+      period: 'Tracked as revisit triggers',
+      body: 'Horizontal scaling, distributed rate limiting, durable approval state, and threshold calibration — each attached to the decision that deferred it.',
+    },
+  ]}
+/>
+
+<Callout variant="note" heading="What a milestone is, and is not">
+  The decision records refer to numbered weeks — "Week 8," "Week 9," and in ADR-016 the phrase "11
+  prior weeks." These are planned delivery milestones, not elapsed calendar time. The repository was
+  created on 25 June 2026 and reached v1.0 closure on 2 August 2026, a span of roughly five and a
+  half weeks, during which twelve planned milestones were completed. ADR-016's wording is imprecise
+  on this point and is corrected here rather than repeated.
+</Callout>
+
+## Architecture
+
+Four projects in the conventional dependency order: `Domain` holds entities, enums, and
+interfaces; `Application` holds CQRS commands, queries, and MediatR handlers;
+`Infrastructure` holds agents, MCP tools, and EF Core; `API` holds controllers,
+middleware, and the SSE endpoints.
+
+The path a request takes is the part worth understanding, because nearly every
+architectural decision in the project is positioned somewhere along it.
+
+<Figure caption="The admission path. Each stage can reject; none passes partially-admitted work forward.">
+  <Diagram
+    title="Request admission and execution path"
+    description="An authenticated request passes through tenant authentication, rate limiting, and admission control with budget reservation, before the orchestrator plans and dispatches sub-agents, whose progress streams back over Server-Sent Events."
+    viewBox="0 0 660 60"
+  >
+    {/* Labels are expression children, not markdown text. MDX wraps standalone
+        text in a paragraph, and a `<p>` inside SVG `<text>` renders nothing —
+        Prettier reformats one-line elements onto three lines, so writing them
+        inline does not survive `format:check`. An expression child does. */}
+    <text x="0" y="34">
+      {'request'}
+    </text>
+    <text x="81" y="34">
+      {'tenant auth'}
+    </text>
+    <text x="191" y="34">
+      {'rate limit'}
+    </text>
+    <text x="279" y="34">
+      {'admission'}
+    </text>
+    <text x="379" y="34">
+      {'orchestrator'}
+    </text>
+    <text x="496" y="34">
+      {'agents'}
+    </text>
+    <text x="570" y="34">
+      {'SSE stream'}
+    </text>
+  </Diagram>
+</Figure>
+
+`TenantAuthenticationMiddleware` resolves an API key of the form
+`orch_live_<publicKeyId>.<secret>` — a 12-character base62 public identifier and a
+32-character base62 secret, stored as a SHA-256 hash and compared with `FixedTimeEquals`.
+The resolved tenant is placed in an `AsyncLocal` accessor, which is what allows the same
+scoping mechanism to serve both HTTP requests and background workers.
+
+Rate limiting is a token bucket partitioned by tenant, with a queue limit of zero so
+that excess requests are rejected immediately rather than delayed. Admission control
+then reserves budget atomically before any model is invoked.
+
+Only after all three have passed does `OrchestratorAgent` decompose the task, select
+agents, and choose an execution mode. Parallel dispatch runs sub-agents concurrently
+through `Task.WhenAll`. Sequential dispatch runs them one at a time, injecting the
+prior agent's output into the next agent's prompt as plain text, capped at 3,000
+characters. Progress streams back to the caller over SSE.
+
+The six agents — Orchestrator, Research, Writer, Code, Data, Browser — all run on the
+same model and differ by system prompt and tool access. Four tools are registered into
+a single `ToolRegistry`: Firecrawl, Perplexity, filesystem write, and a database tool.
+The published capability matrix assigns only the first three to agents.
+
+## Key decisions
+
+<Decision
+  context="Thirteen entities carry tenant data. Any read that forgets to filter by tenant is a cross-tenant disclosure, and code review is the only thing standing between a missing WHERE clause and a breach."
+  choice="Apply EF Core global query filters generically by reflection to every ITenantScoped entity, with reads failing closed — the predicate compares against the ambient tenant and never degrades to TRUE when no tenant is present. A TenantScopingInterceptor stamps TenantId on writes and rejects mismatches. The default system tenant is made unauthenticatable by a Postgres CHECK constraint forbidding any ApiKey row against it."
+  alternatives="A User-belongs-to-Tenant relationship with role-based access control; within-tenant authorization policies; enforcement by convention and code review."
+  consequence="Isolation is a property of the data access layer rather than of developer memory. The trade-off is that the mechanism is implicit — a developer reading a repository method does not see the filter that protects it. ADR-014 records one hole this does not close: a disconnected Update() cannot detect a tampered TenantId, and that is safe only because TenantId has a private setter with no post-construction mutation path anywhere in the codebase."
+/>
+
+<Decision
+  context="An orchestration plan can exceed the tenant's agent cap, tool-call ceiling, or remaining budget. The obvious response is to run what fits and stop there."
+  choice="Reject the task cleanly — Failed status, a specific error, a RejectionEvent row — before any agent is dispatched. Never truncate. Budget is reserved atomically under SELECT ... FOR UPDATE on the tenant row, inside a single transaction with the Pending to Running state change."
+  alternatives="Silent truncation of plans exceeding the cap; queue-based batching of requests that cannot currently run; composing the checks from separate repository calls rather than one transaction."
+  consequence="A partially-executed task would produce a trace that the evaluation system later scores as if it were a complete run, corrupting the historical record that regression detection depends on. Refusing to truncate is therefore an evaluation requirement expressed as an admission rule. The all-or-nothing guarantee requires that exact transactional scope, which is why the checks are not decomposed into tidier repository methods."
+/>
+
+<Decision
+  context="Cost dashboards querying raw ledger rows get slower as the ledger grows, but discarding raw rows in favour of pre-aggregation destroys the per-execution detail a single run's timeline needs."
+  choice="Keep raw entities as the single source of truth and add a CostRollups table at one row per date, user, agent type, and model grain, refreshed every five minutes. Dashboards blend rollups for historical ranges with a live query over today. Timeline and summary views always read raw. Trace identifiers use System.Diagnostics ActivityTraceId and ActivitySpanId rather than a custom scheme."
+  alternatives="Pure read-time aggregation; pure write-time aggregation discarding raw rows; a custom identifier scheme; reusing the existing GUID primary keys as trace and span identifiers."
+  consequence="Eventual consistency is accepted for aggregates — up to five minutes — but never for a single run's trace, which must be queryable the instant it completes. Using the BCL types means a future OTLP exporter is a mapping exercise rather than a redesign. ADR-011 also records that no retention or archival job ships, and that this needs revisiting as raw tables approach tens of millions of rows."
+/>
+
+<Comparison
+  caption="The three aggregation strategies considered for observability, per ADR-011"
+  columns={['Dashboards stay fast', 'Per-run detail survives', 'Adopted']}
+  rows={[
+    { label: 'Read-time aggregation only', cells: ['No', 'Yes', 'No'] },
+    { label: 'Write-time aggregation only', cells: ['Yes', 'No', 'No'] },
+    { label: 'Hybrid: rollups plus raw', cells: ['Yes', 'Yes', 'Yes'] },
+  ]}
+/>
+
+Sixteen decision records cover the system. What distinguishes them from a list of
+choices is that each deferral carries the condition that should reverse it — "first
+second instance deployed," "third handler needs the same dispatch flow," "row counts
+approach tens of millions." Limitations are not tracked as issues; they are attached
+to the decisions that created them.
+
+## Failures and mistakes
+
+### Wrapping an SDK is not isolating it
+
+The Anthropic client was placed behind `IAnthropicClientWrapper` early, on the
+assumption that hiding the vendor client contained the dependency. The transport was
+hidden, so the boundary appeared to hold.
+
+It did not. As the test suite expanded and agents were constructed in isolation,
+Anthropic SDK types kept surfacing in places that should have known nothing about
+them — agent tests needed vendor request and response models to build fixtures.
+The client had been wrapped, but its data shapes had passed straight through.
+
+Correcting it was not a change to the wrapper. It required introducing `AgentTurn`
+and `AgentConversation` as domain records, defining `ILlmProvider` as a genuine
+anti-corruption layer, and rewriting `AgentBase` to depend on `ILlmProviderFactory`
+so that agents carry zero SDK imports. Existing abstractions changed and their tests
+changed with them.
+
+The lesson is narrow enough to be useful: a wrapper hides the transport, but a
+boundary changes the vocabulary. An abstraction only becomes real when the code
+around it stops speaking the vendor's language. It happened early enough that no
+external consumer was affected — which is luck about timing, not judgement.
+
+### The description drifted away from the software
+
+The framework framing at the top of this document survived far longer than it should
+have. Each decision that moved away from it was locally reasonable: a fixed agent
+roster is easier to test, explicit registration is easier to follow, centralised
+routing is easier to reason about. None of them was wrong on its own. Together they
+moved the architecture steadily toward a closed service while the description stayed
+where it started.
+
+<Callout variant="critical" heading="How this was actually caught">
+  Not by stepping back and reviewing the repository. The drift surfaced during preparation of this
+  case study, when the project's stated positioning was checked line by line against its own source
+  and the six-value `AgentType` enum contradicted it immediately. The correction came from review
+  against the source, not from recollection. Two further claims failed the same check in the same
+  session: that the project spanned eleven weeks, and that its known limitations were tracked as
+  GitHub issues. The repository is five and a half weeks old and has zero open issues.
+</Callout>
+
+Correcting it cost no implementation work, but shipping it would have cost every other
+claim in the document. Had the framing shipped, the first engineer to open the
+repository would have found the contradiction in under a minute. Architecture should be
+described from the evidence of the implementation, not from the ambition that started
+it.
+
+## Verification
+
+The test suite and the evaluation system protect different halves of the system, and
+conflating them would leave both looking stronger than they are.
+
+**Tests protect the deterministic shell.** Tenant scoping, budget reservation, rate
+limiting, admission control, idempotency behaviour, persistence, and the orchestration
+pipeline all have exactly one correct answer, and a regression in any of them is a
+security or correctness failure rather than a quality one. Those are the areas where
+the suite is load-bearing — where changing code without it would be genuinely
+uncomfortable. The README records 435 xUnit tests, but a count is an input, not
+evidence; what matters is which components would be unsafe to change without them.
+
+The delivery pipeline adds migration validation across both fresh-install and
+upgrade-from-prior scenarios with a schema diff between the two, a container smoke
+test against real Postgres using the production image rather than a CI-only variant,
+dependency vulnerability scanning, Trivy image scanning at high and critical severity,
+and a Playwright accessibility suite with axe over the demo surface.
+
+<CodeBlock language="bash">{`dotnet test tests/OrchestAI.Tests --configuration Release
+cd frontend && npm run test && npm run test:e2e`}</CodeBlock>
+
+**Evaluations protect behavioural quality**, which tests structurally cannot reach. No
+assertion can establish that a generated response is correct in the way it can
+establish that a tenant filter is correct. The evaluation system exists to detect when
+a change to prompts, routing, models, or orchestration makes overall behaviour
+materially worse while every deterministic test still passes. Suites can also score
+historical traces after the fact, without re-executing them.
+
+<Callout variant="critical" heading="The regression threshold is not calibrated">
+  The LLM judge runs at temperature 0, which yields directional reliability but not bit-exact
+  reproducibility — model updates, provider routing, and floating-point non-associativity all remain
+  sources of drift, as ADR-012 records. Regression detection therefore compares against a tolerance
+  band rather than exact equality. That threshold reflects engineering judgement and has not been
+  validated against a body of observed run-to-run variance. It should be read as an engineering
+  safeguard, not as evidence of model quality or as a calibrated confidence interval.
+</Callout>
+
+Two limitations of the verification story are worth stating plainly. Rate limiting,
+the tool-call budget counter, and the eval queue all hold state in process memory, so
+a second API instance would silently defeat each of them. And CI runs on push to
+`main` rather than as a pre-merge gate — GitHub's required status checks cannot
+coexist with the direct-push workflow this project used, so branch protection provides
+linear history and blocks force-pushes but does not gate builds.
+
+## Outcomes
+
+There are no usage outcomes. The system has never been run by anyone other than its
+author, has no tenants, no traffic, and no production incidents. Any figure describing
+latency under load, cost saved, or users served would be invented, so none appears
+here.
+
+What can be claimed are properties the code demonstrably has, each checkable by
+opening a named file or decision record.
+
+<Metric
+  value="12"
+  unit="milestones"
+  label="Planned delivery milestones completed"
+  qualifier="across 5.5 calendar weeks, 25 June to 2 August 2026"
+/>
+
+**Tenant isolation fails closed.** Enforcement lives in EF Core global query filters
+applied by reflection to every `ITenantScoped` entity, a write interceptor that stamps
+and validates `TenantId`, and a Postgres `CHECK` constraint that makes the system
+tenant structurally unauthenticatable. A developer who forgets to filter still gets a
+filtered read. ADR-014.
+
+**Cost and admission decisions resolve before any model call.** Budget reservation,
+rate limiting, and structural caps are evaluated at admission under a single
+transaction, and a task that cannot run to completion is rejected rather than started.
+ADR-015.
+
+**Execution is reconstructable end to end.** Every task carries a 32-hex-character
+trace identifier; every agent execution and tool call carries a span and parent span,
+built on the BCL's OpenTelemetry-shaped types. ADR-011.
+
+The project is deployable — Railway for the API, Vercel for the demo surface — but no
+public instance is maintained, and this document links to source rather than to a
+running deployment.
+
+## Looking back
+
+Both of this project's mistakes were caught the same way — by putting a claim next to
+the source and reading them together. The SDK wrapper looked correct from outside and
+failed on inspection of what actually crossed it; the framework framing looked correct
+from memory and failed on inspection of what the code offered.
+
+What I would do differently is not architectural. The fixed agent roster, the closed
+tool registry, and the centralised routing were the right calls for a single engineer
+delivering a scoped system in five and a half weeks, and I would make them again. What I would
+change is the checking — reading the repository against its own README at each
+milestone boundary rather than at the end, so that drift is caught in the milestone
+that caused it rather than six weeks later.
+
+Every architectural claim in this document is traceable to source, a decision record,
+or a test. Where something could not be verified, it says so.

@@ -1,9 +1,12 @@
+import type { Metadata } from 'next';
+
 import { Container } from '@/components/primitives/Container';
 import { Link } from '@/components/primitives/Link';
 import { Stack } from '@/components/primitives/Stack';
 import { Text } from '@/components/primitives/Text';
 import { loadCaseStudies } from '@/content/loader';
 import type { CaseStudy } from '@/content/types';
+import { pageMetadata } from '@/app/metadata';
 
 /**
  * `/work` — ROUTE_SPECIFICATIONS.md §1.
@@ -21,7 +24,8 @@ import type { CaseStudy } from '@/content/types';
  */
 const COMPETENCY_LABEL: Record<CaseStudy['frontmatter']['competency'], string> = {
   'ai-product': 'AI Product Engineering',
-  'ai-infrastructure': 'AI Infrastructure & Framework Engineering',
+  // ADR-019 — the framework claim is withdrawn; the `competency` slug is unchanged.
+  'ai-infrastructure': 'AI Infrastructure Engineering',
   enterprise: 'Enterprise Software Engineering',
   methodology: 'Engineering Methodology',
 };
@@ -59,6 +63,14 @@ function CaseStudyEntry({ study, level }: { study: CaseStudy; level: 'h2' | 'h3'
   );
 }
 
+export const metadata: Metadata = pageMetadata({
+  title: 'Work',
+  description:
+    'Four case studies, one per competency: AI infrastructure, AI product engineering, ' +
+    'enterprise engineering, and the methodology behind this site.',
+  path: '/work',
+});
+
 export default function WorkPage() {
   const studies = loadCaseStudies();
   const flagship = studies.filter((s) => s.frontmatter.competency !== 'methodology');
@@ -71,9 +83,13 @@ export default function WorkPage() {
           <Text token="heading-1" as="h1">
             Work
           </Text>
+          {/* States the plan without claiming a count of published studies —
+              ADR-012 fixes the three competencies, but how many are written is
+              a fact the listing below already carries. A hardcoded number here
+              was wrong the moment it was written. */}
           <Text token="lede">
-            Three projects, three different kinds of engineering. Plus this site, which is the
-            fourth.
+            Three kinds of engineering, one project each, plus this site — which documents how the
+            work gets made. What is published so far is below.
           </Text>
         </Stack>
 
@@ -91,8 +107,8 @@ export default function WorkPage() {
               Methodology
             </Text>
             <Text token="body">
-              The fourth case study is this site. Specification first, decisions recorded, gates
-              before features.
+              This site is its own case study. Specification first, decisions recorded, gates before
+              features.
             </Text>
             <Stack gap={6} as="ul">
               {methodology.map((study) => (

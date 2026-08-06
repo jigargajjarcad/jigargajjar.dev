@@ -157,3 +157,10 @@ next-env.d.ts
 /.lighthouseci/
 /playwright-report/
 /test-results/
+
+# Design-detector tool state. `config.json` is the shared waiver register and is
+# committed deliberately; the cache and per-developer override are machine-local
+# and were previously excluded only in `.git/info/exclude`, which does not travel.
+/.impeccable/hook.cache.json
+/.impeccable/hook.pending.json
+/.impeccable/config.local.json

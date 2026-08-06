@@ -21,7 +21,7 @@ Three purposes are sanctioned (`ARCHITECTURE.md` §9). Every animation in the sy
 |---|---|---|
 | Orientation | New content has arrived and here is where it sits | Entrance reveal (§5) |
 | Confirmation | Your input registered | Interaction feedback (§6) |
-| Continuity | This is the same object, in a new state | Shared continuity (§7) |
+| ~~Continuity~~ | ~~This is the same object, in a new state~~ | Shared continuity — **removed by ADR-018** (§7) |
 
 A fourth purpose — *focus* — is handled separately because it is not really animation: the focus indicator must appear instantly and merely settles (§6.3).
 
@@ -56,7 +56,7 @@ Three curves. Frozen in principle by `ARCHITECTURE.md` §9 ("a standard emphasiz
 
 | Token | Curve | Use |
 |---|---|---|
-| `--ease-standard` | `cubic-bezier(0.2, 0, 0, 1)` | Default. Hover, press, state changes, shared continuity |
+| `--ease-standard` | `cubic-bezier(0.2, 0, 0, 1)` | Default. Hover, press, state changes |
 | `--ease-decelerate` | `cubic-bezier(0.05, 0.7, 0.1, 1)` | Entrances. Element arriving and coming to rest |
 | `--ease-accelerate` | `cubic-bezier(0.3, 0, 0.8, 0.15)` | Exits. Element leaving |
 
@@ -70,7 +70,7 @@ Three curves. Frozen in principle by `ARCHITECTURE.md` §9 ("a standard emphasiz
 
 **No linear easing on anything a reader perceives as physical** (`ARCHITECTURE.md` §9). Linear motion has no analogue in the physical world and reads as machine-driven. The one permitted exception is a pure opacity cross-fade with no transform component, which is not perceived as physical movement.
 
-**Springs are not used.** Motion's spring physics are excellent and produce genuinely better continuity animation. They are declined here for two reasons: spring animations have no fixed duration, which makes the 400 ms ceiling unenforceable and untestable; and their overshoot reads as playful, which is the wrong register for `VISUAL_LANGUAGE.md` §1. If a future pattern genuinely needs continuity that duration-based easing cannot express, that is an ADR.
+**Springs are not used.** Spring physics produce genuinely better continuity animation, and they are declined for two reasons independent of any implementation: a spring has no fixed duration, which makes the 400 ms ceiling unenforceable and untestable; and its overshoot reads as playful, which is the wrong register for `VISUAL_LANGUAGE.md` §1. Under ADR-018 they are also unavailable, since no animation library is a dependency. If a future pattern genuinely needs continuity that duration-based easing cannot express, that is an ADR.
 
 ---
 
@@ -167,18 +167,15 @@ Full focus indicator specification: `ACCESSIBILITY.md` §4.
 
 ---
 
-## 7. Shared continuity
+## 7. Shared continuity — removed
 
-Layout animation between two states of the same element, used only where the continuity is real (`ARCHITECTURE.md` §9). Rare by design.
+**This pattern was removed by ADR-018.** It is not available and must not be reintroduced without a new decision record.
 
-| Property | Value |
-|---|---|
-| Duration | `--duration-base` (240 ms) |
-| Easing | `--ease-standard` |
+It was specified because `ARCHITECTURE.md` §9 sanctioned it, not because a use case had been identified, and this section committed in advance to its own removal: "If Phase 3 completes without consuming it, it should be removed from the system rather than kept for a hypothetical." Phase 3 completed and phases 4 through 6 identified no consumer.
 
-**The test for "real continuity":** the two states must be the *same object*, and the reader must be able to point at what moved. Animating between two different elements that happen to occupy similar positions is not continuity — it is a morph, and it is disorienting because the reader's model of the interface is now wrong.
+Layout animation between two states of the same element is also the one sanctioned pattern that raw CSS cannot do well, so it was the pattern carrying the cost of an animation library on its own. Removing an unused pattern rather than paying 35 KB to keep it available is the trade ADR-018 makes.
 
-**Expected uses in this site: possibly none.** The site is a static document set with no in-place state transitions. This pattern is specified because `ARCHITECTURE.md` §9 sanctions it, not because a use case has been identified. If Phase 3 completes without consuming it, it should be removed from the system rather than kept for a hypothetical.
+**If future work genuinely needs it**, that is a new ADR stating the consumer, measuring the mechanism against the budget of the day, and saying what is given up in exchange.
 
 ---
 
@@ -223,7 +220,7 @@ Under `prefers-reduced-motion: reduce`:
 
 **The reduced-motion path is tested in CI** (`ARCHITECTURE.md` §11, §12), not assumed. The test asserts that no transform-based animation is applied under the media query — this is the class of regression that is invisible to a developer who does not have the setting enabled.
 
-**The global mechanism** is `MotionConfig` with `reducedMotion: "user"`, so that a component author cannot forget. Per-component media queries are a supplement, never the primary mechanism, because they rely on every author remembering.
+**The global mechanism** is a single `prefers-reduced-motion: reduce` block in the base stylesheet, which removes transform-based transitions everywhere so a component author cannot forget. Per-component handling is a supplement, never the primary mechanism, because it relies on every author remembering.
 
 ---
 
@@ -231,7 +228,7 @@ Under `prefers-reduced-motion: reduce`:
 
 From `ARCHITECTURE.md` §9, restated because it constrains design:
 
-- The animation library is imported through `LazyMotion` with the DOM-animation feature set only.
+- No animation library is a dependency (ADR-018). Entrance reveal uses one `IntersectionObserver` and a CSS transition; every other pattern is CSS only.
 - Motion components live under `components/motion/` as client leaves and are the **only** sanctioned animation surface. A component elsewhere importing the animation library directly is a defect.
 - Animated content renders visible without JavaScript.
 
@@ -242,9 +239,9 @@ From `ARCHITECTURE.md` §9, restated because it constrains design:
 ## 11. Maintenance implications
 
 - **The four-duration, three-easing set will be under pressure.** The request will be for "just a slightly slower one for this." Each addition halves the perceptibility of the distinctions between existing tokens. Additions require an ADR.
-- **Springs remain available and remain declined.** If they are ever adopted, the 400 ms ceiling and its CI assertion must be reworked, because springs have no duration to assert against.
+- **Springs are unavailable and remain declined on their own merits.** If they are ever adopted, it requires both a library (ADR-018) and a rework of the 400 ms ceiling and its CI assertion, because springs have no duration to assert against.
 - **The reduced-motion CI assertion is the load-bearing test.** It is the only thing preventing a well-intentioned transform from being added to a component and shipping unnoticed.
-- **If shared continuity (§7) is unused at the end of Phase 3, remove it.** A sanctioned pattern with no consumer is a pattern that will eventually be used badly because it was available.
+- ~~**If shared continuity (§7) is unused at the end of Phase 3, remove it.**~~ Done — removed by ADR-018. A sanctioned pattern with no consumer is a pattern that will eventually be used badly because it was available.
 
 ---
 

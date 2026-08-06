@@ -33,6 +33,8 @@ Records are immutable once accepted. A decision that changes gets a new record t
 | [015](#adr-015) | The shared framework chunk is a recorded baseline, not a design budget | Accepted |
 | [016](#adr-016) | Case-study adjacency is a single forward link, cycling by `order` | Accepted |
 | [017](#adr-017) | The cover image is metadata, never rendered in the article | Accepted |
+| [018](#adr-018) | Motion is implemented natively; the animation library is removed | Accepted |
+| [019](#adr-019) | OrchestAI is an orchestration service; the framework claim is withdrawn | Accepted |
 
 ---
 
@@ -452,7 +454,9 @@ Enforcement is structural rather than remembered. The `disclosure: restricted` f
 <a id="adr-011"></a>
 ## ADR-011 — Motion is a design system with a budget
 
-**Status:** Accepted · 2026-08-04
+**Status:** Accepted · 2026-08-04 · **Implementation mechanism superseded by ADR-018**
+
+> The decision below stands in full: motion remains a closed system with a budget, the four sanctioned patterns are unchanged, and every constraint holds. Only the *mechanism* named in "Containment" and in the rejected "CSS transitions and keyframes only" alternative is superseded. That alternative anticipated this: "If the sanctioned pattern list ever shrinks to entrances and hovers, this ADR should be superseded and the library dropped." Measurement met that condition (ADR-018).
 
 ### Context
 
@@ -502,7 +506,9 @@ Motion is a constrained design system, not a per-component decision.
 <a id="adr-012"></a>
 ## ADR-012 — Each flagship project tells one non-overlapping competency story
 
-**Status:** Accepted · 2026-08-04
+**Status:** Accepted · 2026-08-04 · **OrchestAI's competency characterisation superseded by ADR-019**
+
+> The decision below stands in full: three flagship projects, one non-overlapping competency each, and the non-competition rule are all unchanged. Only OrchestAI's *characterisation* is superseded. Where this record describes it as framework engineering evidenced by "abstractions, extension points, and framework verification," ADR-019 withdraws that claim against the source: `AgentType` is a closed enum and every agent and tool registers by concrete type. The competency is AI Infrastructure Engineering, evidenced by isolation, cost control, and observability. The slug `ai-infrastructure` is unchanged, so nothing in the schema or the content contract is affected.
 
 ### Context
 
@@ -784,3 +790,144 @@ Its sole consumer is the Open Graph card for the case-study route. Where a case 
 - No reading surface gains an image, so `ARCHITECTURE.md` §7's "prefer no image" and the one-image-above-the-fold cap are unaffected.
 - **A declared cover must exist on disk at build time.** `content/case-studies/jigargajjar-dev/index.mdx` currently declares `cover.svg`, which does not exist. That is latent: nothing reads it today, and it becomes a build failure when the Open Graph route is implemented. It must be resolved then — by creating the asset or by removing the declaration — and is recorded here so it is not discovered as a surprise.
 - The generated-card fallback means a case study is never without a social image.
+
+---
+
+<a id="adr-018"></a>
+## ADR-018 — Motion is implemented natively; the animation library is removed
+
+**Status:** Accepted · 2026-08-04 · Supersedes the implementation mechanism of ADR-011
+
+### Context
+
+`ARCHITECTURE.md` §1 named Motion (Framer Motion) as the animation technology, and §9 with `MOTION.md` §10 required it be imported through `LazyMotion` with the DOM-animation feature set only. Three consecutive implementation reports carried an estimate that this would cost 15–18 KB gzipped, and each noted that the remaining first-load headroom was close to that figure.
+
+The estimate was never measured. A spike measured it.
+
+**Measured, `motion@12.43.0`, gzipped, two independent methods:**
+
+| Implementation | Route-specific | First Load JS | vs 120 KB budget |
+|---|---|---|---|
+| Baseline, no motion | — | 103 kB | — |
+| `LazyMotion` + `domAnimation` + `strict` — as documented | **38.4 KB** | **142 kB** | **exceeds by 18.8 KB** |
+| `LazyMotion` with async feature loading | — | 169 kB | exceeds by 45 KB |
+| `IntersectionObserver` + CSS | **0.4 KB** | **103 kB** | fits, 13.9 KB spare |
+
+The documented mechanism costs **+35.0 KB gzipped**. Chunk analysis of Next's build manifest and real browser transfer measurement agreed: +35.0 KB gzipped, +114.2 KB raw (357.2 → 471.4 KB across the page load).
+
+Applied to the real worst route — `/work/[slug]` at 109.1 KB — the result is **144.1 KB against a 120 KB budget, over by 24.1 KB.** A 20% overrun, not a rounding error.
+
+**Why the 15–18 KB estimate was wrong.** It described `domAnimation`'s own documented weight in isolation. It did not account for what `LazyMotion` and the `m` component pull in alongside it once bundled through Next's webpack graph, nor for React 19's own contribution to the route chunk. The figure was plausible, was repeated across three reports without being checked, and was wrong by more than a factor of two. Nothing in the project's process caught it, because nothing measured it — the bundle gate only fires against code that exists, and the code did not exist.
+
+**The estimate survived precisely because it sat below the threshold of alarm.** 15–18 KB against 10.9 KB of headroom reads as "tight, watch it." 35 KB reads as "impossible." The project spent three phases managing a risk whose size it had never established. This is the failure mode `FOUNDATION.md` §7 exists to prevent — *verify before claiming success* — applied to a number rather than to a feature.
+
+**Runtime is not the blocker.** Median of three Lighthouse runs, documented mechanism versus native: Total Blocking Time 0 ms in both, Largest Contentful Paint 429 ms versus 430 ms, main-thread work 107 ms versus 79 ms. The library is not slow. It is large.
+
+**This is a tooling decision, not a design decision.** The interaction design is unaffected and remains valid.
+
+### Decision
+
+**Motion / Framer Motion is removed from the architecture.** No animation library is a dependency of this project.
+
+The four sanctioned patterns of `ARCHITECTURE.md` §9 are implemented as follows. Three of them already were.
+
+| Pattern | Mechanism |
+|---|---|
+| Entrance reveal (§5) | `IntersectionObserver` sets a state attribute; a CSS transition on `opacity` and `transform` carries the animation, with duration and easing from the motion tokens |
+| Interaction feedback — hover, press (§6.1–6.2) | CSS only. Already implemented; unchanged |
+| Focus transitions (§6.3) | CSS only. Already implemented; unchanged |
+| Shared continuity (§7) | **Removed.** It has no identified consumer |
+
+**Shared continuity is removed on the terms `MOTION.md` §7 set for itself:** "This pattern is specified because `ARCHITECTURE.md` §9 sanctions it, not because a use case has been identified. If Phase 3 completes without consuming it, it should be removed from the system rather than kept for a hypothetical." Phase 3 completed. Phases 4, 5 and 6 identified no consumer. A sanctioned pattern with no consumer is a pattern that will eventually be used badly because it was available.
+
+**Nothing else changes.**
+
+- Duration and easing tokens are unchanged, and remain frozen at four durations and three easings.
+- The `transform`-and-`opacity`-only constraint is unchanged and becomes easier to enforce, not harder: a CSS transition property list is statically greppable.
+- The reduced-motion path of §9 is unchanged and is already implemented globally in `globals.css`, where it removes transform-based transitions rather than shortening them. It was never dependent on the library.
+- Progressive enhancement is unchanged: animated content renders visible by default and the script only adds the animation, so a script failure cannot hide content (`ARCHITECTURE.md` §2).
+- `components/motion/` remains the only sanctioned animation surface.
+- Every performance budget is unchanged. None is weakened by this decision.
+- Every accessibility guarantee is unchanged.
+
+### Alternatives considered
+
+**A. Keep Motion despite exceeding the budget.** Rejected. It violates the first-load budget in `ARCHITECTURE.md` §10 by 24.1 KB on the worst route. §10 is explicit that a treatment exceeding a budget line "is not implemented and then optimized — it is redesigned or dropped."
+
+**B. Raise the performance budget.** Rejected. It contradicts ADR-006 directly: budgets exist to constrain engineering decisions, and "a budget that can be quietly raised when it becomes inconvenient is not a budget." ADR-015 raised one line and was careful to distinguish a constant the project inherits from a constraint it chooses. This budget is a constraint the project chose, the overrun is caused by a replaceable tool, and a cheaper mechanism satisfying the same behaviour was measured. Raising it here would be exactly the erosion ADR-006 warns against.
+
+**C. `LazyMotion` with async feature loading.** Rejected on measurement, not on principle. It was expected to defer the feature bundle past first load; it measured **worse** — 169 kB against 142 kB — because the async import plus `strict` re-pulls the module graph. The obvious mitigation made the problem larger.
+
+**D. Native implementation — `IntersectionObserver` and CSS. Accepted.** 0.4 KB route-specific, 95× cheaper than the documented mechanism, and verified against the behavioural contract rather than assumed: the reveal fires on intersection at the specified threshold; content is visible with JavaScript disabled; under `prefers-reduced-motion: reduce` the computed transition property list contains colour properties only, with transforms removed.
+
+### Consequences
+
+**Positive.**
+
+- Every performance budget is met with headroom. First load on the worst route stays at ~109.5 KB against 120 KB rather than 144.1 KB.
+- One production dependency removed. The dependency surface returns to five packages.
+- The animation runtime is roughly 0.4 KB instead of 35 KB — a 95× reduction for identical behaviour.
+- Enforcement gets easier. A CSS transition property list can be asserted by a static check; a library's runtime behaviour cannot.
+- Progressive enhancement is structurally simpler: there is no hydration boundary between the content and its visibility.
+- Fewer moving parts to maintain, and no framework-upgrade coupling to an animation library.
+
+**Negative.**
+
+- **Shared layout animation is no longer available.** Animating between two states of the same element across a layout change is genuinely hard in raw CSS, and this decision forfeits the capability. It is being forfeited having never been used, which is the cheapest possible moment to forfeit it.
+- Spring physics are unavailable. `MOTION.md` §3 already declined them, because a spring has no fixed duration and the 400 ms ceiling would be unenforceable — so nothing is lost that was wanted.
+- Any future pattern needing interruptible or physics-based animation would require reintroducing a library, and reintroduction now carries a measured 35 KB price rather than an estimated one.
+
+**Mitigation.** If future work genuinely requires shared layout transitions or physics-based animation, that is a new ADR. It must state the pattern's consumer, measure the mechanism's cost against the budget of the day, and say what is given up in exchange. Re-adding a library is a decision, not a convenience, and the measurement in this record is the baseline it must argue against.
+
+---
+
+<a id="adr-019"></a>
+## ADR-019 — OrchestAI is an orchestration service; the framework claim is withdrawn
+
+**Status:** Accepted · 2026-08-04
+
+### Context
+
+`FOUNDATION.md` §9 describes the flagship AI-infrastructure project as "a multi-agent AI framework built on .NET with CQRS and MCP integration, taken to production release," whose story is "designing for other engineers: abstractions, extension points, protocol integration." The same section sets the competency question as "Can this person design systems other engineers build on?" `HOMEPAGE_NARRATIVE.md` §4 justifies featuring the project on those grounds: "framework design is judged by abstraction quality and verification methodology." Both documents are frozen. The competency label `AI Infrastructure & Framework Engineering` renders from `src/app/page.tsx` and `src/app/work/page.tsx`, directly above the project's summary on the homepage.
+
+Phase 6 content production checked those claims against `github.com/jigargajjarcad/orchestai`. Three are contradicted by the repository:
+
+- **It is not a framework.** `AgentType` is a closed enum of six values. `DependencyInjection.cs` registers each agent and each tool by concrete type — there is no `AddAgent<T>()`, no assembly scanning, and no public extension point. The consumer surface is HTTP with an API key, not a package. That repository's own ADR-005 declines to introduce a seventh agent type partly because doing so "avoids adding another enum value," which treats adding an agent as a cost rather than as an extension point.
+- **There are no extension points** in the sense §9 claims. Adding an agent means editing the enum, writing the class, registering it, and updating orchestrator routing, from inside the repository.
+- **It was not taken to production release.** Its ADR-011 describes a "pre-adoption development phase"; ADR-004 records single-instance-only approval state; ADR-015 records that a second API instance "would silently defeat" the rate limiter, the tool-call counter, and the eval queue. The project has no users and no maintained public instance.
+
+The claims were not dishonest when written. They described the project's intent at Phase 1, before its implementation had settled. They became false as the implementation drifted, and nothing in the process re-checked them until content production put the description next to the source.
+
+### Decision
+
+**The framework claim is withdrawn. The project is described as an AI orchestration service, and the competency remains AI infrastructure engineering.**
+
+Applied in code by this record:
+
+- `src/app/page.tsx` and `src/app/work/page.tsx` — the display label becomes `AI Infrastructure Engineering`.
+
+The `competency` value `ai-infrastructure` is **unchanged**. It is a slug, not a claim; the schema enumeration, ADR-012's non-competition rule, and the content contract are untouched.
+
+Authorised by this record but **not applied here**, as corrections to frozen documents under `ROADMAP.md` §6:
+
+- `FOUNDATION.md` §9, portfolio table — the competency cell becomes `AI Infrastructure Engineering`, and the question "Can this person design systems other engineers build on?" becomes "Can this person build infrastructure that holds under adversarial use?"
+- `FOUNDATION.md` §9, project paragraph — "a multi-agent AI framework … taken to production release" becomes "a multi-tenant multi-agent orchestration service on .NET with CQRS and MCP integration, released at v1.0"; the sentence contrasting framework engineering with product engineering is rewritten around isolation, cost control, and observability rather than extension points.
+- `HOMEPAGE_NARRATIVE.md` §4 — the justification for featuring the project drops "framework design is judged by abstraction quality" and rests on the reasons that survive: it is public, it is full-depth, and every claim in the band is checkable in one click.
+
+### Alternatives considered
+
+**Change the `competency` enum value.** Rejected. The overclaim is in the display label and in prose, not in the slug. Changing the enum would touch the content schema, ADR-012, existing frontmatter, and route generation to fix a wording problem.
+
+**Keep the label and soften the case study instead.** Rejected, and it is the alternative worth naming explicitly. It inverts the rule the site is built on: where a document and its artifact disagree, the artifact wins. Adjusting the evidence to preserve the claim is the exact failure this project exists to argue against.
+
+**Feature a different case study on the homepage.** Rejected. `HOMEPAGE_NARRATIVE.md` §4 features this project because it is public and presented at full depth, and both reasons survive intact. Only the word "framework" fails.
+
+**Leave `FOUNDATION.md` §9 alone and add a correction note elsewhere.** Rejected. The freeze exists to prevent redesign-by-drift, not to preserve errors. `ROADMAP.md` §6 already classifies factual corrections as bug fixes, and a frozen document that states something the repository disproves is worse than an edited one.
+
+### Consequences
+
+- The homepage stops rendering a claim that the case study immediately refutes. This was visible above the fold.
+- **The case study is stronger for it.** The evidence it can actually show — isolation that fails closed, admission control that refuses to partially execute, OpenTelemetry-shaped tracing — is infrastructure engineering, and it is verifiable. The framework claim was the only part a reader could disprove in under a minute.
+- **A precedent, and a gap.** Claims in frozen documents about *external* repositories are only as current as the last time they were checked against those repositories. This is the first such correction. `FOUNDATION.md` §9's descriptions of NovaMind AI and the Edge10 platform have **not** been verified against their sources, and should be before either case study is written.
+- ADR-012's non-competition rule is unaffected. Infrastructure engineering remains distinct from product engineering and from enterprise engineering; only the sub-claim about extension points is withdrawn.
+- `README.md` still says "14 ADRs" and "`ADR-001 – ADR-014`". That was already stale before this record and is now stale by five. Noted here; not fixed by this record, since `README.md` is outside the freeze register and can be corrected directly.

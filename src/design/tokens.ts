@@ -106,10 +106,18 @@ export const typeScale = {
   800: { mobile: 38, desktop: 55 },
 } as const;
 
-/** TOKENS.md §3.3 — font families. */
+/**
+ * TOKENS.md §3.3 — font families.
+ *
+ * The adjusted fallback families come before the raw system faces: they are the
+ * same faces carrying the metric overrides in `globals.css`, so the pre-swap
+ * render matches the webfont's measurements and §10's zero-layout-shift line
+ * holds. The unadjusted names remain behind them for engines that do not
+ * support metric overrides.
+ */
 export const fontFamily = {
-  display: '"Newsreader Variable", Georgia, serif',
-  text: '"Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+  display: '"Newsreader Variable", "Newsreader Fallback", Georgia, serif',
+  text: '"Inter Variable", "Inter Fallback", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
   mono: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace',
 } as const;
 
@@ -476,6 +484,18 @@ export function tokensCss(): string {
     ':root[data-theme="dark"] {',
     declarations(themeVariables('dark')),
     '  color-scheme: dark;',
+    '}',
+    '',
+    // `wireframes/07-resume.md` §6 — print resolves to light regardless of the
+    // reader's setting. Emitted from the same `light` source as every other
+    // block above rather than restated by hand, so a token change cannot leave
+    // the printed document behind. Last in the file so it wins over both the
+    // media query and the explicit `[data-theme]` override.
+    '@media print {',
+    '  :root {',
+    declarations(themeVariables('light'), '    '),
+    '    color-scheme: light;',
+    '  }',
     '}',
     '',
   ].join('\n');

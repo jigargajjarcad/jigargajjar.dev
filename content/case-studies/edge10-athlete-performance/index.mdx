@@ -1,0 +1,324 @@
+---
+title: Edge10
+slug: edge10-athlete-performance
+competency: enterprise
+summary: Moving to AI-assisted implementation inside a live production platform, where the bottleneck shifted from writing software to verifying it.
+role: Sole engineer on the workflow — set the verification approach and built the validation agents. Feature delivery and code review remained team activities.
+stack:
+  - C# .NET
+  - CQRS
+  - React
+  - SQL Server
+  - Claude Code
+  - MCP
+outcomes:
+  - Repetitive architectural review moved ahead of human review rather than happening inside it
+  - Validation output became useful to other engineers with no mandate, rollout, or training
+  - Verification became an explicit engineering activity rather than a step at the end
+disclosure: restricted
+lifecycle: production
+order: 3
+visibility: published
+updated: '2026-08-05'
+cover:
+  src: cover.svg
+  alt: The verification path, from a completed change through automated review to human judgement
+  width: 1200
+  height: 630
+---
+
+## Context and constraints
+
+The thesis of this case study is one sentence, and everything else supports it:
+
+> Moving to AI-assisted implementation shifted the bottleneck from writing
+> software to verifying software.
+
+<Callout variant="note" heading="How this document is evidenced">
+  This is employer work, described at architecture level under the disclosure policy in
+  `FOUNDATION.md` §10. **No source code can be published, and nothing here can be checked against a
+  repository.** The other case studies on this site are verifiable — a reader can open OrchestAI and
+  count the enum values. This one is not, and no attempt is made to compensate for that by claiming
+  more. Everything below is either public on my LinkedIn profile or my own account of work I did.
+  Where something is my judgement rather than a fact, it says so.
+</Callout>
+
+**The baseline came first, and it is what makes the rest legible.** Between
+November 2022 and January 2025 I worked on the same platform as a full-stack
+developer, conventionally: C# .NET APIs on a CQRS architecture, SQL Server schema
+and stored procedures, React interfaces, legacy-to-modern migrations, and a
+data-layer re-architecture that took one feature's load time from minutes to
+under a second.
+
+None of that is an outcome of the work this study describes. It happened before
+it. It matters because it means that when I changed how I worked in February
+2025, I was not learning the product and a new method simultaneously — I already
+knew what normal felt like in this codebase, which is the only reason I could
+recognise when something moved.
+
+**The constraints were not mine to set.** A live NHL athlete management platform
+with legacy components, production expectations, and a requirement that
+reliability hold while the way software got made was changing underneath it.
+This is the difference between this study and the other three on this site:
+OrchestAI and NovaMind were built on empty directories, where every constraint
+was chosen.
+
+**The engineering controls already existed.** Compiler checks, static analysis,
+CI, peer review, and QA — the normal apparatus of an established enterprise
+application. They answered: does it compile, does it satisfy the language and
+lint rules, do the automated checks pass, does the feature behave correctly.
+
+They did not answer a different question, and that question turned out to be the
+one that mattered: _does this change follow the architectural and engineering
+conventions this codebase expects?_
+
+## Timeline
+
+<Timeline
+  entries={[
+    {
+      stage: 'Planning',
+      period: 'November 2022 – January 2025',
+      body: 'The baseline. Conventional full-stack delivery on the same platform: CQRS APIs, SQL Server work, React features, migrations. No AI-assisted implementation.',
+    },
+    {
+      stage: 'Architecture',
+      period: 'Early in the transition',
+      body: 'After the bottleneck moved, the approach settled: keep implementation AI-assisted, and make verification an explicit stage with its own tooling rather than something absorbed by code review.',
+    },
+    {
+      stage: 'Implementation',
+      period: 'February 2025 onward',
+      body: 'The three agents were built progressively, not together. Backend first, because the .NET API layer carried the strongest architectural conventions and offered the most leverage.',
+    },
+    {
+      stage: 'Major setbacks',
+      period: 'The first months',
+      body: 'Implementation got faster and delivery did not. Review effort rose to meet it. The assumption that generation speed was the constraint turned out to be wrong.',
+    },
+    {
+      stage: 'Verification',
+      period: 'Continuous',
+      body: 'An early calibration period checking findings against my own judgement, then sustained use. No measured error rates at any point.',
+    },
+    {
+      stage: 'Release',
+      period: 'In daily use',
+      body: 'The agents run before pull requests are finalised. Output is advisory and always was. Other engineers found the reports useful; nobody was required to.',
+    },
+    {
+      stage: 'Future roadmap',
+      period: 'Ongoing',
+      body: 'The workflow still changes. Prompts, review criteria and validation steps are refined in use; the underlying division between AI implementation and human verification has not moved.',
+    },
+  ]}
+/>
+
+## Architecture
+
+Three agents, built at different times and deliberately not uniform. Describing
+them as a single system would be tidier and would be wrong.
+
+<Figure caption="Where verification sits. The agent runs before a human reads the change, not instead of one.">
+  <Diagram
+    title="The verification path"
+    description="A completed change is passed to a validation agent, which produces a report of findings. The developer acts on those findings, and only then does the change reach human review."
+    viewBox="0 0 440 60"
+  >
+    <text x="0" y="34">
+      {'change'}
+    </text>
+    <text x="73" y="34">
+      {'validate'}
+    </text>
+    <text x="162" y="34">
+      {'report'}
+    </text>
+    <text x="235" y="34">
+      {'revise'}
+    </text>
+    <text x="308" y="34">
+      {'human review'}
+    </text>
+  </Diagram>
+</Figure>
+
+**The backend validation agent is a program, not a prompt.** It is a custom .NET
+application built for this workflow. When a change is ready, it is run before the
+pull request is finalised. It gathers the relevant changes and the surrounding
+project structure, and gives Claude Code enough context to review the
+_implementation_ rather than the raw diff — which is the part that matters,
+because a convention violation is only visible against the code around it. The
+review runs against the engineering conventions established for the codebase, and
+the output is a report: findings, architectural observations, convention
+violations, and recommended improvements.
+
+**The frontend agent follows the same philosophy against React changes** —
+component structure, design-system consistency, accessibility considerations,
+application architecture, and project-specific frontend conventions, checked
+before another engineer spends time on the change.
+
+**The end-to-end testing agent is a different thing.** Rather than reviewing
+architecture, it generates and runs browser-based tests against the implemented
+feature, extending the same idea from structure into behaviour.
+
+**Nothing blocks.** The output is advisory. No pull request is stopped
+automatically and no change is approved automatically; the engineering decision
+stays with the developer and the human reviewer. The purpose is to raise the
+quality of a change before someone else spends attention on it.
+
+**Where MCP fits, and where it does not.** Chrome, Azure and Firecrawl MCP
+servers are part of the surrounding development workflow — browser inspection and
+debugging, interaction with development environment resources, and gathering
+external reference material. **They are not part of the validation logic.** They
+support how the work gets done; they are not how it gets checked.
+
+What makes these agents worth anything is not that they use a model. It is that
+they operate against project-specific conventions and architecture rather than
+offering generic code suggestions.
+
+## Key decisions
+
+<Decision
+  context="The codebase already had compiler checks, static analysis, CI, peer review and QA. Adding more checking needs a reason beyond wanting more checking."
+  choice="Build validation that answers a question the existing controls did not: whether a change follows the architectural and engineering conventions this codebase expects, as opposed to whether it compiles, lints, passes, and behaves."
+  alternatives="Rely on the existing process — compiler, analysis, CI, peer review, QA — and absorb architectural review into human code review, as had been done until then."
+  consequence="These were never defects a compiler or linter could find, and a careful reviewer would usually catch them. The problem was that catching them repeatedly became expensive once implementation sped up. Moving that check earlier lets a reviewer spend attention on design and business logic instead of re-identifying the same classes of issue. The cost is another step in the workflow and another thing to maintain."
+/>
+
+<Decision
+  context="The conventions being checked — CQRS shape, handler patterns, component structure, frontend conventions — are exactly what Roslyn analyzers and custom ESLint rules exist to encode."
+  choice="Use LLM-based validation instead. Deterministic analyzers were known and their advantages recognised — repeatable, inexpensive, and safe to gate CI on — but not formally evaluated against this approach."
+  alternatives="Encode the conventions as Roslyn analyzers and custom ESLint rules, which would be deterministic, free to run, and could block a build."
+  consequence="Much of what needed catching was not a rule violation but a judgement — whether an implementation followed established patterns, whether it introduced unnecessary complexity, whether it sat naturally alongside the surrounding code. Writing and maintaining analyzers of that sophistication would have been a significant engineering project on its own, competing with production delivery. This was a pragmatic decision, not a measured comparison, and it is stated as one. The two are not really competitors: for a long-term platform I would use analyzers for questions with objective answers and keep LLM validation for the contextual review static analysis struggles to express."
+/>
+
+<Comparison
+  caption="What the two approaches are actually good at — the reason the answer is eventually both"
+  columns={['Deterministic', 'Can gate a build', 'Expresses judgement']}
+  rows={[
+    { label: 'Analyzers and lint rules', cells: ['Yes', 'Yes', 'No'] },
+    { label: 'LLM-based validation', cells: ['No', 'No', 'Yes'] },
+  ]}
+/>
+
+## Failures and mistakes
+
+### I thought implementation speed was the constraint
+
+When I adopted AI-assisted implementation, my attention went almost entirely to
+producing code faster. The assumption underneath was simple and unexamined: if
+implementation is quicker, delivery is quicker.
+
+It was wrong, and close to backwards.
+
+Implementation did get faster. Review effort rose to meet it, because every
+generated change still had to be checked for architectural fit, convention
+consistency, and maintainability — and those checks are exactly the ones no
+existing tool performed. Delivery did not improve the way I expected, because
+**the bottleneck had moved rather than disappeared.**
+
+Finding that out took working the naive way for a period. There was no single
+moment of discovery; it was the accumulating experience that the slow part of
+getting a change shipped was no longer writing it.
+
+The cost was several iterations of my own workflow. I rebuilt parts of the
+process, moved where validation happened, and eventually accepted that
+verification had to become a first-class engineering activity rather than
+something left to code review.
+
+**The agents are a consequence of that lesson, not the lesson itself.** That is
+the correct order, and it is why "I should have built the validation sooner"
+would be a dishonest reflection — the agents could not have been designed before
+the problem they solve was understood.
+
+## Verification
+
+The agents judge code with a language model, which makes the validator
+non-deterministic. That deserves an honest account rather than a confident one.
+
+**Early on I checked the findings rather than acting on them.** When the backend
+agent reported a violation, I would inspect the surrounding code, compare it with
+the established patterns in the project, and decide whether the recommendation
+was actually correct before changing anything. That calibration mattered
+specifically because the agent was enforcing project conventions rather than
+language rules — there was no external authority to defer to.
+
+**It produced false positives.** Sometimes it read a pattern too strictly, or
+recommended something inappropriate for that particular context. Those findings
+were ignored, and the prompt or surrounding guidance refined where that was
+possible. Output was never applied automatically.
+
+I do not recall a case where the agent gave incorrect advice that I followed into
+a defect — the decision always sat with me before anything reached review. Nor do
+I recall a production issue I could attribute to the agent missing something.
+Both of those are recollections, not records.
+
+<Callout variant="critical" heading="What was never measured">
+  No false-positive or false-negative rate was ever quantified. Output consistency was never tested
+  — the same change was never run through twice to compare findings, which for a non-deterministic
+  validator is the obvious check and it did not happen. Confidence came from repeated day-to-day
+  use, not from evaluation. Over time I trusted the reports enough to stop verifying every
+  recommendation from first principles, while still reading them critically. That is how the trust
+  was actually built, and it is not the same as having established that the tool is reliable.
+</Callout>
+
+**For everyone else, the reports were advisory and stayed that way.** Other
+engineers were free to accept or ignore any finding. Whatever adoption happened,
+happened because the output was useful — not because a workflow required it.
+
+## Outcomes
+
+**No metrics appear in this section, and that is a constraint rather than an
+omission.** Delivery figures, defect rates, review times and team measurements are
+the employer's, not mine to publish, and `FOUNDATION.md` §10 rules them out. What
+follows is what changed, stated at the level the policy permits.
+
+**Repetitive architectural review moved ahead of human review.** The check that
+had been happening inside code review — repeatedly, by people, on every change —
+now happens before a reviewer opens the change.
+
+**The validation output was useful beyond me.** The AI-assisted implementation
+was my own practice; I did not introduce an organisation-wide platform, and there
+was no rollout, training programme, or mandate. What spread was the usefulness of
+the reports, which improved the quality of changes before review and reduced
+repetitive checking during review and testing.
+
+**Verification became explicit.** The durable result is not any individual agent.
+It is a repeatable process in which AI-assisted implementation is practical inside
+an existing production codebase because architectural judgement stays with people
+and the repetitive part of it does not.
+
+The `lifecycle` badge reads `production` because the platform this describes is
+running with real users under an operational commitment, and the workflow is in
+current daily use. It is the only case study on this site that can make that claim,
+and also the only one a reader cannot check.
+
+## Looking back
+
+**I would write the conventions down before automating them.** Most of what the
+agents eventually enforced already existed — in team habits and in repeated
+implementation patterns, but not in any single written source. Building the
+agents forced me to discover and encode those conventions as I went. Doing it in
+the other order would have made the agents easier to build, easier to maintain,
+and considerably easier for another engineer to understand or disagree with.
+
+**I would add lightweight measurement at the start.** Not precision and recall —
+that is disproportionate for an advisory tool. A small fixed set of
+representative changes, with the agent's output compared against my own review
+periodically, would be enough to notice when prompts or model behaviour drift.
+Relying entirely on day-to-day judgement means drift is invisible until something
+feels wrong.
+
+**Two things I would keep exactly as they were.** Starting with the backend,
+because that layer carried the strongest architectural conventions and therefore
+the highest leverage. And keeping the agents advisory rather than turning them
+into gates — experience reinforced rather than weakened the view that
+architectural judgement belongs with engineers, and a tool that can block is a
+tool that eventually gets worked around.
+
+The most useful thing I learned was not how to build a validation agent.
+
+**AI-assisted engineering changes where the effort goes; it does not remove the
+effort.** Faster implementation moves the constraint somewhere else, and the
+engineering work is finding out where it went.

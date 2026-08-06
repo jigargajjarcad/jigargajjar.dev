@@ -32,11 +32,10 @@ Density `default` (`SPACING.md` §5). Compact is reserved for the layer-1 region
 ├───────────────────────────────────────┤
 │ H1  Jigar Gajjar                      │
 │                                       │
-│ Senior Full-Stack Engineer building   │  ← positioning, verbatim
-│ production systems through an AI-     │
-│ native engineering workflow —         │
-│ architecting, directing, and          │
-│ verifying while AI agents implement.  │
+│ AI-Native Full-Stack Engineer         │  ← positioning, verbatim
+│ designing reliable software systems   │
+│ through architecture, orchestration,  │
+│ and verification.                     │
 │                                       │
 │ ‹OWNER: location›  ·  ‹OWNER: email›  │
 │ ‹GitHub ↗›  ‹LinkedIn ↗›              │
@@ -112,8 +111,9 @@ Density `default` (`SPACING.md` §5). Compact is reserved for the layer-1 region
 ```
 ┌─────────────────────────────────────────────────────┐
 │ H1  Jigar Gajjar                                     │
-│ Senior Full-Stack Engineer building production       │
-│ systems through an AI-native engineering workflow…   │
+│ AI-Native Full-Stack Engineer designing reliable     │
+│ software systems through architecture, orchestration,│
+│ and verification.                                    │
 │ ‹location› · ‹email› · ‹GitHub ↗› · ‹LinkedIn ↗›     │
 │ ‹Download PDF›                                       │
 ├─────────────────────────────────────────────────────┤
@@ -136,9 +136,8 @@ Density `default` (`SPACING.md` §5). Compact is reserved for the layer-1 region
 │ ⟨--container-prose 68ch — the résumé never fills the viewport⟩ │
 │                                                                │
 │ H1  Jigar Gajjar                                               │
-│ Senior Full-Stack Engineer building production systems         │
-│ through an AI-native engineering workflow — architecting,      │
-│ directing, and verifying while AI agents implement.            │
+│ AI-Native Full-Stack Engineer designing reliable software      │
+│ systems through architecture, orchestration, and verification. │
 │ ‹location› · ‹email› · ‹GitHub ↗› · ‹LinkedIn ↗›  ‹PDF›        │
 │ ───────────────────────────────────────────────────────        │
 │ H2  Experience                                                 │
@@ -160,7 +159,9 @@ Density `default` (`SPACING.md` §5). Compact is reserved for the layer-1 region
 
 ◇ **The measure stays capped at 68ch.** A résumé that fills a 1440 px viewport is unreadable. The second column is metadata only — dates and organisation — and content never splits across columns.
 
-◇ **Print stylesheet:** two sides of A4 or fewer, link URLs not expanded, theme resolved to light regardless of the reader's setting, header and footer suppressed.
+◇ **Print stylesheet:** two pages are preferred where content allows; three are acceptable when supported by substantive experience and without reducing readability. Link URLs are not expanded, the theme resolves to light regardless of the reader's setting, and the header and footer are suppressed.
+
+◇ **Revised after measurement, 2026-08-05.** This originally read "two sides of A4 or fewer", written before the content existed. With all five roles carrying verified summaries the document measures 2.38 pages; reaching two would require roughly a 16 % reduction in vertical rhythm or type size. The constraint existed to prevent padding, not to cap real experience, so the page count follows the content rather than the content following the page count.
 
 ---
 

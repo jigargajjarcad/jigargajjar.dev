@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+import { POSITIONING } from '../../src/content/site';
+
 /**
  * Homepage band contract — `HOMEPAGE_NARRATIVE.md` §4–§5.
  *
@@ -13,9 +15,10 @@ test('band 1 is the positioning sentence, verbatim and as the only h1', async ({
   await page.goto('/');
   const h1 = page.locator('h1');
   await expect(h1).toHaveCount(1);
-  await expect(h1).toHaveText(
-    'Senior Full-Stack Engineer building production systems through an AI-native engineering workflow — architecting, directing, and verifying while AI agents implement.',
-  );
+  // Asserted against the canonical constant rather than a copy of it: a literal
+  // here would be a seventh place the sentence could drift from, which is the
+  // failure this file exists to catch.
+  await expect(h1).toHaveText(POSITIONING);
 });
 
 test('band 2 precedes any evidence band', async ({ page }) => {

@@ -10,7 +10,7 @@ stack:
   - Tailwind CSS
   - MDX
 outcomes:
-  - Fifteen decision records written before implementation began
+  - Fourteen decision records written before the first line of application code
   - Thirteen CI gates operational against an empty application
   - A budget contradiction found on day one rather than at launch
 sourceUrl: https://github.com/jigargajjarcad/jigargajjar.dev
@@ -25,12 +25,6 @@ cover:
   width: 1200
   height: 630
 ---
-
-<Callout variant="note" heading="Pipeline demonstration">
-  This body exercises every component in the closed MDX set so that phase 4 of `ARCHITECTURE.md` §14
-  can be verified. Every statement in it is true of this repository. It is replaced with the full
-  nine-section document model in phase 6.
-</Callout>
 
 ## Context and constraints
 
@@ -88,23 +82,27 @@ treated as the implementation contract rather than as guidance.
     description="Filesystem feeds the content loader, which feeds schema validation, which feeds MDX compilation, which feeds the component map, which produces semantic HTML."
     viewBox="0 0 560 60"
   >
+    {/* Labels are expression children, not markdown text. MDX wraps standalone
+        text in a paragraph, and a `<p>` inside SVG `<text>` renders nothing —
+        Prettier reformats one-line elements onto three lines, so writing them
+        inline does not survive `format:check`. An expression child does. */}
     <text x="0" y="34">
-      filesystem
+      {'filesystem'}
     </text>
     <text x="96" y="34">
-      loader
+      {'loader'}
     </text>
     <text x="166" y="34">
-      schema
+      {'schema'}
     </text>
     <text x="242" y="34">
-      compile
+      {'compile'}
     </text>
     <text x="322" y="34">
-      map
+      {'map'}
     </text>
     <text x="382" y="34">
-      semantic HTML
+      {'semantic HTML'}
     </text>
   </Diagram>
 </Figure>

@@ -36,8 +36,9 @@ Records are immutable once accepted. A decision that changes gets a new record t
 | [018](#adr-018) | Motion is implemented natively; the animation library is removed | Accepted |
 | [019](#adr-019) | OrchestAI is an orchestration service; the framework claim is withdrawn | Accepted |
 | [020](#adr-020) | The home page argues by demonstration, not by description | Accepted |
-| [021](#adr-021) | Ambient system motion is a second motion system, bounded separately | Accepted |
-| [022](#adr-022) | The home page reports measurements, and prints what it cannot measure | Accepted |
+| [021](#adr-021) | Ambient system motion is a second motion system, bounded separately | Superseded by ADR-023 |
+| [022](#adr-022) | The home page reports measurements, and prints what it cannot measure | Superseded by ADR-023 |
+| [023](#adr-023) | The home page is one idea in two hundred words | Accepted |
 
 ---
 
@@ -994,7 +995,7 @@ Band 5 is new and deliberately slim: the six-section structure names two project
 <a id="adr-021"></a>
 ## ADR-021 — Ambient system motion is a second motion system, bounded separately
 
-**Status:** Accepted · 2026-08-06 · Amends `ARCHITECTURE.md` §9, `MOTION.md`
+**Status:** Superseded by ADR-023 · 2026-08-06 · Amends `ARCHITECTURE.md` §9, `MOTION.md`
 
 ### Context
 
@@ -1048,7 +1049,7 @@ The separation is enforced rather than documented: `flow` is a distinct export, 
 <a id="adr-022"></a>
 ## ADR-022 — The home page reports measurements, and prints what it cannot measure
 
-**Status:** Accepted · 2026-08-06 · Supersedes the band structure of ADR-020; amends `HOMEPAGE_NARRATIVE.md` §4–§5
+**Status:** Superseded by ADR-023 · 2026-08-06 · Supersedes the band structure of ADR-020; amends `HOMEPAGE_NARRATIVE.md` §4–§5
 
 ### Context
 
@@ -1108,3 +1109,70 @@ Two V2 bands are gone. The lifecycle merged into band 2, where the method now ar
 - **The editorial tests are unusual and deliberate.** Asserting that a page still admits NovaMind has no test suite is not a normal use of a test suite. It is the only mechanism that makes the admission durable, and ADR-019 established that this project's characteristic failure is description drifting away from truth.
 - **A latent defect surfaced while building this and is fixed here.** `Text` composed its size class as `` `text-type-${token}` ``, which Tailwind's extractor cannot see, so nine of fourteen type utilities were never generated. It was invisible because `globals.css` styles `h1`–`h4` as elements: headings resolved correctly through the element rule, while `lede`, `display`, and any heading token on a non-heading element silently rendered at body size. `src/design/typeClasses.ts` maps every token to a complete literal and `tests/unit/tokens.test.ts` asserts the map stays exhaustive. **V1 and V2 both shipped with this bug**, which is a direct instance of the failure mode ADR-019 named: nothing checked the artefact against its specification until someone measured it.
 - **The page is longer than V2 and reading it takes real effort.** That is accepted rather than mitigated. The audience this page is written for reads a failure-mode table carefully or not at all, and shortening band 4 to save a screen would remove the reason they stayed.
+
+---
+
+<a id="adr-023"></a>
+## ADR-023 — The home page is one idea in two hundred words
+
+**Status:** Accepted · 2026-08-06 · Supersedes ADR-020, ADR-021 and ADR-022; supersedes `HOMEPAGE_NARRATIVE.md` §4–§5
+
+### Context
+
+Three redesigns in one day, each of which passed every gate this project owns and none of which produced the reaction it was built for.
+
+V1 was six prose bands. V2 replaced them with explorable diagrams. V3 replaced those with live instrumentation, a measurement pipeline, and a CI step proving the numbers were still true. Each was a genuine improvement on the last, each was correct, and the owner's reaction to V3 — *"this is well designed"* rather than *"this engineer builds world-class AI systems"* — was the same reaction V2 had produced.
+
+**The number that ended the argument: V3 rendered 1,914 words across 11,926 pixels — thirteen screens.** At 250 words per minute that is an eight-minute read. The audience it was written for spends forty-five seconds, so roughly nine per cent of the page was ever seen, and which nine per cent was determined by scroll position rather than by importance.
+
+**The pattern across all three versions was mine, and it is worth naming precisely.** Every iteration added a *system* — a token architecture, then a diagram engine, then a measurement pipeline — because that is the kind of work I am good at, and because each one was defensible on its own terms. Rigour was repeatedly mistaken for taste. The tell was visible inside V3 before anyone said anything: its strongest section, *What I didn't build*, was the only one with no visualisation in it.
+
+**And the strategic error underneath the aesthetic one:** the home page was trying to *be* the evidence. The evidence already exists — 8,800 words of case studies, one click away, written properly. V3 was competing with its own best content and losing, then charging the reader eight minutes for the privilege.
+
+### Decision
+
+**The home page carries one idea, in six screens and roughly two hundred words.**
+
+> **Good systems are defined by what they refuse.**
+
+Every screen is an instance of that sentence rather than a separate subject, which is what makes the page an argument instead of a table of contents:
+
+| Screen | Belief | How it is an instance of the idea |
+|---|---|---|
+| 1 Hero | This person builds production AI systems | The page is fast because things were refused — one line says so |
+| 2 Method | There is a repeatable way of working here | *Verification that blocks the merge* — a gate that says no |
+| 3 OrchestAI | This system is elegant | Every run that can be rejected is rejected before any model is called |
+| 4 NovaMind | This pipeline is beautifully designed | Ten candidates discarded to five before the model sees anything |
+| 5 Refusals | This person has judgement, including about AI | Four things not built, one of them a failure |
+| 6 Connect | I know what to do if I want to act | — |
+
+The idea is stated outright exactly once, as the last line of screen 5, after four demonstrations of it. Stating it in the hero was tried and abandoned: an idea asserted before its evidence is a slogan, and the same sentence after its evidence is a thesis.
+
+**Three rules follow, and they are what actually constrain future changes.**
+
+**1. One screen, one belief.** If a screen needs three diagrams, five paragraphs or eight labels to land its belief, the belief is wrong or the screen is two screens. Asserted as a section count in CI.
+
+**2. A visualisation must be faster than the sentence it replaces.** `10 → 5 → 1` at display size communicates NovaMind's pipeline faster than the six-row waterfall it replaced could be read, so it stays. OrchestAI has no figure, because its idea is a sentence and a diagram of it would be slower. This is the test every deleted component failed.
+
+**3. The word count is a budget.** 340 words, enforced in CI alongside the byte budgets. This is the mechanism the project did not have and needed most: nothing in types, lint, bundle size, axe or Lighthouse has any opinion about length, so all of them stayed green across thirteen screens while the page failed at its actual job. Each addition was individually reasonable. A budget is what makes the aggregate someone's problem.
+
+### Alternatives considered
+
+**Keep V3 and trim it.** Rejected. The problem was not that V3 was long — it was that its form was wrong. A shorter dashboard is still a dashboard, and trimming would have preserved the components whose existence was the error.
+
+**Keep the live trace waterfall, just smaller.** Rejected, and this was the closest call. The page-load trace was the single most original thing built in three versions. But eight rows of spans, bars and durations made an unusual idea read as *look what I measured*, which is the exact register the redesign existed to escape. The fact survives at full strength in eleven words; only its volume changed.
+
+**Keep the failure-mode screen.** Rejected, and it is the loss that costs most. It was the section a staff engineer would read first. Its bravest sentence — *the description drifted away from the software, and nothing catches it* — is retained as one line in screen 5; the full treatment already exists in the OrchestAI case study, which is where a reader who wants it has already chosen to be.
+
+**Go further: three screens, ninety words.** Rejected. The refusals are the rarest signal on the site and would have been the casualty, and neither system would have had room for its idea. Six screens is the point where every remaining screen still earns its place.
+
+**Use an animation library, as requested for the fourth time.** Declined, and it is now on the page rather than in a footnote: screen 5, entry 3. The page carries 906 bytes of route JavaScript. The library is roughly forty times that, for behaviour this page does not have.
+
+### Consequences
+
+- **2,305 lines of working, tested, documented code were deleted**: the trace renderer, the live waterfall, the budget gauges, the failure matrix, the node-graph engine, the roving-tabs hook, four section components, and `systems.css`. All of it functioned. None of it was necessary, and the deletion is the decision.
+- **Route JavaScript fell from 5.63 kB to 906 B; first load from 110.2 KB to 105.4 KB.** The page-load footnote is the only client component left.
+- **ADR-021 is superseded and its motion system withdrawn.** The ambient `flow` tokens had exactly one consumer — animated diagrams — and the diagrams are gone. Retaining them "in case" would contradict TYPOGRAPHY.md §12's own rule, which this project applied to a font axis and should apply to itself. `color-flow` and `color-grid-line` are withdrawn for the same reason.
+- **ADR-022's measurement pipeline survives, and only one number from it reaches the page.** `measure` and `check:measured` still run in CI, still fail on drift, and the home page renders a single figure from them. That ratio — an entire verification pipeline behind one sentence — is the right one, and it took writing the wrong version to see it.
+- **The word budget will be inconvenient**, which is the point. The next genuinely good idea for this page will have to displace something rather than be appended, and appending is precisely how the page reached thirteen screens without any individual change ever looking wrong.
+- **Four versions in one day is not a process to be proud of.** The first three were each defensible and each wrong in the same way, and what corrected it was not a gate — it was being told the page felt like documentation. This project's characteristic failure, named in ADR-019, is description drifting from reality; the equivalent here is *effort drifting from effect*, and nothing in CI can see it.

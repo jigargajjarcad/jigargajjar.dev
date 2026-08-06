@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test';
  * Entrance reveal — `MOTION.md` §5, `ARCHITECTURE.md` §9 phase-5 exit condition
  * ("§9 patterns implemented; reduced-motion path verified").
  *
- * `/` is the surface under test: bands 2–6 carry the reveal, band 1 does not.
+ * `/` is the surface under test: screens 2–6 carry the reveal, screen 1 does not.
  *
  * The reduced-motion and no-JavaScript paths are covered generically for every
  * route in `progressive-enhancement.spec.ts`. What is asserted here is the part
@@ -24,7 +24,7 @@ test.describe('entrance reveal', () => {
     const page = await context.newPage();
     await page.goto('/');
 
-    await expect(page.getByRole('heading', { name: 'Everything here is checkable' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Work with me' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Work with me' })).toBeVisible();
     expect(await page.locator(REVEALED).count()).toBe(0);
 
@@ -79,7 +79,7 @@ test.describe('entrance reveal', () => {
     // Nothing is hidden, so there is nothing to reveal and no observer to run.
     expect(await page.locator(REVEALED).count()).toBe(0);
 
-    await expect(page.getByRole('heading', { name: 'Everything here is checkable' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Work with me' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Work with me' })).toBeVisible();
 
     await context.close();

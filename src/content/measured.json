@@ -1,11 +1,11 @@
 {
   "measuredAt": "2026-08-06",
   "bundle": {
-    "homeFirstLoadKb": 110.2,
+    "homeFirstLoadKb": 105.4,
     "homeFirstLoadBudgetKb": 120,
     "sharedRuntimeKb": 100.3,
     "sharedRuntimeCeilingKb": 105,
-    "cssKb": 7,
+    "cssKb": 6,
     "cssBudgetKb": 20,
     "routes": 12
   },
@@ -14,22 +14,22 @@
     "accessibility": 100,
     "bestPractices": 96,
     "seo": 100,
-    "lcpMs": 573,
-    "fcpMs": 253,
+    "lcpMs": 542,
+    "fcpMs": 221,
     "tbtMs": 0,
     "cls": 0,
     "measuredAt": "2026-08-06"
   },
   "gates": {
-    "unitTests": 56,
-    "browserChecks": 121,
+    "unitTests": 53,
+    "browserChecks": 120,
     "ciSteps": 9
   },
   "repository": {
-    "decisionRecords": 22,
+    "decisionRecords": 23,
     "caseStudies": 4,
     "caseStudyWords": 8800,
-    "semanticColours": 23,
+    "semanticColours": 21,
     "typeTokens": 14,
     "fontFiles": 2,
     "fontKb": 104.1,

@@ -7,7 +7,6 @@ import {
   density,
   duration,
   easing,
-  flow,
   fontWeight,
   icon,
   neutral,
@@ -66,25 +65,13 @@ describe('primitives match TOKENS.md', () => {
   });
 
   it('motion is four durations and three easings, frozen by ADR-011', () => {
+    // ADR-021 added a second, ambient motion system for animated diagrams;
+    // ADR-023 withdrew it with the diagrams. The scale is back to exactly what
+    // ADR-011 froze, and nothing on the site animates for longer than 400 ms.
     expect(Object.values(duration)).toEqual([100, 160, 240, 400]);
+    expect(Object.values(duration).every((ms) => ms <= 400)).toBe(true);
     expect(Object.keys(easing)).toHaveLength(3);
     expect(stagger).toEqual({ interval: 60, max: 4 });
-  });
-
-  it('ambient flow is a separate system and never leaks into the §9 ceiling', () => {
-    // ADR-021 — every flow value exceeds the 400 ms ceiling that ARCHITECTURE.md
-    // §9 places on interface motion, which is exactly why it is not in
-    // `duration`. This assertion is what stops a future author from "tidying"
-    // the two together: doing so raises the interface ceiling by a factor of six
-    // without anyone deciding to.
-    expect(Object.values(duration).every((ms) => ms <= 400)).toBe(true);
-    // Only the cycle lengths carry the argument. `stagger` is an offset between
-    // elements and `origin` is the absence of one — neither is the length of an
-    // animation, so neither is bound by a ceiling on animation length.
-    for (const ms of [flow.cycle, flow.slow]) expect(ms).toBeGreaterThan(400);
-    expect(flow.slow).toBeGreaterThan(flow.cycle);
-    expect(flow.stagger).toBeLessThan(flow.cycle);
-    expect(flow.origin).toBe(0);
   });
 
   it('dimension tokens match, with exactly two radii and three containers', () => {
@@ -134,22 +121,6 @@ describe('contrast floors — ACCESSIBILITY.md §3', () => {
     expect(
       contrast(semanticColor['color-border-strong'].dark, neutral[900]),
     ).toBeGreaterThanOrEqual(3);
-  });
-
-  it('the diagram flow colour clears 3:1 against the page surface, both themes', () => {
-    // ADR-021 — `color-flow` is a graphic, not text, so the floor is the 3:1
-    // non-text contrast requirement rather than 4.5:1. It is asserted because a
-    // travelling pulse a reader cannot see is a diagram that silently lost its
-    // only depiction of movement.
-    expect(contrast(semanticColor['color-flow'].light, neutral[0])).toBeGreaterThanOrEqual(3);
-    expect(contrast(semanticColor['color-flow'].dark, neutral[950])).toBeGreaterThanOrEqual(3);
-  });
-
-  it('the schematic grid stays below the floor it is exempt from', () => {
-    // Deliberately inverted. `color-grid-line` carries no information, and the
-    // risk it actually runs is becoming *too* visible and reading as a table.
-    expect(contrast(semanticColor['color-grid-line'].light, neutral[0])).toBeLessThan(3);
-    expect(contrast(semanticColor['color-grid-line'].dark, neutral[950])).toBeLessThan(3);
   });
 
   it('focus ring clears 3:1 against the page surface, both themes', () => {

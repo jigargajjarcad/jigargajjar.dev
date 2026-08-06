@@ -1,7 +1,7 @@
 # Homepage Narrative
 
-**Status:** Active — narrative specification. Frozen Phase 3; §4–§5 amended by ADR-020, superseded by ADR-022
-**Version:** 0.4.0
+**Status:** Active — narrative specification. Frozen Phase 3; §4–§5 amended by ADR-020, superseded by ADR-023
+**Version:** 0.5.0
 **Last reviewed:** 2026-08-06
 **Governed by:** [`FOUNDATION.md`](../FOUNDATION.md) §3 · [`EXPERIENCE_FLOW.md`](./EXPERIENCE_FLOW.md) · [`EXPERIENCE_PRINCIPLES.md`](./EXPERIENCE_PRINCIPLES.md)
 
@@ -65,82 +65,74 @@ Belief has become appetite, and the reader has already received evidence rather 
 
 ---
 
-## 4. The five bands
+## 4. The one idea, in six screens
 
-**Superseded by ADR-022 (2026-08-06).** This section has now specified six bands, then seven, then five. The count was never the thing worth freezing — §4.1 states what actually is.
+**Superseded by ADR-023 (2026-08-06).** This section has specified six bands, then seven, then five, then this. Every previous version froze a *structure*; none of them froze the thing that was actually going wrong, which was length.
 
-**§5 is unchanged in substance and always has been.** The order is the objection sequence; qualification precedes evidence. Every revision has kept that and changed only the *form* each answer takes.
+**The page carries one idea and every screen is an instance of it:**
 
-### Band 1 — The claim, and the instrument
+> **Good systems are defined by what they refuse.**
 
-**Produces:** *this person instruments systems — and I have just watched one do it.*
+That is what makes this a page rather than a table of contents. A reader leaves remembering one sentence, not six sections — and the sentence is demonstrated four times before it is ever stated.
 
-The thesis at the largest type on the site, `POSITIONING` verbatim beneath it (`FOUNDATION.md` §5), and then a live span waterfall of the reader's own page load: DNS, connect, request, response, parse, first paint, largest paint, hydrate, in milliseconds read from the Performance API on their machine.
+**§5 is unchanged in substance for the fourth consecutive version.** The order is the objection sequence; qualification precedes evidence.
 
-**Why this and not an architecture diagram:** V2 drew OrchestAI's topology here with a pulse looping along its edges. Nothing was flowing. A well-made architecture drawing is reproducible in an afternoon and proves nothing, which places it in the same category as the decorative gradients this site's visual language exists to refuse. A measurement of the reader's own visit cannot be copied, cannot be faked, and is confirmed by the reader having already experienced it.
+### Screen 1 — The claim
 
-**It also teaches the notation** used by bands 3 and 4, which is why it is a waterfall rather than a readout.
+**Belief:** *this person builds production AI systems.*
 
-**Constraint:** nothing animates on entrance (`MOTION.md` §5). Script supplies numbers, never structure — every span label and description is in the HTML response.
+The thesis at the largest type on the site, `POSITIONING` verbatim beneath it (`FOUNDATION.md` §5), one link into the work, and one mono line at the foot reporting the reader's own page load.
 
-### Band 2 — Verification
+**Why the footnote survived and the waterfall did not:** V3 rendered this measurement as eight rows of spans, bars and durations. The idea was original; the presentation made it read as *look what I measured*, which is the register the redesign existed to escape. Eleven words carry the same fact and read as confidence. Nothing about the claim was softened — only its volume.
 
-**Produces:** *the method is real, and here is its output.*
+**Constraint:** nothing animates (`MOTION.md` §5). The footnote must cost zero layout shift, because it names its own.
 
-The seven-stage pipeline with the artefact each stage leaves behind, then stage five opened in full: four budget gauges, the check and gate counts, the Lighthouse scores — every figure produced by a script from the build and re-verified on every CI run. Then, immediately beneath, what none of it reaches.
+### Screen 2 — Method
 
-**Why it holds the second position:** unchanged from V2's lifecycle band and from V1's qualification band. `FOUNDATION.md` §3 goal 4 requires the *agents wrote this, so what did you do* objection to be answered before any evidence, because an unresolved objection discounts everything after it. "Claude Code" is stage four of seven, and the reader draws the conclusion themselves.
+**Belief:** *there is a repeatable way of working here.*
 
-**What changed:** the answer now arrives with a receipt. V2 asserted a method; this band shows what the method produced, in numbers a reader can check.
+Three clauses, and one sentence naming the number of checks that block a merge.
 
-**Constraint, and it is the important one:** `NOT_VERIFIED` is not optional and not a disclaimer. Four green gauges with no adjacent statement of limits describe a system nobody has looked at hard enough. It is asserted by `tests/quality/homepage.spec.ts`.
+**Why it holds the second position:** unchanged across all four versions. `FOUNDATION.md` §3 goal 4 requires the *agents wrote this, so what did you do* objection to be answered before any evidence. The third clause answers it, and is the page's idea in its first form: a gate that says no.
 
-### Band 3 — Systems
+**What changed:** V3 answered this with a seven-stage grid, four gauges, six counters and four caveat cards — 397 words. It now takes fifteen.
 
-**Produces:** *this person builds real systems, and I can read them.*
+### Screens 3 and 4 — The systems
 
-OrchestAI and NovaMind, each as a span waterfall in the notation band 1 taught. Then the remaining published case studies as a quiet index.
+**Belief:** *these are elegant.*
 
-**Why one notation for both:** V2 gave each project a bespoke visual — a layer stack and a staged pipeline. Two forms to learn, and the reader's attention spent on the diagrams instead of their contents. Sameness of form is what makes difference of content legible.
+One idea each, stated in one sentence, with its consequence in a second. Both ideas are the page's idea: OrchestAI rejects a run before any model is called; NovaMind discards five of ten candidates before the model sees anything.
 
-**Constraint:** these traces carry **no timings**, and the axis caption says so. Neither system has production traffic; a latency column would be the one fabricated number on a page whose argument is that its numbers are checkable. Asserted in CI.
+**Why one sentence and not a diagram:** the sentence is the thing the case study is organised around, which makes the screen an invitation rather than a summary. V3 gave each system a twelve- and six-span waterfall; a reader at forty-five seconds read the headline and left, so the headline is now all there is.
 
-### Band 4 — Failure
+**Constraint — the figure test.** A visualisation ships only if it communicates faster than the sentence it replaces. `10 → 5 → 1` at display size passes and is the page's only figure. OrchestAI has none, because its idea is a sentence and a diagram of it would be slower to read.
 
-**Produces:** *this person thinks about production, not demos.*
+### Screen 5 — Refusals
 
-Each failure mode, the mechanism that contains it, and a topology that lights the components doing the containing. One row is not contained at all, and selecting it dims the entire map.
+**Belief:** *this person has judgement, including about AI itself.*
 
-**Why it exists:** it is the band a staff engineer reads first and the band almost no portfolio has. Everything else describes a happy path, and a reader who has run something in production knows the happy path is the easy half.
+Four things not built, one line of consequence each, and then the page's idea stated outright for the only time.
 
-**Constraint:** at least one uncontained row, always. A failure matrix in which everything is contained is a failure matrix nobody stress-tested. Asserted in CI.
+**Why it replaced the philosophy band, and then absorbed the failure screen:** aphorisms with citations create the impression of someone who enjoys writing aphorisms. Refusals with costs create the impression of someone who has had to decide something. The fourth entry is a failure rather than a decision and is the most valuable line on the site, because it is the only one that costs something to admit.
 
-### Band 5 — Judgement
+**Constraint:** the closing line appears once, at the end. An idea asserted before its evidence is a slogan; the same sentence after it is a thesis. Asserted in CI.
 
-**Produces:** *this person has judgement, including about AI itself.*
+### Screen 6 — Connect
 
-Six decisions where the obvious modern answer was declined, each with the reasoning and the cost.
-
-**Why it replaced the philosophy band:** four aphorisms with citations create the impression of someone who enjoys writing aphorisms. Six refusals with costs attached create the impression of someone who has had to decide something. The positions are identical; only one of them is expensive, and only the expensive one is evidence.
-
-**Constraint:** every entry states a cost. A refusal with no consequence is a preference, and a list of preferences is a personality test. Asserted in CI.
-
-### Band 6 — Connect
-
-**Produces:** *I know what to do if I want to act.* Unchanged across all three versions. Not a call to action — `EXPERIENCE_PRINCIPLES.md` §3 refuses urgency and obligation.
+**Belief:** *I know what to do if I want to act.* Unchanged across all four versions. Not a call to action — `EXPERIENCE_PRINCIPLES.md` §3 refuses urgency and obligation.
 
 ---
 
-### 4.1 What is actually frozen
+### 4.1 What is frozen
 
-Not a count. A band ships only if it passes all four:
+Not a structure. Four rules, all enforced in CI:
 
-1. **It produces a belief no other band produces**, stated in the terms above.
-2. **Its form is justified by its content.** Two bands making the same argument in the same component means one is decoration.
-3. **It is checkable.** Every number comes from a tool; every structural claim cites the file it can be verified against; anything that is neither is stated as unknown.
-4. **It renders completely without JavaScript.** Script adds exploration, never content.
+1. **One screen, one belief.** A screen needing three diagrams, five paragraphs or eight labels is a screen whose belief is wrong, or two screens.
+2. **A figure must be faster than the sentence it replaces.** This is the test every component deleted in V4 failed.
+3. **The page stays inside its word budget.** 340 words, enforced alongside the byte budgets — because nothing in types, lint, bundle size, axe or Lighthouse has any opinion about length, and all of them stayed green while the page grew to 1,914 words across thirteen screens.
+4. **It renders completely without JavaScript.**
 
-Test 3 is what ADR-022 added, and it is the one that changed the page most.
+Rule 3 is what ADR-023 added, and it is the one that would have prevented all three previous versions.
 
 ---
 
@@ -149,21 +141,19 @@ Test 3 is what ADR-022 added, and it is the one that changed the page most.
 **The order is the objection sequence.** A skeptical reader's questions arrive predictably, and each must be answered before the next can be heard.
 
 ```
-"Who is this?"                      → Band 1  Claim and instrument
-"So you don't write your own code?" → Band 2  Verification
-"Show me something real."           → Band 3  Systems
-"Would it survive contact?"         → Band 4  Failure
-"Do they have judgement?"           → Band 5  Refusals
-"What now?"                         → Band 6  Connect
+"Who is this?"                      → 1  The claim
+"So you don't write your own code?" → 2  Method
+"Show me something real."           → 3  OrchestAI
+"Is there more than one?"           → 4  NovaMind
+"Do they have judgement?"           → 5  Refusals
+"What now?"                         → 6  Connect
 ```
 
 **Qualification precedes evidence, and this is the load-bearing ordering decision.** `FOUNDATION.md` §3 goal 4 requires the workflow objection be answered *before the reader has to ask it*. Evidence presented to a skeptical reader does not accumulate — it gets discounted, and discounted evidence cannot be re-presented later. Unchanged since V1 and asserted in `tests/quality/homepage.spec.ts`.
 
-**Measurement precedes argument.** Band 1 establishes that this page reports rather than claims, before it claims anything. Every band after it is read in that light.
+**Judgement is last of the substantive screens.** A refusal is only interesting once the reader believes the thing could have been built, which takes screens 3 and 4.
 
-**Failure follows the systems, never precedes them.** A failure-mode table for a system the reader has not yet seen is a list of nouns.
-
-**Judgement is last of the substantive bands.** A refusal is only interesting once the reader believes the thing could have been built.
+**The idea is named last.** Four demonstrations, then the sentence. Reversing that order would cost it everything.
 
 **Departure is last.** Interaction is requested only after belief exists (§1).
 
@@ -245,7 +235,9 @@ None. The three questions carried in version 0.1.0 — whether band 2 links to `
 
 ## Changelog
 
-**0.4.0 — 2026-08-06.** §4 and §5 superseded by ADR-022: seven bands become five, and §4.1 replaces the band-count freeze with four tests a band must pass — of which “it is checkable” is new and reshaped the page. The objection sequence is unchanged for the third consecutive version.
+**0.5.0 — 2026-08-06.** §4 and §5 superseded by ADR-023. The page now carries one idea in six screens and ~270 words; §4.1 replaces every previous structural freeze with four rules, of which a word budget is new and is the one that would have prevented V1, V2 and V3. The objection sequence is unchanged for the fourth consecutive version.
+
+**0.4.0 — 2026-08-06.** §4 and §5 superseded by ADR-023: seven bands become five, and §4.1 replaces the band-count freeze with four tests a band must pass — of which “it is checkable” is new and reshaped the page. The objection sequence is unchanged for the third consecutive version.
 
 **0.3.0 — 2026-08-06.** §4 and §5 amended by ADR-020: six bands become seven, the count freeze is replaced by a produces-a-belief test, and every band's *form* is specified alongside its content. The objection sequence is unchanged.
 

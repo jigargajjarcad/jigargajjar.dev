@@ -58,10 +58,6 @@
   --ease-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
   --stagger-interval: 60ms;
   --stagger-max: 4;
-  --flow-cycle: 2600ms;
-  --flow-slow: 4400ms;
-  --flow-stagger: 260ms;
-  --flow-origin: 0ms;
   --radius-sm: 2px;
   --radius-md: 4px;
   --border-hairline: 1px;
@@ -165,8 +161,6 @@
   --color-surface-overlay: oklch(0.995 0.004 250);
   --color-border-subtle: oklch(0.925 0.008 250);
   --color-border-strong: oklch(0.52 0.012 250);
-  --color-grid-line: oklch(0.962 0.006 250);
-  --color-flow: oklch(0.56 0.14 220);
   --color-interactive: oklch(0.48 0.145 220);
   --color-interactive-hover: oklch(0.56 0.14 220);
   --color-interactive-pressed: oklch(0.4 0.13 220);
@@ -194,8 +188,6 @@
     --color-surface-overlay: oklch(0.215 0.008 250);
     --color-border-subtle: oklch(0.3 0.01 250);
     --color-border-strong: oklch(0.62 0.012 250);
-    --color-grid-line: oklch(0.215 0.008 250);
-    --color-flow: oklch(0.78 0.1 220);
     --color-interactive: oklch(0.7 0.12 220);
     --color-interactive-hover: oklch(0.78 0.1 220);
     --color-interactive-pressed: oklch(0.56 0.14 220);
@@ -223,8 +215,6 @@
   --color-surface-overlay: oklch(0.995 0.004 250);
   --color-border-subtle: oklch(0.925 0.008 250);
   --color-border-strong: oklch(0.52 0.012 250);
-  --color-grid-line: oklch(0.962 0.006 250);
-  --color-flow: oklch(0.56 0.14 220);
   --color-interactive: oklch(0.48 0.145 220);
   --color-interactive-hover: oklch(0.56 0.14 220);
   --color-interactive-pressed: oklch(0.4 0.13 220);
@@ -251,8 +241,6 @@
   --color-surface-overlay: oklch(0.215 0.008 250);
   --color-border-subtle: oklch(0.3 0.01 250);
   --color-border-strong: oklch(0.62 0.012 250);
-  --color-grid-line: oklch(0.215 0.008 250);
-  --color-flow: oklch(0.78 0.1 220);
   --color-interactive: oklch(0.7 0.12 220);
   --color-interactive-hover: oklch(0.78 0.1 220);
   --color-interactive-pressed: oklch(0.56 0.14 220);
@@ -280,8 +268,6 @@
     --color-surface-overlay: oklch(0.995 0.004 250);
     --color-border-subtle: oklch(0.925 0.008 250);
     --color-border-strong: oklch(0.52 0.012 250);
-    --color-grid-line: oklch(0.962 0.006 250);
-    --color-flow: oklch(0.56 0.14 220);
     --color-interactive: oklch(0.48 0.145 220);
     --color-interactive-hover: oklch(0.56 0.14 220);
     --color-interactive-pressed: oklch(0.4 0.13 220);

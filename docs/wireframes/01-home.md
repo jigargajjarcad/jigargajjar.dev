@@ -2,13 +2,13 @@
 
 **Specification source:** [`HOMEPAGE_NARRATIVE.md`](../design/HOMEPAGE_NARRATIVE.md) · [`EXPERIENCE_FLOW.md`](../design/EXPERIENCE_FLOW.md) §6
 **Shell:** see [`README.md`](./README.md) §4
-**Status:** §§1–3 current. **§§4–6 describe Version 1; §13 describes Version 2. Both are superseded by §14** (ADR-022, 2026-08-06).
+**Status:** §§1–3 current. **§§4–6 are Version 1, §13 is Version 2, §14 is Version 3. All are superseded by §15** (ADR-023, 2026-08-06).
 
 ---
 
-> **Read §14 first.** The layouts drawn in §4, §5 and §6 are the Version 1 page, which shipped at the end of Phase 5 and was replaced on 2026-08-06. They are retained rather than deleted, in keeping with this project's convention that a superseded record is more useful than a tidy one — each version's rationale is largely an argument about what was wrong with the one before it, and those arguments are unreadable without the thing they criticise.
+> **Read §15 first.** The layouts drawn in §4, §5 and §6 are the Version 1 page, which shipped at the end of Phase 5 and was replaced on 2026-08-06. They are retained rather than deleted, in keeping with this project's convention that a superseded record is more useful than a tidy one — each version's rationale is largely an argument about what was wrong with the one before it, and those arguments are unreadable without the thing they criticise.
 >
-> §§1–3 (purpose, audience, narrative goal) survived both redesigns and remain the contract, with the band renumbering noted in §14.4.
+> §§1–3 (purpose, audience, narrative goal) survived both redesigns and remain the contract, with the band renumbering noted in §15.5.
 
 ---
 
@@ -455,3 +455,67 @@ The four tests in `HOMEPAGE_NARRATIVE.md` §4.1, plus:
 1. **Nothing in band 1 animates on entrance** (`MOTION.md` §5). Trace bars growing to a measured length are data arriving, not an entrance.
 2. **Ambient diagram motion is removable without loss** (ADR-021).
 3. **Every interaction teaches a relationship.** A control that only swaps a paragraph is a control that should have been a paragraph — this is the test that removed V2's three tablists.
+
+---
+
+## 15. Version 4 layout contract
+
+**Authorised by ADR-023. Supersedes §§4–6, §13 and §14.** Narrative source: `HOMEPAGE_NARRATIVE.md` §4, version 0.5.0.
+
+### 15.1 Screens
+
+One surface for the whole page. No numbered eyebrows, no labels, no alternating backgrounds — a hairline where one screen meets the next, and the largest step on the section scale between them.
+
+| # | Heading | Content | Words |
+|---|---|---|---|
+| 1 | `<h1>` thesis | Positioning verbatim, one link, one measured footnote | ~40 |
+| 2 | Three clauses of method | One sentence naming the check count, one link | ~25 |
+| 3 | OrchestAI | One idea, one consequence, one link | ~45 |
+| 4 | NovaMind AI | `10 → 5 → 1`, one idea, one consequence, two links | ~55 |
+| 5 | What I didn’t build | Four refusals, then the closing line | ~90 |
+| 6 | Work with me | Availability, two links, three contact facts | ~30 |
+
+`layout/Screen` owns the divider and the rhythm and does nothing else. The final screen halves its bottom padding, because `Footer` already opens with `mt-section-lg`.
+
+### 15.2 Typographic hierarchy
+
+The page has no visual system beyond this. Five sizes carry everything.
+
+| Role | Token | Desktop |
+|---|---|---|
+| Thesis, and the one figure | `hero` | 80 px |
+| Method clauses, system ideas | `heading-1` | 44 px |
+| Screen headings, closing line | `heading-2` | 35 px |
+| Refusal subjects | `heading-3` | 28 px |
+| Consequences, positioning | `lede` | 22.5 px |
+| Metadata and the footnote | `mono` | 11.5 px |
+
+Mono is demoted to metadata only. It carried node labels, axis captions, gauge readouts and status chips in V2 and V3; it now appears in four places.
+
+### 15.3 The figure test
+
+A visualisation ships only if it communicates **faster than the sentence it would replace**. This is the whole rule, and it is what removed the trace waterfalls, the gauges, the failure matrix and the node graph.
+
+`10 → 5 → 1` passes: three numerals at 80 px say what NovaMind's six-row waterfall said, faster than its labels could be read. OrchestAI has no figure — its idea is a sentence, and a diagram of a sentence is slower than the sentence.
+
+### 15.4 Budgets
+
+| Budget | Ceiling | Authority |
+|---|---|---|
+| Words in `<main>` | 340 | ADR-023, `tests/quality/homepage.spec.ts` |
+| Screens | 6 | ADR-023 |
+| Route JavaScript | — | 906 B measured; the footnote is the only client component |
+
+The word budget is the one this project did not previously have. Bytes, types, contrast and axe were all green across thirteen screens and 1,914 words, because none of them measures attention.
+
+### 15.5 Band renumbering against §3
+
+| §3 beat | V1 | V2 | V3 | V4 |
+|---|---|---|---|---|
+| Recognition | 1 | 1 | 1 | 1 |
+| Disarmament | 2 | 2 | 2 | 2 |
+| Engagement | 3 | 3 | 3 | 3 |
+| Widening | 4 | 4 and 5 | 3 | 4 |
+| Substantiation | 5 | 6 | 2 and 4 | 2 |
+| Judgement | — | — | 5 | 5 |
+| Intent | 6 | 7 | 6 | 6 |

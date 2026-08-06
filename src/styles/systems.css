@@ -1,0 +1,163 @@
+/*
+ * System-diagram stylesheet — ADR-021.
+ *
+ * `globals.css` is foundation only: reset, tokens, theme, base typography. This
+ * file is the one exception to that boundary and it earns it, because what lives
+ * here cannot be expressed as a Tailwind utility: `@keyframes`, SVG paint
+ * properties, and the dash geometry that makes an edge appear to carry traffic.
+ * Anything here that *could* be a utility is a defect and belongs at the call
+ * site instead.
+ *
+ * Every value resolves to a custom property from `tokens.css`. There are no
+ * literals, which `scripts/check-tokens.mjs` enforces over this file like any
+ * other source file.
+ *
+ * Imported ahead of `@tailwind utilities` so a utility at a call site always
+ * wins a specificity tie. These classes describe *behaviour that repeats across
+ * every diagram*; appearance that varies stays in the markup.
+ */
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * 1. Schematic backdrop
+ *
+ * The grid is the site's one piece of ornament, and it is ornament with an
+ * argument: it is the paper an engineer draws a system on. It carries no
+ * information, sits below the 3:1 contrast floor on purpose (TOKENS.md,
+ * `color-grid-line`), and is masked to fade at the edges so it never competes
+ * with the diagram sitting on it.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+.system-grid {
+  background-image:
+    linear-gradient(to right, var(--color-grid-line) var(--border-hairline), transparent 0),
+    linear-gradient(to bottom, var(--color-grid-line) var(--border-hairline), transparent 0);
+  background-size: var(--space-8) var(--space-8);
+  background-position: center;
+}
+
+/* A grid that runs hard into a section boundary reads as a table. Fading it out
+   radially keeps it reading as depth. */
+.system-grid-fade {
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 78%);
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * 2. Edges
+ *
+ * An edge is drawn twice: a static hairline that is always present, and a short
+ * bright dash travelling along the identical path. The static line is the
+ * topology and survives with animation removed; the dash is the traffic.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+.system-edge {
+  fill: none;
+  stroke: var(--color-border-subtle);
+  stroke-width: var(--border-hairline);
+  stroke-linecap: round;
+}
+
+/*
+ * `pathLength="100"` is set on the element, so the dash pattern is expressed in
+ * percentages of the path regardless of its real length. That is what lets one
+ * keyframe animate a 40 px edge and a 400 px edge at the same apparent speed —
+ * without it, short edges flicker and long edges crawl.
+ *
+ * Offset travels 100 → 0 because a rising `stroke-dashoffset` moves the pattern
+ * *backwards* along the path. Getting this sign wrong runs every request in the
+ * diagram from the database back to the client.
+ */
+.system-flow {
+  fill: none;
+  stroke: var(--color-flow);
+  stroke-width: var(--border-emphasis);
+  stroke-linecap: round;
+  stroke-dasharray: 9 91;
+  stroke-dashoffset: 100;
+  animation: system-flow var(--flow-cycle) linear infinite;
+  animation-delay: var(--flow-offset, var(--flow-origin));
+}
+
+.system-flow-slow {
+  animation-duration: var(--flow-slow);
+}
+
+@keyframes system-flow {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * 3. Nodes
+ *
+ * The halo brightens as the wave reaches the node's depth in the graph, so the
+ * sequence reads as propagation rather than as decoration. Delay is set per node
+ * from `flow.stagger` at the call site.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+.system-node {
+  fill: var(--color-surface-base);
+  stroke: var(--color-border-subtle);
+  stroke-width: var(--border-hairline);
+  transition:
+    stroke var(--duration-fast) var(--ease-standard),
+    fill var(--duration-fast) var(--ease-standard);
+}
+
+.system-node-halo {
+  fill: none;
+  stroke: var(--color-flow);
+  stroke-width: var(--border-hairline);
+  opacity: 0;
+  animation: system-node-pulse var(--flow-cycle) var(--ease-standard) infinite;
+  animation-delay: var(--flow-offset, var(--flow-origin));
+}
+
+/*
+ * Asymmetric on purpose: a fast rise and a slow fall. A symmetric pulse reads as
+ * a blinking light; arrival-then-decay reads as something passing through.
+ */
+@keyframes system-node-pulse {
+  0% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  38% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * 4. Interactive diagram surfaces
+ *
+ * Selection state on a node, stage, or layer. `:focus-visible` styling is not
+ * repeated here — the global two-tone ring in `globals.css` already covers every
+ * focusable element and ACCESSIBILITY.md §4 forbids replacing it per component.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+.system-target {
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
+}
+
+/* The 2 px lift is the smallest displacement that registers as a response
+   without becoming the subject (MOTION.md §5). */
+.system-target:hover {
+  transform: translateY(calc(var(--border-emphasis) * -1));
+}
+
+.system-target:active {
+  transform: translateY(0);
+}

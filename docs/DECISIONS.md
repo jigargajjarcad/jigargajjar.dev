@@ -1,7 +1,7 @@
 # Architecture Decision Records
 
 **Owner:** Jigar Gajjar
-**Last reviewed:** 2026-08-04
+**Last reviewed:** 2026-08-06
 **Governed by:** [`FOUNDATION.md`](./FOUNDATION.md) · Implemented per [`ARCHITECTURE.md`](./ARCHITECTURE.md)
 
 Decisions that shape this project, with the reasoning intact. The purpose is not to document what was chosen — that is visible in the code — but to preserve *why*, and what was rejected, so that a future maintainer can tell a deliberate constraint from an accident and knows what would have to change for the decision to be reopened.
@@ -35,6 +35,8 @@ Records are immutable once accepted. A decision that changes gets a new record t
 | [017](#adr-017) | The cover image is metadata, never rendered in the article | Accepted |
 | [018](#adr-018) | Motion is implemented natively; the animation library is removed | Accepted |
 | [019](#adr-019) | OrchestAI is an orchestration service; the framework claim is withdrawn | Accepted |
+| [020](#adr-020) | The home page argues by demonstration, not by description | Accepted |
+| [021](#adr-021) | Ambient system motion is a second motion system, bounded separately | Accepted |
 
 ---
 
@@ -931,3 +933,111 @@ Authorised by this record but **not applied here**, as corrections to frozen doc
 - **A precedent, and a gap.** Claims in frozen documents about *external* repositories are only as current as the last time they were checked against those repositories. This is the first such correction. `FOUNDATION.md` §9's descriptions of NovaMind AI and the Edge10 platform have **not** been verified against their sources, and should be before either case study is written.
 - ADR-012's non-competition rule is unaffected. Infrastructure engineering remains distinct from product engineering and from enterprise engineering; only the sub-claim about extension points is withdrawn.
 - `README.md` still says "14 ADRs" and "`ADR-001 – ADR-014`". That was already stale before this record and is now stale by five. Noted here; not fixed by this record, since `README.md` is outside the freeze register and can be corrected directly.
+
+---
+
+<a id="adr-020"></a>
+## ADR-020 — The home page argues by demonstration, not by description
+
+**Status:** Accepted · 2026-08-06 · Amends `FOUNDATION.md` §5, `HOMEPAGE_NARRATIVE.md` §4–§5, `TOKENS.md` §3.2 and §4.5
+
+### Context
+
+Version 1 of `/` shipped at the end of Phase 5 and was, by the measures this project had set itself, correct. Six bands in the objection sequence from `FOUNDATION.md` §3. The positioning sentence verbatim in the primary position, per §5. Every band a `Stack` of `Text` inside one `Container`, every value from a token, every heading at the right level, 100 on the accessibility audit.
+
+It was also flat, and the reason is structural rather than cosmetic.
+
+**Every band made its argument by asserting it in prose.** The claim "I design systems rather than write code" was a paragraph saying so. The claim "verification is the scarce part" was a sentence saying so. A reader is asked to accept six assertions from a stranger, and the only evidence offered is that the assertions are well written. That is the exact rhetorical position ADR-013 says this portfolio should not occupy: it demonstrates writing ability and asks for engineering ability to be inferred.
+
+**Every band also looked identical.** Six `Stack gap={6}` blocks in one column produce a document. Nothing in peripheral vision tells a reader they have crossed from one idea into another, so scrolling reads as continuing a page rather than as progressing through an argument, and there is no reason at any point to keep going.
+
+And the `<h1>` was `POSITIONING` — "AI-Native Full-Stack Engineer designing reliable software systems through architecture, orchestration, and verification." That sentence names a category and lists three disciplines. It is precisely the right sentence for a `<meta name="description">`, where a machine is matching terms, and precisely the wrong one for the first three seconds of a human visit, where a category is not a claim and a list is not remembered.
+
+### Decision
+
+**The home page presents systems the reader can explore, in place of paragraphs describing them. Seven bands, each with its own surface, its own number, and its own visual form.**
+
+Four changes carry it:
+
+1. **The `<h1>` becomes `THESIS`** — "I build AI systems that survive production." A claim that can be wrong, which is what makes the evidence below it worth reading. `POSITIONING` is unchanged, remains the document description, and remains on the page verbatim as the line directly beneath. This amends `FOUNDATION.md` §5's *position* requirement; it does not touch §5's identity requirement, which is that the sentence is defined once and never paraphrased.
+2. **Bands 2, 3 and 4 become explorable diagrams** — a seven-stage lifecycle rail, a six-layer architecture explorer, a seven-stage retrieval pipeline. Each is a WAI-ARIA tablist over a data model in `src/content/home.ts`, each server-renders every stage, and script only adds the ability to move between them.
+3. **The band becomes a component** (`components/layout/Band.tsx`) owning surface, numbering, and section rhythm — so a section boundary is visible before it is read, and band spacing cannot drift band by band.
+4. **A ninth type step and a mono annotation token** (`type-hero` at step 900; `type-mono`) give the page two voices: the display serif for statements a person makes, mono for labels a system emits. That pairing is the whole visual argument, and it is why the site does not need decoration to look like engineering.
+
+Band 5 is new and deliberately slim: the six-section structure names two projects, the site has four case studies, and two of them appeared in no other band.
+
+**Every number in `src/content/home.ts` is checkable against a case study**, and the file cites the source above each block. The chunk size, the embedding dimensions, the ten-to-five narrowing, the six agent names — all are stated in `content/case-studies/`. A diagram that flatters the architecture would be the worst artefact on the site, because it is the one a reader assumes was drawn from the code.
+
+### Alternatives considered
+
+**Keep V1 and improve its typography and spacing.** Rejected, and this was the owner's explicit instruction, but it is worth recording why the instruction was right. V1's problem was not that the paragraphs were badly set. It was that they were paragraphs. Better spacing on an assertion leaves an assertion.
+
+**Use an animation library and a richer visual vocabulary.** Rejected — see ADR-021. Every effect specified was achievable in CSS and SVG at ~9 KB of client JavaScript, against roughly 40 KB for the library alone. ADR-006 makes the budget precede the effect, and a portfolio whose thesis is production discipline cannot exceed its own budget for decoration.
+
+**Draw the architecture as a static image.** Rejected. An image is not checkable, cannot be read by assistive technology beyond its alt text, cannot be kept in sync with the case study by review, and would have to be re-exported by hand every time a fact changed. A data model in TypeScript is reviewable in a diff.
+
+**Present all four case studies as equal explorable systems.** Rejected. That is the menu that featuring exists to avoid (`HOMEPAGE_NARRATIVE.md` §4). Two systems at full depth and the rest as a quiet index is a stronger claim than four at half depth.
+
+**Leave `FOUNDATION.md` §5 alone and open with `POSITIONING`.** Rejected. §5's purpose is to stop the positioning sentence drifting across surfaces, and it still does that — the sentence is still defined once and still rendered verbatim here. What §5 additionally fixed was its screen position, and that was a layout decision recorded inside a content document.
+
+### Consequences
+
+- **The band structure is no longer frozen at six.** `HOMEPAGE_NARRATIVE.md` §5 said it was. That freeze existed to stop bands accumulating by drift, and this record replaces it with a stronger constraint: a band must produce a belief no other band produces, and it must justify its form. Band 5 is the test case, and it is the quietest band on the page for exactly that reason.
+- **The page now ships client JavaScript it did not before** — 5.0 KB route-specific, 112 KB first load against the 120 KB budget. Nine percent headroom is the tightest this project has run. The next feature that wants client JavaScript on `/` will have to displace something, which is what a budget is for.
+- **`tests/quality/homepage.spec.ts` was rewritten.** The band contract it asserted is gone. What it asserts now is what did not change: the objection sequence, the positioning sentence's presence, the absence of any call to action, and — new — that every diagram renders in full without JavaScript.
+- **Content and presentation are now coupled in one direction.** `src/content/home.ts` restates facts that live in MDX case studies. There is no mechanism that catches divergence; the file says so, and it is reviewed when a case study changes. This is a real gap and it is the most likely source of a future factual error on this site.
+- Three documents are amended by this record rather than superseded: `FOUNDATION.md` §5 (position only), `HOMEPAGE_NARRATIVE.md` §4–§5 (band count and band form), `TOKENS.md` §3.2 and §4.5 (step 900, `type-hero`, `type-mono`, `color-grid-line`, `color-flow`).
+
+---
+
+<a id="adr-021"></a>
+## ADR-021 — Ambient system motion is a second motion system, bounded separately
+
+**Status:** Accepted · 2026-08-06 · Amends `ARCHITECTURE.md` §9, `MOTION.md`
+
+### Context
+
+`ARCHITECTURE.md` §9 prohibits outright "any animation exceeding 400 ms," and ADR-011 froze the motion scale at four durations. ADR-018 removed the animation library after measuring it at 95× the cost of the behaviour it provided.
+
+ADR-020 needs a request to visibly traverse an architecture diagram. There is no honest way to do that inside 400 ms: a pulse crossing six nodes in under half a second reads as a flicker, not as a journey, and the duration is not incidental to the effect — it *is* the effect. The alternative is a static diagram, which loses the one thing that distinguishes an architecture drawing on a portfolio from an architecture drawing in a README.
+
+The prohibition is nonetheless correct for everything it was written about. §9's three sanctioned purposes — orienting to new content, confirming an interaction, establishing continuity — are all cases where a reader is *waiting* for the animation before they can read or act. A 2.6-second transition in any of them is a 2.6-second delay.
+
+So the conflict is not between the rule and the feature. It is that one rule is covering two different things.
+
+### Decision
+
+**Motion is two systems with separate budgets, and they are kept separate in code, not merely in prose.**
+
+| System | Token export | Bound | Character |
+|---|---|---|---|
+| Interface motion | `duration`, `easing`, `stagger` | ≤ 400 ms, ADR-011 | The reader is waiting on it |
+| Ambient system motion | `flow` | 2.6 s / 4.4 s cycles | The reader is never waiting on it |
+
+Admission to the ambient system requires all four:
+
+1. It depicts a process that the diagram is *about*. It is not applied to interface chrome.
+2. It is continuous and non-blocking. No content is unreadable, and no control is unusable, at any point in the cycle.
+3. It is removable without loss. Every diagram renders its full topology and every label with animation removed — the moving dash is drawn *over* a static edge that is always present.
+4. It is compositor-cheap and library-free. `stroke-dashoffset` and `opacity` on a handful of SVG paths.
+
+The separation is enforced rather than documented: `flow` is a distinct export, `tests/unit/tokens.test.ts` asserts that `duration` still holds exactly four values none of which exceeds 400 ms, and that every `flow` cycle exceeds it. Merging the two — the obvious future "tidy-up" — fails the suite.
+
+`src/styles/systems.css` is the second exception this project grants to "no component styling in the global stylesheet," and it is granted for the same reason as the first: `@keyframes`, SVG paint properties, and dash geometry have no Tailwind expression and no per-component home.
+
+### Alternatives considered
+
+**Raise §9's ceiling to cover both.** Rejected, and it is the tempting one. It would take one number and no new concepts — and it would license a 2.6-second hover state, a 2.6-second page transition, and a 2.6-second entrance reveal, none of which anyone decided to allow. A ceiling raised to accommodate a case it was not written for stops constraining the cases it *was* written for.
+
+**Add `duration.ambient` alongside the existing four.** Rejected for the same reason in smaller form. It puts a value in the scale that §9's own sentence forbids, so the rule and the scale contradict each other in the same repository.
+
+**Adopt an animation library now that there is a real consumer.** Rejected. ADR-018's arithmetic did not change: the total client cost of all three explorable diagrams plus every flow animation is about 9 KB gzipped. The library alone is roughly four times that, and `/` is already the worst route against a budget that ADR-006 does not permit raising for a visual effect.
+
+**Draw static diagrams and drop the motion.** Rejected, but it is the honest fallback and it is exactly what reduced-motion readers get. Constraint 3 exists to guarantee that path is not a degraded experience but a complete one.
+
+### Consequences
+
+- **Reduced motion removes ambient flow entirely, and this is verified, not assumed.** `globals.css` sets `animation: none` globally under `prefers-reduced-motion`, and `progressive-enhancement.spec.ts` already asserts across every route that no element has a running animation in that mode. The new diagrams came under that gate without a line of new test code.
+- **There are now two motion systems to learn**, and a contributor can pick the wrong one. The mitigation is that picking wrong is visible: `flow.cycle` on a hover state is a 2.6-second hover.
+- **`flow.origin` exists solely so that a zero delay is a token.** It looks like over-engineering and it is deliberate: `check-tokens.mjs` rejects a bare duration in CSS, and an exemption for "it is only zero" is how a scale starts leaking.
+- The `flow` cycle values are chosen, not measured. There is no user research behind 2.6 seconds; it is the value at which a pulse crossing the hero topology reads as deliberate rather than as either urgent or stalled, judged by looking at it.

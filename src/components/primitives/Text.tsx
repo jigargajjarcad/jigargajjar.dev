@@ -9,6 +9,8 @@ import type { ElementType, ReactNode } from 'react';
  * uses a lower level, not a smaller size on a higher one.
  */
 export type TypeToken =
+  | 'hero'
+  | 'mono'
   | 'display'
   | 'heading-1'
   | 'heading-2'
@@ -23,6 +25,8 @@ export type TypeToken =
   | 'code';
 
 const FAMILY: Record<TypeToken, string> = {
+  hero: 'font-display',
+  mono: 'font-mono',
   display: 'font-display',
   'heading-1': 'font-display',
   'heading-2': 'font-display',

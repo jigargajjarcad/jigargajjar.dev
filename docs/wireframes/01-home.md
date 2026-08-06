@@ -2,6 +2,13 @@
 
 **Specification source:** [`HOMEPAGE_NARRATIVE.md`](../design/HOMEPAGE_NARRATIVE.md) · [`EXPERIENCE_FLOW.md`](../design/EXPERIENCE_FLOW.md) §6
 **Shell:** see [`README.md`](./README.md) §4
+**Status:** §§1–3 current. **§§4–6 describe Version 1 and are superseded by §13** (ADR-020, 2026-08-06).
+
+---
+
+> **Read §13 first.** The layouts drawn in §4, §5 and §6 are the Version 1 page, which shipped at the end of Phase 5 and was replaced on 2026-08-06. They are retained rather than deleted, in keeping with this project's convention that a superseded record is more useful than a tidy one — the V2 rationale in ADR-020 is largely an argument about what was wrong with those layouts, and it is unreadable without them.
+>
+> §§1–3 (purpose, audience, narrative goal) survived the redesign and remain the contract, with the band renumbering noted in §13.
 
 ---
 
@@ -318,3 +325,66 @@ One `<h1>` (band 1). Bands 2–6 open at `<h2>`; band 3's two subsections are `<
 ## 12. Open questions
 
 None blocking. `HOMEPAGE_NARRATIVE.md` §10 records none outstanding.
+
+
+---
+
+## 13. Version 2 layout contract
+
+**Authorised by ADR-020. Supersedes §§4–6.** Narrative source: `HOMEPAGE_NARRATIVE.md` §4, version 0.3.0.
+
+### 13.1 Why this section replaces ASCII wireframes
+
+The V1 sections above drew every band as a box diagram at three widths, and that was the right form for a page of stacked prose blocks: the layout *was* the design, and it was fully described by where the text sat.
+
+It is the wrong form for V2. Three of the seven bands are explorable diagrams whose layout is a function of a data model — seven lifecycle stages, six architecture layers, seven pipeline stages — and redrawing them in ASCII would produce a document that is stale the moment a stage is added and that describes less than the model does. **The model is the wireframe.** It lives in `src/content/home.ts`, it is typed, and it is reviewable in a diff.
+
+What this section specifies instead is what the model cannot: band order, surface alternation, responsive behaviour, and the rules a future band must satisfy.
+
+### 13.2 Band structure
+
+| # | Label | Surface | Heading | Form | Component |
+|---|---|---|---|---|---|
+| 1 | — | base + grid | `<h1>` thesis | Two columns; statement left, live topology right | `sections/Hero` |
+| — | facts strip | raised | — | Three mono statements, hairline above and below | `sections/Hero` |
+| 2 | Method | sunken | What actually happens | Seven-stage rail, explorable | `system/LifecycleRail` |
+| 3 | AI Infrastructure Engineering | base | OrchestAI | Six-layer stack, explorable | `system/ArchitectureExplorer` |
+| 4 | AI Product Engineering | sunken | NovaMind AI | Seven-stage pipeline, explorable | `system/PipelineFlow` |
+| 5 | Also on this site | base | The rest of the work | Compact list, derived from content | `app/page.tsx` |
+| 6 | Position | sunken | *(visually hidden)* | Four numbered statements | `app/page.tsx` |
+| 7 | Availability | base | Work with me | Two columns; invitation left, contact details right | `app/page.tsx` |
+
+**Surfaces alternate, and that is the mechanism.** V1's central failure was that six identical blocks in one container read as a document, so a reader could not tell from peripheral vision that they had crossed from one idea to another. Every band owns its full-bleed surface and carries a numbered mono rule at its head. Elevation is surface lightness plus a hairline, never a shadow (`COLOR_SYSTEM.md` §6).
+
+**Section rhythm is owned by `layout/Band`** and applied in exactly one place, so band spacing cannot drift band by band.
+
+### 13.3 Responsive behaviour
+
+Three breakpoints, and only two of them change anything structural.
+
+- **375 px.** Everything is one column. Band 1 stacks statement-then-topology in DOM order, so the claim occupies the first screen and the diagram is the reward for scrolling rather than an obstacle before it. The lifecycle rail runs vertically; the pipeline runs vertically with vertical connectors.
+- **900 px (`md`).** The lifecycle rail becomes horizontal. Architecture layers put their stack chips on the same line as the layer name, right-aligned. Detail panels split into two columns.
+- **1280 px (`lg`).** Band 1 becomes two columns, 7 / 5. The pipeline becomes horizontal. The architecture explorer splits 7 / 5 into stack and detail panel.
+
+Both orientations of every rail are keyboard-navigable on both axes, because the same component is a row at one width and a column at another.
+
+### 13.4 Rules a band must satisfy
+
+1. **It renders completely without JavaScript.** Script adds the ability to *move between* stages; it never supplies a stage. Asserted in `tests/quality/homepage.spec.ts`.
+2. **It produces a belief no other band produces** (`HOMEPAGE_NARRATIVE.md` §4).
+3. **Its form differs from its neighbours'** where its argument differs. Two bands in the same component is a signal that one is redundant.
+4. **Nothing in band 1 animates on entrance** (`MOTION.md` §5). Bands 2–7 carry the reveal.
+5. **Ambient diagram motion is removable without loss** (ADR-021). Every topology renders in full with animation disabled.
+
+### 13.5 Band renumbering against §3
+
+§3's narrative table is unchanged in substance; the beats moved as follows. V1 band 5 (Workflow) is no longer a band — its content became band 2's explorable form, and `/workflow` is now reached from band 1.
+
+| §3 beat | V1 band | V2 band |
+|---|---|---|
+| Recognition | 1 | 1 |
+| Disarmament | 2 | 2 |
+| Engagement | 3 | 3 |
+| Widening | 4 | 4 and 5 |
+| Substantiation | 5 | 6 |
+| Intent | 6 | 7 |

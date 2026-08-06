@@ -24,7 +24,7 @@ test.describe('entrance reveal', () => {
     const page = await context.newPage();
     await page.goto('/');
 
-    await expect(page.getByRole('heading', { name: 'What I actually do' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'What actually happens' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Work with me' })).toBeVisible();
     expect(await page.locator(REVEALED).count()).toBe(0);
 
@@ -79,7 +79,7 @@ test.describe('entrance reveal', () => {
     // Nothing is hidden, so there is nothing to reveal and no observer to run.
     expect(await page.locator(REVEALED).count()).toBe(0);
 
-    await expect(page.getByRole('heading', { name: 'What I actually do' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'What actually happens' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Work with me' })).toBeVisible();
 
     await context.close();
@@ -90,6 +90,16 @@ test.describe('entrance reveal', () => {
     // layout property is the difference between motion that costs nothing and
     // motion that costs frames on the reference device.
     await page.goto('/');
+
+    // `data-reveal` is written by an effect, so it does not exist in the HTML
+    // response — that is the invariant the first test in this file asserts.
+    // Reading the attribute straight after `goto` therefore races hydration, and
+    // an empty result reads as "nothing animates" rather than as "nothing has
+    // mounted yet". The race was always present and became reachable when `/`
+    // gained client components; waiting for the first one to be attached is what
+    // makes this test measure what it claims to.
+    await expect(page.locator(REVEALED).first()).toBeAttached();
+
     const properties = await page
       .locator(REVEALED)
       .evaluateAll((els) => els.map((el) => getComputedStyle(el).transitionProperty));

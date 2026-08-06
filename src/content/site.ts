@@ -61,3 +61,18 @@ export const contact = {
  */
 export const AVAILABILITY =
   'Open to AI Engineer and Full-Stack roles, and collaboration on AI infrastructure.';
+
+/**
+ * The status-badge form of `AVAILABILITY`, for the home page hero eyebrow.
+ *
+ * Not a second source of truth — a second *register*. The eyebrow is set in
+ * uppercase mono at 11.5 px, and the full sentence there wrapped to two lines
+ * and read as a paragraph that happened to be shouted, which is the opposite of
+ * what a status indicator does. Anything longer than about thirty characters
+ * stops being a badge.
+ *
+ * The two are reviewed together whenever availability changes (ADR-014). If they
+ * ever disagree, this one is wrong: `AVAILABILITY` is the statement, and this is
+ * its abbreviation.
+ */
+export const AVAILABILITY_STATUS = 'Open to AI Engineer roles';

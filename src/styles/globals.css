@@ -1,8 +1,14 @@
 /*
  * Global foundation only: reset, root variables, theme setup, base typography.
  * No component styling, no layout, no page styling (Phase 5 Day 1 scope).
+ *
+ * `systems.css` is the single sanctioned exception (ADR-021): keyframes, SVG
+ * paint, and dash geometry have no Tailwind expression and no per-component
+ * home. Its rationale is stated in the file. It is imported ahead of the
+ * Tailwind directives so a utility at a call site always wins a specificity tie.
  */
 @import './tokens.css';
+@import './systems.css';
 
 /*
  * Webfonts — ARCHITECTURE.md §8, TYPOGRAPHY.md §5.

@@ -94,7 +94,18 @@ export const status = {
   },
 } as const;
 
-/** TOKENS.md §3.2 — type scale. Fluid between the 375 px and 1280 px anchors. */
+/**
+ * TOKENS.md §3.2 — type scale. Fluid between the 375 px and 1280 px anchors.
+ *
+ * Step 900 is the ninth step, added by ADR-020. It exists for exactly one
+ * consumer — the home page's opening statement — and the ratio between 800 and
+ * 900 (1.45 at the desktop anchor) is deliberately wider than the 1.25 that runs
+ * through the rest of the ramp. A scale whose largest step is only a quarter
+ * larger than its second-largest cannot produce a first impression that is
+ * different in kind from a section heading, and that difference is the entire
+ * point of the step. Its mobile anchor is 40, barely above step 800's 38,
+ * because the constraint at 375 px is line count, not impact.
+ */
 export const typeScale = {
   100: { mobile: 11.5, desktop: 11.5 },
   200: { mobile: 14, desktop: 14.5 },
@@ -104,6 +115,7 @@ export const typeScale = {
   600: { mobile: 28, desktop: 35 },
   700: { mobile: 32, desktop: 44 },
   800: { mobile: 38, desktop: 55 },
+  900: { mobile: 40, desktop: 80 },
 } as const;
 
 /**
@@ -166,6 +178,41 @@ export const stagger = {
   max: 4,
 } as const;
 
+/**
+ * TOKENS.md §3.5b — system-diagram flow. Added by ADR-021.
+ *
+ * **Deliberately not part of `duration`.** ARCHITECTURE.md §9 prohibits any
+ * animation exceeding 400 ms, and every value here exceeds it. That prohibition
+ * is written about interface motion — a transition the reader is waiting on
+ * before they can act or read. Nothing here is in that category: these are
+ * continuous, ambient, non-blocking depictions of a process inside a diagram,
+ * where the duration *is the content*. A request traversing an admission path in
+ * 400 ms reads as a glitch rather than as a journey.
+ *
+ * Keeping them in a separate export rather than adding `duration.ambient` is
+ * what stops the §9 ceiling from being quietly eroded: a component reaching for
+ * `flow.cycle` to time a hover state is visibly reaching into the wrong system,
+ * and the four-value `duration` assertion in `tests/unit/tokens.test.ts` still
+ * holds exactly as ADR-011 froze it.
+ *
+ * `stagger` is the offset between successive edges in one diagram, so that a
+ * graph reads as a wave moving through a topology rather than as every edge
+ * firing at once.
+ */
+export const flow = {
+  cycle: 2600,
+  slow: 4400,
+  stagger: 260,
+  /**
+   * The offset of the first element in a sequence, and the fallback for any
+   * element whose position was not set. It exists as a token rather than as a
+   * literal `0ms` in the stylesheet for the same reason every other value here
+   * does: `scripts/check-tokens.mjs` treats a bare duration in CSS as a defect,
+   * and an exemption for "but it is only zero" is how a scale starts leaking.
+   */
+  origin: 0,
+} as const;
+
 /** TOKENS.md §3.6 — dimension. Two radii only. No shadow scale: COLOR_SYSTEM §6. */
 export const radius = { sm: 2, md: 4 } as const;
 export const border = { hairline: 1, emphasis: 2 } as const;
@@ -222,6 +269,25 @@ export const semanticColor = {
   'color-border-subtle': { light: neutral[200], dark: neutral[800] },
   'color-border-strong': { light: neutral[600], dark: neutral[500] },
 
+  /**
+   * ADR-020. Two purposes that no existing semantic token expresses, both
+   * belonging to system diagrams rather than to prose.
+   *
+   * `grid-line` is the schematic backdrop: a rule fainter than `border-subtle`,
+   * carrying no information and deliberately below the 3:1 non-text floor. It is
+   * the only token in this file exempt from a contrast floor, and it is exempt
+   * because a reader who cannot see it has lost nothing — ACCESSIBILITY.md §3
+   * applies floors to meaning, and a backdrop grid has none.
+   *
+   * `flow` is the travelling pulse that depicts a request moving through a
+   * topology. It is not `interactive`: nothing about it responds to a pointer,
+   * and conflating "the accent that means clickable" with "the accent that means
+   * data is moving" would make every diagram look like a control surface. It
+   * clears 3:1 against the page surface in both themes.
+   */
+  'color-grid-line': { light: neutral[100], dark: neutral[900] },
+  'color-flow': { light: accent[600], dark: accent[400] },
+
   'color-interactive': { light: accent[700], dark: accent[500] },
   'color-interactive-hover': { light: accent[600], dark: accent[400] },
   'color-interactive-pressed': { light: accent[800], dark: accent[600] },
@@ -269,6 +335,40 @@ export interface TypeToken {
 }
 
 export const semanticType = {
+  /**
+   * ADR-020 — the home page's opening statement, and nothing else.
+   *
+   * `type-display` already exists at step 800 and is not this. The distinction
+   * is that `display` is the largest size a *page* uses, whereas `hero` is the
+   * size the *site* opens at: one instance, one surface, once per visit. Line
+   * height drops to 1.0 and tracking tightens to -0.03em because at 80 px the
+   * defaults that serve a 55 px heading leave the block reading as separated
+   * lines rather than as a single mass.
+   */
+  'type-hero': {
+    step: 900,
+    family: 'display',
+    weight: 'regular',
+    lineHeight: 1.0,
+    tracking: '-0.03em',
+  },
+  /**
+   * ADR-020 — the machine voice.
+   *
+   * `type-code` is a source listing; this is an annotation on a diagram — a node
+   * name, an edge label, a stage counter, a field type. The two are the same
+   * family and must not be the same token: code is set at reading size because
+   * it is read line by line, and an annotation is set small and tracked open
+   * because it is scanned as a label. Setting annotations in `type-code` made
+   * every diagram look like a terminal.
+   */
+  'type-mono': {
+    step: 100,
+    family: 'mono',
+    weight: 'regular',
+    lineHeight: 1.35,
+    tracking: '0.04em',
+  },
   'type-display': {
     step: 800,
     family: 'display',
@@ -406,6 +506,7 @@ export function rootVariables(): Record<string, string> {
   for (const [name, curve] of Object.entries(easing)) vars[`--ease-${name}`] = curve;
   vars['--stagger-interval'] = `${stagger.interval}ms`;
   vars['--stagger-max'] = String(stagger.max);
+  for (const [name, ms] of Object.entries(flow)) vars[`--flow-${name}`] = `${ms}ms`;
 
   vars['--radius-sm'] = `${radius.sm}px`;
   vars['--radius-md'] = `${radius.md}px`;

@@ -3,7 +3,7 @@ title: OrchestAI
 slug: orchestai
 competency: ai-infrastructure
 summary: A multi-tenant agent orchestration service on .NET 8, where tenant isolation, cost control, and trace integrity are enforced by infrastructure rather than by convention.
-role: Lead Engineer — architecture, system design, decision records, verification strategy, and technical direction. Implementation executed through AI-assisted development under my direction, review, and acceptance.
+role: Sole engineer — architecture, decision records, and verification strategy. Implementation through AI-assisted development under my direction, review, and acceptance.
 stack:
   - .NET 8
   - ASP.NET Core
@@ -18,8 +18,8 @@ sourceUrl: https://github.com/jigargajjarcad/orchestai
 disclosure: public
 lifecycle: released
 order: 1
-visibility: draft
-updated: '2026-08-04'
+visibility: published
+updated: '2026-08-05'
 cover:
   src: cover.svg
   alt: The admission path, from authenticated request through budget reservation to agent execution
@@ -157,9 +157,9 @@ architectural decision in the project is positioned somewhere along it.
 
 `TenantAuthenticationMiddleware` resolves an API key of the form
 `orch_live_<publicKeyId>.<secret>` — a 12-character base62 public identifier and a
-32-character base62 secret, stored SHA-256 hashed and compared with `FixedTimeEquals`. The resolved
-tenant is placed in an `AsyncLocal` accessor, which is what allows the same scoping
-mechanism to serve both HTTP requests and background workers.
+32-character base62 secret, stored as a SHA-256 hash and compared with `FixedTimeEquals`.
+The resolved tenant is placed in an `AsyncLocal` accessor, which is what allows the same
+scoping mechanism to serve both HTTP requests and background workers.
 
 Rate limiting is a token bucket partitioned by tenant, with a queue limit of zero so
 that excess requests are rejected immediately rather than delayed. Admission control
@@ -353,7 +353,7 @@ from memory and failed on inspection of what the code offered.
 
 What I would do differently is not architectural. The fixed agent roster, the closed
 tool registry, and the centralised routing were the right calls for a single engineer
-delivering a scoped system in five weeks, and I would make them again. What I would
+delivering a scoped system in five and a half weeks, and I would make them again. What I would
 change is the checking — reading the repository against its own README at each
 milestone boundary rather than at the end, so that drift is caught in the milestone
 that caused it rather than six weeks later.

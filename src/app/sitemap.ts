@@ -1,8 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 import { loadCaseStudies } from '@/content/loader';
-
-const ORIGIN = 'https://jigargajjar.dev';
+import { ORIGIN } from '@/content/site';
 
 /** ARCHITECTURE.md §4 — the eight routes, less `/404`. */
 const STATIC_ROUTES = ['', '/work', '/about', '/workflow', '/resume', '/connect'] as const;

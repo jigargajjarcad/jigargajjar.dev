@@ -1,6 +1,6 @@
 # jigargajjar.dev
 
-Personal site of Jigar Gajjar — Senior Full-Stack Engineer building production systems through an AI-native engineering workflow: architecting, directing, and verifying while AI agents implement.
+Personal site of Jigar Gajjar — AI-Native Full-Stack Engineer designing reliable software systems through architecture, orchestration, and verification.
 
 **This repository is specification-first.** The complete design and architecture specification was written before any application code, and it remains the primary artifact here. The application now exists and builds against that specification; nothing is deployed yet. If you are evaluating the engineering rather than the output, the documentation *is* the output.
 

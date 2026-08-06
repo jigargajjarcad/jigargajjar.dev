@@ -9,6 +9,9 @@
         "http://localhost:3000/workflow",
         "http://localhost:3000/resume",
         "http://localhost:3000/connect",
+        "http://localhost:3000/work/orchestai",
+        "http://localhost:3000/work/novamind-ai",
+        "http://localhost:3000/work/edge10-athlete-performance",
         "http://localhost:3000/work/jigargajjar-dev"
       ],
       "numberOfRuns": 1,

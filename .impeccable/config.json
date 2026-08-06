@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-08-05T06:43:32.549Z",
+        "reason": "Typography is a deliberate, documented design decision frozen in TYPOGRAPHY.md Phase 2. Inter was intentionally selected after evaluating alternatives and will remain the canonical body typeface."
+      }
+    ]
+  }
+}

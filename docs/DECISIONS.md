@@ -506,7 +506,9 @@ Motion is a constrained design system, not a per-component decision.
 <a id="adr-012"></a>
 ## ADR-012 — Each flagship project tells one non-overlapping competency story
 
-**Status:** Accepted · 2026-08-04
+**Status:** Accepted · 2026-08-04 · **OrchestAI's competency characterisation superseded by ADR-019**
+
+> The decision below stands in full: three flagship projects, one non-overlapping competency each, and the non-competition rule are all unchanged. Only OrchestAI's *characterisation* is superseded. Where this record describes it as framework engineering evidenced by "abstractions, extension points, and framework verification," ADR-019 withdraws that claim against the source: `AgentType` is a closed enum and every agent and tool registers by concrete type. The competency is AI Infrastructure Engineering, evidenced by isolation, cost control, and observability. The slug `ai-infrastructure` is unchanged, so nothing in the schema or the content contract is affected.
 
 ### Context
 

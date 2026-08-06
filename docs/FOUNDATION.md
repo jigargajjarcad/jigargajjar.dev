@@ -152,7 +152,7 @@ Founders, early-stage teams, open-source contributors, prospective consulting cl
 
 ### Primary
 
-> **Senior Full-Stack Engineer building production systems through an AI-native engineering workflow — architecting, directing, and verifying while AI agents implement.**
+> **AI-Native Full-Stack Engineer designing reliable software systems through architecture, orchestration, and verification.**
 
 This sentence is the site's thesis. It appears verbatim in the primary position on the home page. It is not paraphrased, softened, or A/B varied across surfaces, because inconsistent positioning reads as uncertainty about one's own claim.
 
@@ -248,13 +248,13 @@ Three flagship projects plus the site itself. Each project answers a different q
 | Project | Competency story | Question it answers | Disclosure |
 |---|---|---|---|
 | **NovaMind AI** | AI Product Engineering | Can this person ship an AI product end to end? | Public repository, full depth |
-| **OrchestAI** | AI Infrastructure & Framework Engineering | Can this person design systems other engineers build on? | Public repository, full depth |
+| **OrchestAI** | AI Infrastructure Engineering | Can this person build infrastructure that fails safely? | Public repository, full depth |
 | **Edge10 — NHL Athlete Performance Platform** | Enterprise Software Engineering | Can this person operate inside a real production organization? | Named employer, architecture-level only, anonymized metrics (§10) |
 | **jigargajjar.dev** | Engineering Methodology | Is the AI-native workflow real? | This repository, fully open |
 
-**NovaMind AI — AI Product Engineering.** A production AI document-intelligence platform that lets organizations upload, organize, and chat with documents using Retrieval-Augmented Generation, grounded citations, vector search, and enterprise-grade authentication. The story is product ownership: taking an AI capability all the way to something with users, auth, data lifecycle, and an interface people can operate. The engineering interest is in the parts tutorials skip — grounding answers in retrievable sources, making citations trustworthy, and the retrieval quality work that separates a demo from a product.
+**NovaMind AI — AI Product Engineering.** A deployed AI document-intelligence platform that lets people upload PDFs, organize them into collections, and question them using Retrieval-Augmented Generation over pgvector, reranked retrieval, numbered citations resolved back to their source chunks, and email-verified accounts. The story is product ownership: taking an AI capability all the way to something with accounts, auth, data lifecycle, and an interface people can operate. The engineering interest is in the parts tutorials skip — grounding answers in retrievable sources, making citations trustworthy, and the retrieval quality work that separates a demo from a product.
 
-**OrchestAI — AI Infrastructure & Framework Engineering.** A multi-agent AI framework built on .NET with CQRS and MCP integration, taken to production release. The story is designing for other engineers: abstractions, extension points, protocol integration, and the verification methodology that makes a framework trustworthy to build on. Product engineering is judged by whether users succeed; framework engineering is judged by whether other engineers can succeed without reading your internals. Different discipline, different evidence.
+**OrchestAI — AI Infrastructure Engineering.** A multi-tenant multi-agent orchestration service built on .NET with CQRS and MCP integration, released at v1.0. The story is the infrastructure that has to hold when the workload it carries is non-deterministic: tenant isolation enforced by query filters and a database constraint rather than by developer discipline, admission and budget control that resolves before any model is invoked, and tracing that makes an agent run reconstructable after the fact. Product engineering is judged by whether users succeed; infrastructure engineering is judged by whether the guarantees hold in the cases nobody wrote a test for. Different discipline, different evidence.
 
 **Edge10 — NHL Athlete Performance Platform.** Enterprise engineering in a real production environment: CQRS and clean architecture in C# .NET, authorization policy design, SQL Server schema and access control, React interfaces, and agentic systems for API validation, frontend validation, and end-to-end testing. The story is operating within constraints not of your choosing — existing systems, existing teams, compliance boundaries, and stakes measured in professional sport rather than in a side project. Presented at architecture level under the disclosure policy in §10.
 

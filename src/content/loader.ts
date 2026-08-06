@@ -95,3 +95,25 @@ function assertUniqueOrder(studies: CaseStudy[]): void {
 export function loadCaseStudySlugs(root: string = CASE_STUDY_ROOT): string[] {
   return loadCaseStudies(root).map((study) => study.frontmatter.slug);
 }
+
+/**
+ * The adjacent case study — ADR-016. One forward link, no previous.
+ *
+ * Ascending `order` over published studies; the last wraps to the lowest, so
+ * the cycle has no terminus and nothing reads as last or least. With a single
+ * published study there is no next: linking a study to itself is not a next
+ * action.
+ *
+ * A pager was rejected because it implies a linear reading order the reader has
+ * not followed — they arrived from the homepage, from `/work`, or from a link a
+ * colleague sent.
+ */
+export function nextCaseStudy(root: string = CASE_STUDY_ROOT, slug: string): CaseStudy | null {
+  const studies = loadCaseStudies(root);
+  if (studies.length < 2) return null;
+
+  const index = studies.findIndex((study) => study.frontmatter.slug === slug);
+  if (index === -1) return null;
+
+  return studies[(index + 1) % studies.length] ?? null;
+}

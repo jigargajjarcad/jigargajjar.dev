@@ -11,6 +11,7 @@ import {
   loadCaseStudies,
   loadCaseStudy,
   loadCaseStudySlugs,
+  nextCaseStudy,
 } from '../../src/content/loader';
 
 /**
@@ -192,6 +193,45 @@ describe('loader — ARCHITECTURE.md §3 rule 4, §6.3', () => {
     const root = makeRoot({});
     expect(loadCaseStudies(root)).toEqual([]);
     expect(loadCaseStudies('does/not/exist')).toEqual([]);
+  });
+});
+
+describe('adjacency — ADR-016', () => {
+  const three = {
+    orchestai: VALID,
+    novamind: { ...VALID, slug: 'novamind', order: 2 },
+    edge10: { ...VALID, slug: 'edge10', order: 3 },
+  };
+
+  it('links forward to the next-highest order', () => {
+    const root = makeRoot(three);
+    expect(nextCaseStudy(root, 'orchestai')?.frontmatter.slug).toBe('novamind');
+    expect(nextCaseStudy(root, 'novamind')?.frontmatter.slug).toBe('edge10');
+  });
+
+  it('wraps the last study to the lowest order, so nothing reads as last', () => {
+    const root = makeRoot(three);
+    expect(nextCaseStudy(root, 'edge10')?.frontmatter.slug).toBe('orchestai');
+  });
+
+  it('renders no next link when only one study is published', () => {
+    // Linking a study to itself is not a next action.
+    const root = makeRoot({ orchestai: VALID });
+    expect(nextCaseStudy(root, 'orchestai')).toBeNull();
+  });
+
+  it('never routes a reader to a draft', () => {
+    const root = makeRoot({
+      orchestai: VALID,
+      novamind: { ...VALID, slug: 'novamind', order: 2, visibility: 'draft' },
+      edge10: { ...VALID, slug: 'edge10', order: 3 },
+    });
+    expect(nextCaseStudy(root, 'orchestai')?.frontmatter.slug).toBe('edge10');
+  });
+
+  it('returns null for a slug that is not published', () => {
+    const root = makeRoot(three);
+    expect(nextCaseStudy(root, 'does-not-exist')).toBeNull();
   });
 });
 

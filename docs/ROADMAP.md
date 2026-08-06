@@ -18,9 +18,9 @@ The project-level phase sequence, what each phase produces, and what freezes whe
 | **1 — Foundation** | `FOUNDATION.md`, `ARCHITECTURE.md`, `DECISIONS.md` | Complete · Frozen 2026-08-04 |
 | **2 — Design system** | Thirteen documents in `docs/design/` | Complete · Frozen 2026-08-04 |
 | **3 — Experience & narrative** | `EXPERIENCE_FLOW.md`, `HOMEPAGE_NARRATIVE.md`, `ROUTE_SPECIFICATIONS.md`, `CONTENT_STRATEGY.md` | Complete · Frozen 2026-08-04 |
-| **4 — Wireframes** | Per-route wireframes, **mobile → tablet → desktop** | Next |
-| **5 — Implementation** | Running application | Not started |
-| **6 — Content** | Four case studies and all page copy | Not started |
+| **4 — Wireframes** | Per-route wireframes, **mobile → tablet → desktop** | Complete |
+| **5 — Implementation** | Running application | Application builds against the specification; native motion outstanding (ADR-018) |
+| **6 — Content** | Four case studies and all page copy | In progress — OrchestAI drafted |
 | **7 — Launch verification** | Tier 3 comprehension testing passed | Not started |
 
 **No phase begins without explicit approval of the one before it.** This is the mechanism that has kept the project documentation-first, and it is the reason each phase's output has been reviewable rather than presented as finished work.
@@ -37,7 +37,7 @@ Frozen means: source of truth, not to be rewritten, expanded, or reinterpreted w
 |---|---|---|
 | `FOUNDATION.md` | Phase 1 | Vision, thesis, audiences, positioning, principles, inventory, disclosure, success criteria, non-goals |
 | `ARCHITECTURE.md` | Phase 1 | Stack, rendering model, folder structure, **route table**, content model, budgets, accessibility, pipeline |
-| `DECISIONS.md` | Phase 1 | ADR-001 – ADR-014 |
+| `DECISIONS.md` | Phase 1 | ADR-001 – ADR-019 |
 | Typeface selection | Phase 2 | Newsreader (display) + Inter (text) + system monospace |
 | Serif display thesis | Phase 2 | `VISUAL_LANGUAGE.md` §3 |
 | Shadowless elevation | Phase 2 | `COLOR_SYSTEM.md` §6 |
@@ -122,6 +122,7 @@ All eight routes are specified. No route enters Phase 4 without a content specif
 
 | Version | Date | Change |
 |---|---|---|
+| 0.4.0 | 2026-08-04 | Status drift corrected. Phases 4 and 5 recorded as delivered, Phase 6 as in progress; freeze register updated to ADR-019. No scope or sequence changed. |
 | 0.3.0 | 2026-08-04 | Documentation freeze policy added. Phase 3 permanently closed. |
 | 0.2.0 | 2026-08-04 | Phase 3 close-out. Wireframes renumbered to Phase 4; mobile-first made canonical; scope resolutions folded into §5. |
 | 0.1.0 | 2026-08-04 | Initial roadmap. Reconciles project phases with `ARCHITECTURE.md` §14. |

@@ -2,6 +2,7 @@ import { Container } from '@/components/primitives/Container';
 import { Link } from '@/components/primitives/Link';
 import { Stack } from '@/components/primitives/Stack';
 import { Text } from '@/components/primitives/Text';
+import { AVAILABILITY, NAME, contact } from '@/content/site';
 
 import { ThemeControl } from './ThemeControl';
 
@@ -19,8 +20,6 @@ import { ThemeControl } from './ThemeControl';
  * The theme control appears here below `--bp-sm` only; above it the control
  * lives in the header.
  */
-const EMAIL = 'jigargajjarcad@gmail.com';
-
 export function Footer() {
   return (
     <footer className="mt-section-lg border-t-hairline border-color-border-subtle">
@@ -31,22 +30,22 @@ export function Footer() {
               Get in touch
             </Text>
             <Text token="body" color="secondary">
-              Open to senior engineering roles and collaboration on AI infrastructure.
+              {AVAILABILITY}
             </Text>
             <Stack gap={2} as="ul">
               <li className="list-none">
                 <Text token="body-sm" color="secondary" as="span">
-                  {EMAIL}
+                  {contact.email}
                 </Text>{' '}
-                <Link href={`mailto:${EMAIL}`}>Send an email</Link>
+                <Link href={`mailto:${contact.email}`}>Send an email</Link>
               </li>
               <li className="list-none">
-                <Link href="https://github.com/jigargajjarcad" external>
+                <Link href={contact.github} external>
                   GitHub
                 </Link>
               </li>
               <li className="list-none">
-                <Link href="https://www.linkedin.com/in/jigargajjar" external>
+                <Link href={contact.linkedin} external>
                   LinkedIn
                 </Link>
               </li>
@@ -58,7 +57,7 @@ export function Footer() {
               <ThemeControl />
             </div>
             <Text token="caption" color="tertiary">
-              © 2026 Jigar Gajjar
+              © 2026 {NAME}
             </Text>
           </Stack>
         </div>

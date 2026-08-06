@@ -1,0 +1,341 @@
+---
+title: NovaMind AI
+slug: novamind-ai
+competency: ai-product
+summary: A document-intelligence platform built to learn the full retrieval lifecycle end to end — ingestion, vector search, reranking, and cited generation — deployed and reachable.
+role: Sole engineer — architecture, implementation, and deployment, through AI-assisted development under my direction and review.
+stack:
+  - Python 3.11
+  - FastAPI
+  - PostgreSQL + pgvector
+  - React 18
+  - Voyage AI
+  - Claude
+outcomes:
+  - Retrieval runs as four inspectable stages — embed, vector search, rerank, cited generation — rather than one opaque call
+  - Vectors live in the same Postgres as users and documents, so a document and its embeddings commit together
+  - Deployed and reachable, with verification that stayed manual throughout and no automated test suite
+sourceUrl: https://github.com/jigargajjarcad/novamind-ai
+liveUrl: https://novamind-ai-rho.vercel.app
+disclosure: public
+lifecycle: prototype
+order: 2
+visibility: published
+updated: '2026-08-05'
+cover:
+  src: cover.svg
+  alt: The retrieval pipeline, from query through vector search and reranking to a cited answer
+  width: 1200
+  height: 630
+---
+
+## Context and constraints
+
+NovaMind was a deliberate learning project, and the case study is written on that
+basis rather than around a product claim it cannot support.
+
+The goal was to build a retrieval-augmented generation system end to end and
+understand every layer of it — document ingestion, chunking, embeddings, vector
+search, reranking, streaming generation, citation mapping, authentication, cost
+tracking, and deployment — instead of assembling managed services or following a
+tutorial. The question being answered was a personal one:
+
+> Can I design and build an end-to-end document platform that follows production
+> engineering practices, rather than one that remains a proof of concept?
+
+The intended user is someone with their own collection of documents who wants to
+question it in natural language **and check the answer**. Grounding responses in
+uploaded material, with a citation pointing at the passage that supports each
+claim, was the product requirement that shaped the retrieval design.
+
+**The constraints were time and scope.** The repository was created on 15 June
+2026 and last pushed on 24 June 2026 — nine days of commits, by a single
+engineer, alongside other work. Scope was set at one complete vertical slice
+rather than breadth: upload, ingest, retrieve, answer, cite, and the accounts and
+cost tracking a real deployment needs.
+
+**What was deliberately left out** was abstraction. Managed retrieval services
+and higher-level RAG frameworks were avoided on purpose, because using them would
+have skipped the part the project existed to learn.
+
+<Callout variant="critical" heading="What was not deliberately left out">
+  Automated tests. They are absent from this project, and their absence was not a considered
+  trade-off — evaluation simply never became part of the work while attention went to architecture,
+  retrieval design, and deployment. The Verification section below describes what was done instead,
+  and what that does and does not catch. It is the weakest part of the project and it is not
+  presented as anything else.
+</Callout>
+
+## Timeline
+
+<Timeline
+  entries={[
+    {
+      stage: 'Planning',
+      period: 'Before the first commit',
+      body: 'A product requirements document was written and is still in the repository, setting the vertical slice: upload, ingest, retrieve, answer, cite.',
+    },
+    {
+      stage: 'Architecture',
+      period: 'Early',
+      body: 'Layered backend — routes and schemas, services, repositories, models — with retrieval separated from generation from the start.',
+    },
+    {
+      stage: 'Implementation',
+      period: '15 – 24 June 2026',
+      body: 'Ingestion and chunking, embeddings and vector search, reranking, streaming generation with citation extraction, accounts, cost tracking, and the React client.',
+    },
+    {
+      stage: 'Major setbacks',
+      period: 'At deployment',
+      body: 'Four assumptions that had been invisible under Docker Compose failed together the first time the system met a real environment. Roughly a day to diagnose and remove.',
+    },
+    {
+      stage: 'Verification',
+      period: 'Continuous, manual',
+      body: 'A fixed document set and a fixed set of questions, re-run by hand after each change to chunking, retrieval, or ranking.',
+    },
+    {
+      stage: 'Release',
+      period: '24 June 2026',
+      body: 'Deployed and reachable. No further commits since.',
+    },
+    {
+      stage: 'Future roadmap',
+      period: 'Not scheduled',
+      body: 'A retrieval evaluation dataset and a regression suite, before anything else.',
+    },
+  ]}
+/>
+
+## Architecture
+
+The backend separates concerns along a conventional boundary, and the separation
+is real rather than nominal — each layer is a directory with one job.
+
+```
+api/       routes, schemas          the HTTP boundary
+core/      config, exceptions, security
+db/        database, repositories   persistence
+models/    user, collection, document, chat
+services/  ingestion · rag · anthropic · chat · collection · document · auth · email
+```
+
+A repository layer sits between services and the database, so a service composes
+behaviour and never writes a query. `rag_service` and `anthropic_service` are
+separate on purpose: retrieval and generation fail in different ways and are
+worth being able to inspect independently.
+
+<Figure caption="The retrieval path. Every stage is separately inspectable, which is what made manual verification possible at all.">
+  <Diagram
+    title="Retrieval pipeline"
+    description="A question is embedded, matched against stored vectors by similarity search, reranked to a shorter list, then passed to the language model, which produces an answer whose citations are resolved back to source passages."
+    viewBox="0 0 520 60"
+  >
+    <text x="0" y="34">
+      {'query'}
+    </text>
+    <text x="71" y="34">
+      {'embed'}
+    </text>
+    <text x="142" y="34">
+      {'vector search'}
+    </text>
+    <text x="270" y="34">
+      {'rerank'}
+    </text>
+    <text x="348" y="34">
+      {'generate'}
+    </text>
+    <text x="443" y="34">
+      {'cite'}
+    </text>
+  </Diagram>
+</Figure>
+
+**Ingestion.** PDFs are parsed with PyMuPDF and split paragraph-aware into
+512-token chunks with 50 tokens of overlap, so a chunk boundary is less likely to
+fall through the middle of an argument.
+
+**Retrieval.** The question is embedded with Voyage `voyage-3` at 1024 dimensions
+and matched against stored chunk vectors by HNSW index in pgvector, returning ten
+candidates. Those ten are reranked by `rerank-2-lite`, and the best five become
+the model's context.
+
+**Generation and citation.** The five passages are passed to Claude
+`sonnet-4-6` as numbered context blocks, and the response streams back. Numbered
+references in the output are resolved to their source chunk, and both the message
+and its citations are persisted — so a citation remains checkable after the fact
+rather than existing only in the rendered reply.
+
+**Persistence.** PostgreSQL 15 with pgvector, accessed through SQLAlchemy's async
+layer with Alembic migrations. Users, collections, documents, chunks, embeddings,
+chat history and cost records are one database.
+
+**Authentication.** JWT with HS256 and a seven-day expiry, with email
+verification and password reset delivered through Resend.
+
+**Deployment.** Docker Compose for local development; the client is deployed to
+Vercel and is reachable.
+
+## Key decisions
+
+<Decision
+  context="A retrieval system needs somewhere to put vectors. The reflexive answer is a purpose-built vector database, and most published examples reach for one."
+  choice="Store embeddings in the same PostgreSQL instance as the application data, using pgvector with an HNSW index."
+  alternatives="Pinecone, Qdrant, or Weaviate as a separate service alongside Postgres."
+  consequence="One database to deploy, monitor and back up, and transactional consistency between a document, its metadata and its embeddings — they commit together or not at all. The cost is accepted rather than hidden: a dedicated index would very likely serve a far larger corpus better, and this is not the choice I would defend for internet-scale search. For a system whose goal was a clean end-to-end architecture, fewer moving parts was worth more than headroom that would never be used."
+/>
+
+<Decision
+  context="Vector similarity reliably returns relevant chunks. It does not reliably return the best chunks, and the model sees only what it is given."
+  choice="Retrieve ten candidates by vector search, rerank them with Voyage `rerank-2-lite`, and pass the top five to the model. Most implementations pass the vector results straight through."
+  alternatives="Send the top-k similarity results directly to the model, saving a network round trip and its latency on every query."
+  consequence="Answers became noticeably more focused and cited passages more relevant, judged by repeated manual comparison on a fixed document set rather than by benchmark. The cost is a second model call in the critical path of every question. For a system whose product requirement is a verifiable answer rather than the fastest possible one, that trade was worth making — but the evidence for it is observational, and the section below says so."
+/>
+
+<Comparison
+  caption="Where the two storage options differ, for this system rather than in general"
+  columns={['One system to operate', 'Transactional with documents', 'Scales past this corpus']}
+  rows={[
+    { label: 'pgvector in PostgreSQL', cells: ['Yes', 'Yes', 'Unproven'] },
+    { label: 'Dedicated vector database', cells: ['No', 'No', 'Yes'] },
+  ]}
+/>
+
+Two further choices are worth stating precisely, because they were adopted rather
+than tested.
+
+**Voyage embeddings** were chosen because they are built for retrieval and pair
+with the same vendor's reranker. No comparison against OpenAI or open-weight
+embeddings was run. It was an informed selection, not a measured one.
+
+**512-token chunks with 50 tokens of overlap** began as a common default. Chunk
+boundaries were inspected during manual verification and the retrieved context
+stayed coherent, so the values were kept — but no systematic experiment across
+chunk sizes or overlaps was carried out. They are defaults that were watched, not
+parameters that were tuned.
+
+## Failures and mistakes
+
+### The local environment was hiding four assumptions at once
+
+Under Docker Compose everything worked. The frontend, backend, database and
+environment were all under my control, and I assumed without examining it that a
+real deployment would behave the same way.
+
+It did not. The first deployment surfaced four failures more or less
+simultaneously:
+
+- The frontend still fell back to localhost defaults where a production URL
+  should have been required.
+- CORS behaved differently once the client and the API were on separate origins.
+- Client-side routes worked locally because the dev server resolved them
+  automatically; direct navigation failed in production without a rewrite rule.
+- Environment variables that had been optional locally were mandatory in
+  production, and their absence failed quietly rather than loudly.
+
+None was difficult alone. Arriving together, they took roughly a day to work
+through — reproducing each failure against the deployed system, separating
+application faults from infrastructure ones, and removing assumptions one at a
+time until behaviour was consistent.
+
+The corrections stayed as architecture rather than patches. Production URLs are
+now required instead of silently defaulting; CORS names its deployment origins
+explicitly; client-side routing is backed by an explicit rewrite rule; and
+environment configuration is treated as part of the system's design rather than
+as setup.
+
+The lesson is not about CORS or any particular host. **A local environment hides
+assumptions, and a deployment is frequently the first place they become visible.**
+I now think about the target environment much earlier, and try to remove
+environment-specific assumptions before they can become production bugs.
+
+## Verification
+
+**There is no automated test suite.** `backend/tests/` contains an empty
+`__init__.py` and a `conftest.py`, and nothing else. The repository carries a CI
+workflow with four jobs, and two of them run test commands against suites that do
+not exist. That is the honest state of it.
+
+What existed instead was a manual loop, run deliberately rather than casually.
+
+A fixed set of representative documents and a fixed set of questions were kept,
+and re-run by hand after every change to chunking, retrieval limits, or ranking.
+For each response, three things were checked:
+
+1. Whether the retrieved passages actually contained the information needed to
+   answer the question.
+2. Whether the reranker promoted the genuinely most relevant chunks into the
+   final context.
+3. Whether every citation pointed at a passage that supported the claim it was
+   attached to.
+
+The habit that made this useful was **inspecting the retrieved chunks rather than
+reading the answer** — a fluent response tells you very little about whether
+retrieval worked, and reading the context tells you why an answer was right or
+wrong. This did catch retrieval quality shifting after changes to chunking and
+ranking parameters, which is the failure the loop existed to find.
+
+<Callout variant="critical" heading="What a manual loop cannot do">
+  It cannot run on every change, it does not scale past a small document set, and it cannot detect a
+  regression nobody thought to look for. Its coverage is exactly the questions someone remembered to
+  ask. No case was observed where an answer looked correct while its citation referenced unrelated
+  content — but with no automated regression suite, that is an absence of observation rather than
+  evidence of absence, and it is not a claim that such failures could not occur.
+</Callout>
+
+## Outcomes
+
+There are no usage outcomes. **The system has never been used by anyone other
+than its author** — no external users, no traffic, no production incidents. Any
+figure describing retrieval accuracy, latency, or adoption would be invented, so
+none appears here.
+
+What can be stated is what the project reached, and where it stopped.
+
+<Metric
+  value="9"
+  unit="days"
+  label="First commit to deployed"
+  qualifier="15 to 24 June 2026, alongside other work"
+/>
+
+**It was deployed and it is reachable.** The client is live on Vercel and the
+full path — upload, ingest, retrieve, rerank, answer, cite — runs end to end.
+
+**The architecture goal was met.** Ingestion, retrieval, generation and
+persistence are separated behind a repository boundary, and that is checkable by
+reading the source rather than by taking this document's word for it.
+
+**The verification goal was not met.** Validation stayed manual for the life of
+the project, and the absence of an automated suite is the single largest gap
+between what this system is and what "production-ready" would require.
+
+The lifecycle badge reads `prototype` for that reason. It is deployed, it works,
+and it is not maintained — the last commit is 24 June 2026.
+
+## Looking back
+
+**The first thing I would add is the evaluation.** A fixed set of questions with
+known-good passages, scored automatically on every change, would have replaced the
+manual loop with something that runs whether or not anyone remembers to run it.
+Everything else in the project would have been easier to change afterwards,
+because changing retrieval parameters would have stopped being a decision made
+partly on impression.
+
+**The thing I would redesign is environment configuration.** Treating it as setup
+rather than as part of the architecture is what allowed four assumptions to
+survive undetected until the first deployment. Requiring explicit configuration
+from the start, and failing loudly on its absence, costs almost nothing at the
+beginning and saved nothing by being deferred.
+
+**Starting today, I would deploy earlier and with less in it.** The failures in
+this project were not in the retrieval design, which held up; they were in the
+distance between the machine it was built on and the environment it had to run
+in. A deployment on day two would have surfaced all four of them while the system
+was small enough that they were trivial.
+
+The claims in this document are traceable to the repository or stated as
+observation. Where verification was manual, it says so, and where a choice was
+adopted rather than measured, it says that too.

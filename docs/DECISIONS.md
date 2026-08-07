@@ -1481,3 +1481,45 @@ What replaces the card is spacing taken from the documents rather than chosen: `
 - **`Callout` remains unstyled and is now used only by case studies.** That is a real outstanding defect, recorded here so the case-study pass starts from it rather than rediscovering it.
 - **A page-level `<header>` was tried and reverted.** Inside `main` it carries no role, and it made `tests/quality/accessibility.spec.ts` count two `header` elements — the check `ACCESSIBILITY.md` §8 relies on. Fixing the page rather than loosening the assertion is the correct direction, and worth recording because the temptation runs the other way.
 - Lighthouse 100/100/100/100 on `/workflow` and all ten routes; zero overflow and CLS 0 at 320–1440 px; console clean.
+
+## ADR-030 — `/about` and `/connect` share one content edge; paired columns break out
+
+**Status:** Accepted · 2026-08-07 · Amends `wireframes/06-connect.md` §6 · Extends ADR-028 and ADR-029
+
+### Context
+
+Both editorial pages were built as two stacked containers: `Container width="wide"` for the `<h1>`, `Container width="prose"` for everything under it. Both centre with `mx-auto`, so the two never shared a left edge. On `/about` the heading sat 174 px left of the body it introduced. Every other route on the site starts its content at 208 px, and these two did not — the one alignment a reader notices without being able to name it.
+
+`/connect` had a second problem underneath the first. Wireframe §6 constrains the page to `⟨--container-prose 68ch — the card does not sprawl⟩`, and it laid two columns inside that measure, giving each roughly 30 characters. `TYPOGRAPHY.md` §5 puts the comfortable range at 45–75. Every bullet in *Open to* and *Less useful* wrapped to three lines, most of them ending on a single orphaned word.
+
+The pairing itself was also wrong. *Currently* is one short paragraph and held the entire left column; *Open to* and *Less useful* shared the right and together ran about three times its height. The block left roughly 400 px of empty space beneath *Currently* and read as one column that had been padded rather than two that had been paired.
+
+### Decision
+
+**One `Container width="wide"` per page, with `max-w-prose` on the content inside it.** This holds exactly the measure the wireframe was protecting while putting both pages on the same 208 px content edge as `/`, `/work` and `/workflow`. Measured drift across all five routes is now 0 px.
+
+**The two paired regions on `/connect` break out to `container-wide`.** `SPACING.md` §6 sanctions break-outs from prose for structured content and requires an immediate return to prose, which is what happens. The §6 note is amended rather than overruled: it was written against placeholder bullets of about 34 characters, and the real ones run to 77. At `wide` each column is about 42 characters and the same bullets set in one or two lines.
+
+**`Currently` leaves the pair and runs at prose width under the lede.** The regrouping is the truer one — *Open to* and *Less useful* are the same question answered in both directions and belong beside each other, while *Currently* answers a different question and belongs with the opening. DOM order is unchanged, so the mobile sequence is still *Currently, Open to, Less useful*.
+
+**Both contact lists share one grid and one field-label voice.** Mono uppercase tertiary, the metadata voice ADR-029 settled on, so `Email` on the left sits on the same line as `Timezone` on the right. The lists stack below `sm`; see the consequence below.
+
+**Bullets hang rather than indent.** `list-outside` with a left inset, so a wrapped line returns to the text edge instead of the marker, and 12 px between items rather than 8 so three wrapped lines do not read as one paragraph.
+
+### Alternatives considered
+
+**Honour §6 literally and accept 30-character columns.** Rejected. The note's stated purpose is that the card should not sprawl, and the page still opens and closes at prose width; what it was protecting is intact. Holding the letter of it would have kept a measure below the floor the type documentation sets, on the page whose entire job is to be read quickly.
+
+**Keep *Currently* as the left column and rebalance by moving *Less useful* beneath it.** Rejected. It balances the desktop heights and breaks the mobile reading order, which would become *Currently, Less useful, Open to* — the refusal before the invitation.
+
+**Introduce a fourth container width between `prose` and `wide`.** Rejected on `SPACING.md` §6's own grounds: a fourth width would mean the layout has more cases than the content does.
+
+### Consequences
+
+- **Content edge is now identical on all five routes** — 208 px for `h1` and body alike, 0 px drift.
+- **`wireframes/06-connect.md` §6 no longer describes the built page** for the two paired regions. Amended in place.
+- **A horizontal scrollbar at 320 px was found and fixed.** The contact lists used a fixed `6rem` label column; an email address has no break opportunity, so its min-content width is the whole string, and the track sized to it pushed the page 27 px past the viewport. The lists stack below `sm`, and `break-words` guards an address longer than this one. Zero overflow at 320, 360, 390, 414, 768, 1024, 1280 and 1440 px.
+- **One word was added to `/connect`:** the field label `Elsewhere`, needed once the GitHub/LinkedIn/Résumé row joined the same labelled grid as `Email`. No other copy changed on either page.
+- **`measured.json` was found corrupted at `HEAD` and regenerated.** `scripts/measure.mjs` reads `.next/app-build-manifest.json`, and `next dev` writes that same file — so measuring while a dev server runs records dev chunks. ADR-022's gate had committed 1,816.6 KB first load, 3 routes and 0 KB CSS. The correct figures are 104.9 KB and 12 routes; `origin/main` was never affected. See the consequence below.
+- **`npm run measure` is only valid with no dev server running.** The gate is self-checking but not self-protecting: `check:measured` recomputes from the same clobbered manifest, so a corrupt recording and a corrupt verification agree with each other whenever both run against a live dev server. This is recorded as outstanding work — the durable fix is a separate `distDir` for measurement, not a note.
+- 123/123 browser checks, 53/53 unit tests, full `npm run ci` green, Lighthouse 100/100/100/100 on all ten routes, CLS 0, production console clean.

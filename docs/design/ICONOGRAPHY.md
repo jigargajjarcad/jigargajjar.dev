@@ -102,8 +102,13 @@ Four controls in the system qualify, and the list is closed:
 | Overlay close | Universal convention; a "Close" label inside a panel the reader just opened is redundant |
 | Code-block copy | Universal convention; a label would crowd the block's header at narrow widths |
 | Theme control trigger | Universal convention; the control's *options* carry visible text labels (`INTERACTION.md` §11) — only the trigger is icon-only |
+| Profile mark row | Universal conventions, and the row is the same four marks wherever it appears — footer and `/connect`. Added by ADR-031; see below |
 
 Everything else pairs an icon with a word.
+
+**The profile mark row is the one case that is a set rather than a control** (ADR-031). Four marks — GitHub, LinkedIn, mail, document — rendered from one shared list, each with a visually-hidden label. It qualifies on the three conditions above, and it carries one extra obligation the other four do not: in page content it takes the link colour, because the last clause of this section holds and a grey glyph in a paragraph's flow is not identifiable as interactive. In the footer, position and convention do that work and the marks stay tertiary.
+
+**The list is closed at five.** A sixth entry means icon-only has become the default rather than the exception, which is the failure this section exists to prevent.
 
 **Icons are never the sole indicator of an interactive element.** A control is identifiable as interactive by its shape, border, or text — not by containing an icon.
 

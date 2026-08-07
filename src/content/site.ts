@@ -1,3 +1,8 @@
+// Type-only, so it disappears at compile time and creates no runtime edge from
+// content to components. `IconName` is the authority on which glyphs are drawn,
+// and `PROFILE_LINKS` below has to name four of them.
+import type { IconName } from '@/components/primitives/Icon';
+
 /**
  * Canonical site identity — `FOUNDATION.md` §5.
  *
@@ -50,6 +55,31 @@ export const contact = {
   github: 'https://github.com/jigargajjarcad',
   linkedin: 'https://www.linkedin.com/in/jigar-gajjar-cad',
 } as const;
+
+/**
+ * The four places this person can be reached, as one list — ADR-031.
+ *
+ * The footer and `/connect` both render these marks. Defined twice they would
+ * drift: the résumé path or a profile URL changes in one place, and the other
+ * keeps pointing at the old one with nothing to catch it. `icon` is typed as
+ * `IconName`, so a mark with no glyph is a compile error rather than a blank
+ * square, and `external` decides `target`/`rel` at both call sites from a
+ * single fact instead of two hand-written attribute sets.
+ *
+ * Order is deliberate and shared: the two profiles a reader is most likely to
+ * check, then the two direct routes to the owner.
+ */
+export const PROFILE_LINKS: readonly {
+  href: string;
+  label: string;
+  icon: IconName;
+  external: boolean;
+}[] = [
+  { href: contact.github, label: 'GitHub', icon: 'github', external: true },
+  { href: contact.linkedin, label: 'LinkedIn', icon: 'linkedin', external: true },
+  { href: `mailto:${contact.email}`, label: 'Email', icon: 'mail', external: false },
+  { href: '/resume', label: 'Résumé', icon: 'document', external: false },
+];
 
 /**
  * The one-line availability statement, shared by the footer and the homepage's

@@ -1,7 +1,7 @@
 import { Container } from '@/components/primitives/Container';
-import { Icon, type IconName } from '@/components/primitives/Icon';
+import { Icon } from '@/components/primitives/Icon';
 import { Text } from '@/components/primitives/Text';
-import { NAME, contact } from '@/content/site';
+import { NAME, PROFILE_LINKS, contact } from '@/content/site';
 
 import { ThemeControl } from './ThemeControl';
 
@@ -24,13 +24,6 @@ import { ThemeControl } from './ThemeControl';
  * keeps the row usable at 44 px targets rather than becoming a puzzle.
  */
 
-const LINKS: readonly { href: string; label: string; icon: IconName; external: boolean }[] = [
-  { href: contact.github, label: 'GitHub', icon: 'github', external: true },
-  { href: contact.linkedin, label: 'LinkedIn', icon: 'linkedin', external: true },
-  { href: `mailto:${contact.email}`, label: 'Email', icon: 'mail', external: false },
-  { href: '/resume', label: 'Résumé', icon: 'document', external: false },
-];
-
 export function Footer() {
   return (
     <footer className="mt-section-sm border-t-hairline border-color-border-subtle">
@@ -50,7 +43,7 @@ export function Footer() {
 
           <div className="flex items-center gap-2">
             <ul className="flex list-none items-center gap-1">
-              {LINKS.map((link) => (
+              {PROFILE_LINKS.map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}

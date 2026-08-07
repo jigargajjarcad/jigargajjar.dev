@@ -5,7 +5,7 @@
     "homeFirstLoadBudgetKb": 120,
     "sharedRuntimeKb": 100.3,
     "sharedRuntimeCeilingKb": 105,
-    "cssKb": 6.3,
+    "cssKb": 6.4,
     "cssBudgetKb": 20,
     "routes": 12
   },
@@ -26,7 +26,7 @@
     "ciSteps": 9
   },
   "repository": {
-    "decisionRecords": 30,
+    "decisionRecords": 31,
     "caseStudies": 4,
     "caseStudyWords": 8800,
     "semanticColours": 21,

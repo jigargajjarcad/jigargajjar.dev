@@ -1523,3 +1523,41 @@ The pairing itself was also wrong. *Currently* is one short paragraph and held t
 - **`measured.json` was found corrupted at `HEAD` and regenerated.** `scripts/measure.mjs` reads `.next/app-build-manifest.json`, and `next dev` writes that same file — so measuring while a dev server runs records dev chunks. ADR-022's gate had committed 1,816.6 KB first load, 3 routes and 0 KB CSS. The correct figures are 104.9 KB and 12 routes; `origin/main` was never affected. See the consequence below.
 - **`npm run measure` is only valid with no dev server running.** The gate is self-checking but not self-protecting: `check:measured` recomputes from the same clobbered manifest, so a corrupt recording and a corrupt verification agree with each other whenever both run against a live dev server. This is recorded as outstanding work — the durable fix is a separate `distDir` for measurement, not a note.
 - 123/123 browser checks, 53/53 unit tests, full `npm run ci` green, Lighthouse 100/100/100/100 on all ten routes, CLS 0, production console clean.
+
+## ADR-031 — the profile marks are one shared row, and `/connect` renders it too
+
+**Status:** Accepted · 2026-08-07 · Amends `ICONOGRAPHY.md` §6 · Owner request
+
+### Context
+
+`/connect` listed the four ways to reach this person as text links — `Send an email` under the address, then `GitHub`, `LinkedIn` and `Résumé` under a second field label. The footer renders exactly the same four destinations as marks. The owner asked for the footer's treatment on `/connect`.
+
+Two things stood in the way. `ICONOGRAPHY.md` §6 permits icon-only controls against three conditions and then names four that qualify, stating the list is closed; the footer's row was already a fifth, grandfathered by ADR-024 with the claim that "§6 is unchanged". And the four links were defined twice — once in `Footer.tsx`, once inline in the page — so a changed résumé path or profile URL would have gone stale in one of them with nothing to catch it.
+
+### Decision
+
+**One list, in `src/content/site.ts`.** `PROFILE_LINKS` is `{ href, label, icon, external }[]`, imported by the footer and by `/connect`. `icon` is typed `IconName`, so a mark with no glyph is a compile error rather than a blank square, and `external` decides `target`/`rel` at both call sites from one fact. The type import from `components` into `content` is `import type` only, so it leaves no runtime edge in that direction.
+
+**§6 is amended rather than quietly exceeded.** The closed list gains a fifth entry — the profile mark row — described as a set rather than a control, and is closed again at five. ADR-024's position that the footer row needed no amendment is the part being corrected; the row always was an exception, and writing it down is what stops the sixth one from being argued for on the same silence.
+
+**In page content the marks take the link colour.** §6's last clause — an icon is never the sole indicator that something is interactive — is the binding one here. A footer row survives it on position and convention; on `/connect` these are the actions the page exists to offer, and they replaced links that were unmistakably links. The footer's marks stay tertiary. This is recorded in §6 as an obligation attached to the row, not left to the call site.
+
+**The marks sit outside the definition list.** A `<dd>` asserts that its content defines the `<dt>` above it, and a GitHub profile does not define an email address. The list now holds one field — `EMAIL` and the address — and the marks follow it as a separate labelled row.
+
+**The row hangs left by `space-3`.** A 20 px glyph centred in a 44 px target sits 12 px inside its own box, so the row is pulled back by exactly that to put the first mark on the section's edge, flush with the heading and the field label. Targets stay 44 px square.
+
+### Alternatives considered
+
+**Keep visible labels and put the icon beside each word.** Rejected as not what was asked, and it is worth being plain that it is the more conservative option: it needs no amendment to §6 and it makes the affordance unarguable. It was rejected because it is the existing link list with decoration added — the request was for the footer's row, and the accessible names, the colour, and the 44 px targets carry what the words carried.
+
+**Leave the mail mark out and keep `Send an email` as text.** Rejected. It would have split one row of four destinations into a text link plus three marks, which is neither treatment.
+
+**Export `LINKS` from `Footer.tsx` and import it into the page.** Rejected. A layout component is not where shared content belongs, and `site.ts` already owns `contact`, which this list is derived from.
+
+### Consequences
+
+- **`ICONOGRAPHY.md` §6's closed list is now five, not four**, and the row carries a colour obligation the other four do not.
+- **The four destinations are defined once.** The footer and `/connect` cannot disagree about a URL again.
+- **One word leaves `/connect`:** the `Elsewhere` field label ADR-030 added, no longer needed once the marks left the definition list. The visible words `Send an email`, `GitHub`, `LinkedIn` and `Résumé` are gone from the page body; all four survive as accessible names.
+- **This trades visible affordance for compactness on the page where the links matter most.** The mitigation is the link colour, and it is a real trade rather than a free one — recorded so that if the page later reads as having no call to action, the cause is written down.
+- Four 44 px targets, accessible names verified, external marks open away with `rel="me noopener noreferrer"`.

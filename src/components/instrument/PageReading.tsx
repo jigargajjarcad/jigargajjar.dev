@@ -21,41 +21,87 @@ import { Text } from '@/components/primitives/Text';
  * the first paint with a non-breaking space in it, so the number arriving
  * changes no geometry. A line that measured CLS and caused CLS would be the most
  * embarrassing bug this site could ship.
+ *
+ * **Read through `PerformanceObserver`, not `getEntriesByType`** (ADR-027).
+ * The two are equivalent for navigation timing, and they are not for
+ * `largest-contentful-paint` or `layout-shift`: reading those from the timeline
+ * directly is deprecated, and Chrome logs a console warning for each call. Two
+ * warnings on the home page, from the one component whose entire subject is
+ * measurement quality, is the wrong place to be sloppy. `buffered: true`
+ * delivers the entries that were recorded before this component existed, which
+ * is all of them — both events are long past by the time an island hydrates.
  */
+
+type Reading = { lcp: number; shift: number };
+
+type LayoutShift = PerformanceEntry & { value: number; hadRecentInput: boolean };
+
 export function PageReading() {
-  const [line, setLine] = useState<string | null>(null);
+  const [reading, setReading] = useState<Reading | null>(null);
 
   useEffect(() => {
-    try {
-      const nav = performance.getEntriesByType('navigation')[0] as
-        PerformanceNavigationTiming | undefined;
-      if (!nav) return;
+    const nav = performance.getEntriesByType('navigation')[0] as
+      PerformanceNavigationTiming | undefined;
+    if (!nav) return;
 
-      const paints = performance.getEntriesByType('largest-contentful-paint');
-      const lcp = paints[paints.length - 1]?.startTime ?? nav.domContentLoadedEventEnd;
+    let lcp = 0;
+    let shift = 0;
+    let published = false;
+    const observers: PerformanceObserver[] = [];
 
-      const shift = (
-        performance.getEntriesByType('layout-shift') as (PerformanceEntry & {
-          value: number;
-          hadRecentInput: boolean;
-        })[]
-      )
-        .filter((entry) => !entry.hadRecentInput)
-        .reduce((total, entry) => total + entry.value, 0);
+    /**
+     * Published once and then disconnected. Layout shift keeps accumulating for
+     * as long as the page is open, and a figure that changes while the reader is
+     * looking at it is worse than no figure — this sentence is a statement about
+     * delivery, not a live meter.
+     */
+    const publish = () => {
+      if (published) return;
+      published = true;
+      setReading({ lcp: lcp || nav.domContentLoadedEventEnd, shift });
+      for (const observer of observers) observer.disconnect();
+    };
 
-      setLine(
-        `this page reached you in ${Math.round(lcp)} ms · ` +
-          (shift === 0 ? 'zero layout shift' : `${shift.toFixed(3)} layout shift`),
-      );
-    } catch {
-      // A browser without these entry types. The line simply does not appear;
-      // nothing else on the page depends on it.
-    }
+    const observe = (type: string, onEntries: (entries: PerformanceEntryList) => void) => {
+      try {
+        const observer = new PerformanceObserver((list) => {
+          onEntries(list.getEntries());
+          if (type === 'largest-contentful-paint') publish();
+        });
+        observer.observe({ type, buffered: true });
+        observers.push(observer);
+      } catch {
+        // An engine without this entry type. The line simply does not appear.
+      }
+    };
+
+    observe('layout-shift', (entries) => {
+      for (const entry of entries) {
+        const ls = entry as LayoutShift;
+        if (!ls.hadRecentInput) shift += ls.value;
+      }
+    });
+
+    observe('largest-contentful-paint', (entries) => {
+      for (const entry of entries) lcp = Math.max(lcp, entry.startTime);
+    });
+
+    // A page with no largest-contentful-paint entry would otherwise never
+    // publish. One frame is enough for the buffered callbacks to have run.
+    const fallback = requestAnimationFrame(() => requestAnimationFrame(publish));
+
+    return () => {
+      cancelAnimationFrame(fallback);
+      for (const observer of observers) observer.disconnect();
+    };
   }, []);
 
   return (
     <Text token="mono" color="tertiary">
-      {line ?? ' '}
+      {reading
+        ? `this page reached you in ${Math.max(0, Math.round(reading.lcp))} ms · ` +
+          (reading.shift === 0 ? 'zero layout shift' : `${reading.shift.toFixed(3)} layout shift`)
+        : ' '}
     </Text>
   );
 }

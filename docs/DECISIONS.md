@@ -42,6 +42,7 @@ Records are immutable once accepted. A decision that changes gets a new record t
 | [024](#adr-024) | Art direction pass: the home page is finished as a composition | Accepted |
 | [025](#adr-025) | Final polish: the headline is measured, and outbound links open away | Accepted |
 | [026](#adr-026) | Final proof: a missing favicon, and four things that were already right | Accepted |
+| [027](#adr-027) | Pre-launch validation: three defects the gates had never been able to see | Accepted |
 
 ---
 
@@ -1326,3 +1327,49 @@ Contact column alignment was wrong, and wrong in the way that is worst: `lg:item
 - **Four of the eleven review items required no change**, and the measurements are recorded here so the next pass does not re-open them: hero optical left edge (h1 and subtitle ink differ by 0.6 px), project column top alignment (identical), refusal baselines (0.00 px), footer icon alignment (all four identical, 20 × 20).
 - **The method screen's optical gutter is 73 px** from the longest clause's ink to the right column. ADR-025 recorded why it cannot close further; this records the number so the question is answerable without re-measuring.
 - The page holds one line at 58 px down to laptop width, wraps at tablet and below, and reports **CLS 0 with no console output at 320, 390, 900, 1024 and 1440 px**.
+
+---
+
+<a id="adr-027"></a>
+## ADR-027 — Pre-launch validation: three defects the gates had never been able to see
+
+**Status:** Accepted · 2026-08-07 · Amends `ARCHITECTURE.md` §6.4 · Adds `PreBlock`
+
+### Context
+
+Final validation before the first production deploy. Everything was green — types, lint, format, 53 unit tests, 121 browser checks, four Lighthouse categories at 100 across ten routes — and a sweep at six viewport widths found three defects anyway. All three had shipped, and each one is instructive about a different blind spot.
+
+### Decision
+
+**1. `<pre>` never scrolled, and the specification said it did.**
+
+`COMPONENT_GUIDELINES.md` §8.3 reads: *"Horizontal scroll within the block; the page never scrolls horizontally."* No `overflow` property was ever written. Two case studies pushed the document 110 px and 338 px wide at 390 px, and one pushed it at 375 px — inside the documented minimum viewport. Fixed in the base layer rather than in `CodeBlock`, because markdown emits bare `<pre>` for fenced blocks and the guarantee has to hold for all of them. `max-width: 100%` is the load-bearing half: without it a `<pre>` in a grid track sizes to its content and `overflow-x` never gets a chance to apply.
+
+**2. `Comparison` declared a scroll region and never enabled scrolling.**
+
+`tabIndex={0}`, `role="region"` and `aria-label` were all present — every part of making a scroll container keyboard-accessible except the part that makes it a scroll container. A three-column table cannot shrink below its content, so it widened the page instead.
+
+**3. Fixing the first two exposed a WCAG 2.1.1 failure, and `axe` caught it immediately.**
+
+Once every `<pre>` actually scrolled, the ones markdown produces became scrollable regions with no keyboard access — a keyboard-only reader could see content was cut off and had no way to reach it. `PreBlock` maps the native element to the same treatment `CodeBlock` already used.
+
+This is the one native-element override in the MDX map, and §6.4's closed set is intact: an author still cannot reference `PreBlock`, and a case study reaching outside the eight enumerated components still fails to compile. What changed is how an element the author already had renders.
+
+**Also removed:** `RevealGroup` and the `delayMs` prop that existed only to serve it. No surface has staggered a group since V2.
+
+### Alternatives considered
+
+**Treat the 320 px overflow as out of scope.** Tempting — `VIEWPORT_MIN` is 375 and the wireframes specify 375 as the mobile anchor. Rejected once the same table was measured overflowing by 3 px at 375 px itself. The narrow-viewport check is what surfaced a defect that existed inside the supported range.
+
+**Convert the fenced blocks in the affected case studies to `<CodeBlock>`.** Rejected. It fixes two documents and leaves the next fenced block anyone writes with the same defect. The failure was structural.
+
+**Add `tabIndex` without `role` and `aria-label`.** Rejected. It satisfies `axe`, and a bare `tabIndex` on non-interactive content produces a tab stop that announces nothing — `CodeBlock`'s existing comment already says why.
+
+**Withdraw the `stagger` token now that `RevealGroup` is gone.** Deferred. It has no consumer, and ADR-023 withdrew `flow` on exactly that reasoning — but `stagger` is frozen by ADR-011 and part of the documented motion scale, so removing it is a design decision rather than cleanup. Noted in `Reveal`'s docstring so the next motion change starts from the fact.
+
+### Consequences
+
+- **Zero horizontal overflow and zero console output at 320, 375, 390, 768, 1024 and 1440 px**, on all ten routes. Previously four routes overflowed at 320 and two at 390.
+- **All four Lighthouse categories remain 100 on all ten routes.**
+- **Three defects, and none of them was invisible to tooling — they were invisible to the tooling as configured.** `axe` runs on every route and would have caught the keyboard-access failure years earlier if anything had been scrollable; the overflow checks did not exist. A viewport sweep is now part of pre-deploy validation, and it is the check that found all three.
+- **Two of the three were specifications that had been written and never implemented.** Both components documented the behaviour in their own docstrings. That is a worse failure mode than an undocumented gap, because the docstring is what a reviewer reads instead of the code.

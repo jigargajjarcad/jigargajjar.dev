@@ -137,6 +137,30 @@
     letter-spacing: var(--type-heading-4-tracking);
   }
 
+  /* `TYPOGRAPHY.md` §5 — "Headings use balanced wrapping so a two-line heading
+     splits evenly rather than leaving one word on line two. Prose paragraphs use
+     pretty wrapping where supported."
+
+     Specified since Phase 3 and implemented nowhere until now, which only became
+     visible when `/resume` put role titles into a 288 px column and
+     "AI-Native Full-Stack Engineer" broke with "Engineer" alone on line two —
+     the exact defect the sentence describes.
+
+     `balance` is the browser's own line-breaking optimiser and applies only to
+     headings that actually wrap, so a single-line heading is untouched. §5 is
+     explicit that `pretty` has no fallback where unsupported: it is a
+     refinement, not a requirement. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
   /* TYPOGRAPHY.md §5, reduction 3 — Inter Italic was dropped to meet the §10
      budget, so emphasis is set in the display serif roman. §2 rules out a
      synthesised oblique, which is what the browser would otherwise produce. */
@@ -382,11 +406,15 @@
     margin-top: var(--space-1);
   }
 
-  /* The metadata label is a `span`, so the `h1, h2, h3` rule above never covered
-     it — and the first PDF to reach three pages ended page two on "AI PRODUCT
-     ENGINEERING" with "NovaMind AI" overleaf. That is the same stranding the
-     heading rule exists to prevent, one element short of being caught by it. */
+  /* The identity block — period, employer, role — is kept whole and welded to
+     the description that follows it. It is three short lines, so keeping it
+     together costs almost nothing, and every way it can break is a defect: the
+     label is a `span`, so `h1, h2, h3` above never covered it and one PDF ended
+     page two on "AI PRODUCT ENGINEERING" with "NovaMind AI" overleaf; once the
+     role moved into this column, another ended page one on "Bombardier" with
+     "Full Stack Engineer" overleaf. Both read as an entry that lost its title. */
   [data-print-keep] > *:first-child {
     break-after: avoid;
+    break-inside: avoid;
   }
 }

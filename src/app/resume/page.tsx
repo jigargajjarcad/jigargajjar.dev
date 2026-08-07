@@ -76,10 +76,11 @@ function Entry({ meta, children }: { meta: React.ReactNode; children: React.Reac
       data-print-keep
       className="grid gap-1 lg:grid-cols-[18rem_1fr] lg:items-baseline lg:gap-x-6"
     >
-      {/* The call site owns the voices inside the column: a period and an
-          employer are not the same kind of fact, and setting both in one string
-          pushed the column to two wrapped lines at every entry. */}
-      <div className="flex flex-col gap-1">{meta}</div>
+      {/* The call site owns the voices inside the column: a period, an employer
+          and a role are not the same kind of fact, and setting them in one
+          string pushed the column to two wrapped lines at every entry. 8 px
+          between the groups, 4 px inside one. */}
+      <div className="flex flex-col gap-2">{meta}</div>
       {/* `max-w-prose` matters only between `md` and `lg`, where the metadata
           column has not engaged yet and the entry is a single column: without it
           the description ran the full container — 960 px, or 85 characters, past
@@ -202,25 +203,29 @@ export default function ResumePage() {
                   key={`${entry.organisation}-${entry.role}`}
                   meta={
                     <>
-                      {/* `time` wraps the period alone — the machine-readable
-                          claim is the date, not the employer. Wireframe §11 puts
-                          dates before the role in source, as read. */}
-                      <Text token="mono" color="tertiary" as="span" uppercase>
-                        <time dateTime={entry.start}>{entry.period}</time>
-                      </Text>
-                      {/* The employer stays in the sans at `body-sm`, not the
-                          mono tertiary of the period. A recruiter scans for
-                          company names, and tertiary is the quietest colour on
-                          the page — the date is metadata, the employer is not. */}
-                      <Text token="body-sm" color="secondary" as="span">
-                        {entry.organisation}
+                      <div className="flex flex-col gap-1">
+                        {/* `time` wraps the period alone — the machine-readable
+                            claim is the date, not the employer. Wireframe §11
+                            puts dates before the role in source, as read, and
+                            the whole identity block now sits in one column. */}
+                        <Text token="mono" color="tertiary" as="span" uppercase>
+                          <time dateTime={entry.start}>{entry.period}</time>
+                        </Text>
+                        {/* The employer stays in the sans at `body-sm`, not the
+                            mono tertiary of the period. A recruiter scans for
+                            company names, and tertiary is the quietest colour
+                            on the page — the date is metadata, the employer is
+                            not. */}
+                        <Text token="body-sm" color="secondary" as="span">
+                          {entry.organisation}
+                        </Text>
+                      </div>
+                      <Text token="heading-3" as="h3">
+                        {entry.role}
                       </Text>
                     </>
                   }
                 >
-                  <Text token="heading-3" as="h3">
-                    {entry.role}
-                  </Text>
                   {entry.summary ? <Text token="body">{entry.summary}</Text> : null}
                 </Entry>
               ))}
@@ -239,31 +244,31 @@ export default function ResumePage() {
               <Entry
                 key={project.slug}
                 meta={
-                  <Text token="mono" color="tertiary" as="span" uppercase>
-                    {project.kind}
-                  </Text>
+                  <>
+                    <Text token="mono" color="tertiary" as="span" uppercase>
+                      {project.kind}
+                    </Text>
+                    {/* The title takes `/work`'s treatment, not the prose link's.
+                        `Link`'s default variant is `prose` — accent plus a
+                        hairline underline — which on a serif heading reads as a
+                        hyperlink dropped into a document rather than as a title
+                        that happens to be reachable, and prints as an underlined
+                        blue heading. */}
+                    <Text token="heading-3" as="h3">
+                      {published.has(project.slug) ? (
+                        <NextLink
+                          href={`/work/${project.slug}`}
+                          className="text-color-text-primary no-underline transition-colors duration-fast ease-standard hover:text-color-interactive"
+                        >
+                          {project.name}
+                        </NextLink>
+                      ) : (
+                        project.name
+                      )}
+                    </Text>
+                  </>
                 }
               >
-                {/* The title takes `/work`'s treatment, not the prose link's.
-                    `Link`'s default variant is `prose` — accent plus a
-                    hairline underline — which on a 24 px serif heading reads as
-                    a hyperlink dropped into a document rather than as a title
-                    that happens to be reachable, and prints as an underlined
-                    blue heading. Primary with a hover colour change is what
-                    `/work` uses for exactly this, and it costs nothing on
-                    paper. */}
-                <Text token="heading-3" as="h3">
-                  {published.has(project.slug) ? (
-                    <NextLink
-                      href={`/work/${project.slug}`}
-                      className="text-color-text-primary no-underline transition-colors duration-fast ease-standard hover:text-color-interactive"
-                    >
-                      {project.name}
-                    </NextLink>
-                  ) : (
-                    project.name
-                  )}
-                </Text>
                 <Text token="body">{project.description}</Text>
                 {/* The stack closes the entry rather than leading it, exactly as
                     on `/work`: it is the least useful line to a reader deciding

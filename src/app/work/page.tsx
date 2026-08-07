@@ -78,7 +78,7 @@ function CaseStudyEntry({ study, level }: { study: CaseStudy; level: 'h2' | 'h3'
               same baseline. Top-aligned, a 35 px serif and a 22.5 px sans start
               at different optical heights and the two columns read as slipped. */}
           <div className="grid gap-6 lg:grid-cols-12 lg:items-baseline lg:gap-16">
-            <div className="flex flex-col gap-2 lg:col-span-4">
+            <div className="flex flex-col gap-1 lg:col-span-4">
               {/* Raw element rather than `Text`, which owns its own colour and
                   cannot be overridden at the call site. This is the one piece of
                   §4.1's hover treatment that survives ADR-028 — the title moves
@@ -92,24 +92,33 @@ function CaseStudyEntry({ study, level }: { study: CaseStudy; level: 'h2' | 'h3'
               </Text>
             </div>
 
-            <div className="flex flex-col gap-6 lg:col-span-8">
-              {/* `SPACING.md` §6 — all body copy sits in the measure column. The
-                  summary previously ran the full 1120 px container, at roughly
-                  twice `TYPOGRAPHY.md` §5's 68-character cap. */}
-              <div className="max-w-prose">
-                <Text token="lede" as="span" color="secondary">
-                  {f.summary}
+            {/*
+              Two values, both taken from the home page's project screen rather
+              than chosen: 20 px inside the content group, 40 px before the
+              action. At a uniform 24 px the stack read as a third peer of the
+              description and the CTA read as a fourth, so the eye reached the
+              action before it had finished reading.
+            */}
+            <div className="flex flex-col gap-10 lg:col-span-8">
+              <div className="flex flex-col gap-5">
+                {/* `SPACING.md` §6 — all body copy sits in the measure column.
+                    The summary previously ran the full 1120 px container, at
+                    roughly twice `TYPOGRAPHY.md` §5's 68-character cap. */}
+                <div className="max-w-prose">
+                  <Text token="lede" as="span" color="secondary">
+                    {f.summary}
+                  </Text>
+                </div>
+                <Text token="mono" as="span" color="tertiary">
+                  {f.stack.join(' · ')}
                 </Text>
               </div>
-              <Text token="mono" as="span" color="tertiary">
-                {f.stack.join(' · ')}
-              </Text>
               {/* Not a nested link — the entry already is one, and a second
                   focusable control inside it is exactly the "link list full of
                   Read more" that INTERACTION.md §11 rules out. It carries the
                   home page's action-link wording and glyph so the affordance
                   reads the same, without pretending to be a separate target. */}
-              <span className="flex items-center gap-2 pt-1 text-color-text-primary">
+              <span className="flex items-center gap-2 text-color-text-primary">
                 <Text token="label" as="span">
                   Read the case study
                 </Text>
@@ -165,9 +174,26 @@ export default function WorkPage() {
           </ul>
         ) : null}
 
+        {/*
+          The chapter boundary, set exactly as `layout/Screen` sets one on the
+          home page: `section-lg` above the rule, `section-lg` below it.
+
+          Space alone was not enough, and `SPACING.md` §4 anticipates precisely
+          this — a hairline appears "where the space alone is ambiguous". At
+          `section-lg` against `section-md` between entries the ratio is only
+          1.5×, and the two-column layout leaves a ragged bottom edge that
+          shrinks the perceived difference further, so the largest token on the
+          scale still read as "another project" rather than as "a different kind
+          of thing". `VISUAL_LANGUAGE.md` §2.1 makes the rule the primary
+          structural element, and this is the same rule the home page draws
+          between every one of its screens — it makes the two pages more alike,
+          not less.
+        */}
         {methodology.length > 0 ? (
-          <div className="mt-section-lg">
-            <div className="flex max-w-prose flex-col gap-5">
+          <div className="mt-section-lg border-t-hairline border-color-border-subtle pt-section-lg">
+            {/* Same internal spacing as the page header above: both are a
+                heading introducing a lede, so both are set the same way. */}
+            <div className="flex max-w-prose flex-col gap-6">
               <Text token="heading-2" as="h2">
                 Methodology
               </Text>

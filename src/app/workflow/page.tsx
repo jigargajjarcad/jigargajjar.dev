@@ -1,12 +1,10 @@
 import type { Metadata } from 'next';
 
-import { Callout } from '@/components/content/Callout';
 import { Reveal } from '@/components/motion/Reveal';
-import { Card } from '@/components/primitives/Card';
 import { Container } from '@/components/primitives/Container';
 import { Link } from '@/components/primitives/Link';
-import { Stack } from '@/components/primitives/Stack';
 import { Text } from '@/components/primitives/Text';
+import { measured } from '@/content/measured';
 import { pageMetadata } from '@/app/metadata';
 
 /**
@@ -135,29 +133,43 @@ const REPO = 'https://github.com/jigargajjarcad/jigargajjar.dev';
 /** Wireframe §4 — each entry is checkable in one click. */
 const EVIDENCE = [
   { href: `${REPO}/tree/main/docs`, label: 'The specification — every document, written first' },
-  { href: `${REPO}/blob/main/docs/DECISIONS.md`, label: 'Decision records — 19 ADRs' },
+  {
+    href: `${REPO}/blob/main/docs/DECISIONS.md`,
+    // Was hard-coded at 19 and had drifted to nine short. Read from the
+    // recording `check:measured` re-verifies on every CI run, so the count on
+    // this page cannot go stale without the pipeline going red — the same
+    // mechanism the home page uses for its check count (ADR-022).
+    label: `Decision records — ${measured.repository.decisionRecords} ADRs`,
+  },
   { href: `${REPO}/tree/main/.github/workflows`, label: 'CI configuration — the gates themselves' },
   { href: `${REPO}/tree/main/tests`, label: 'The test suites' },
 ];
 
-function OwnershipCard({ label, stages }: { label: string; stages: string[] }) {
+/**
+ * One side of the ownership split — ADR-029.
+ *
+ * The generic card is gone. `COMPONENT_GUIDELINES.md` §4.2 scopes it to
+ * "grouped content within a case study", and this is not a case study; a raised
+ * surface with a border was also the loudest object on a page whose argument is
+ * carried entirely by typography. What made the split legible was never the box
+ * — it was two columns and a label, and both are still here.
+ */
+function OwnershipColumn({ label, stages }: { label: string; stages: string[] }) {
   return (
-    <Card>
-      <Stack gap={3}>
-        <Text token="label" as="p" uppercase color="secondary">
-          {label}
-        </Text>
-        <ul aria-label={`${label} stages`} className="flex flex-col gap-2">
-          {stages.map((stage) => (
-            <li key={stage}>
-              <Text token="body" as="span">
-                {stage}
-              </Text>
-            </li>
-          ))}
-        </ul>
-      </Stack>
-    </Card>
+    <div className="flex flex-col gap-4">
+      <Text token="mono" as="p" uppercase color="tertiary">
+        {label}
+      </Text>
+      <ul aria-label={`${label} stages`} className="flex flex-col gap-2">
+        {stages.map((stage) => (
+          <li key={stage}>
+            <Text token="body" as="span">
+              {stage}
+            </Text>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -171,15 +183,21 @@ function StageDetail({ stage }: { stage: Stage }) {
   ];
 
   return (
-    <Stack gap={3}>
+    <div className="flex flex-col gap-4">
       <Text token="heading-3" as="h3">
         {stage.name}
       </Text>
-      <dl className="grid gap-x-4 gap-y-2 md:grid-cols-[7rem_1fr]">
+      {/* `gap-y-3` rather than `gap-y-2`: at 18 px values on a 1.6 line height,
+          8 px between rows let the four fields run together into one block. */}
+      <dl className="grid gap-x-6 gap-y-3 md:grid-cols-[7rem_1fr]">
         {fields.map(([label, value]) => (
           <div key={label} className="contents">
             <dt>
-              <Text token="label" color="secondary" as="span" uppercase>
+              {/* The metadata voice used everywhere else on the site — mono,
+                  uppercase, tertiary. `label` is a 14 px semibold sans, which
+                  is the same weight as the values it introduces and read as a
+                  second column of content rather than as a key. */}
+              <Text token="mono" color="tertiary" as="span" uppercase>
                 {label}
               </Text>
             </dt>
@@ -191,7 +209,7 @@ function StageDetail({ stage }: { stage: Stage }) {
           </div>
         ))}
       </dl>
-    </Stack>
+    </div>
   );
 }
 
@@ -206,22 +224,40 @@ export const metadata: Metadata = pageMetadata({
 export default function WorkflowPage() {
   return (
     <Container width="wide">
-      <Stack gap={20}>
+      {/* `SPACING.md` §4 and §5 — `/workflow` is `default` density, so the
+          rhythm between sections is `md`, with `lg` reserved for the major
+          boundary from the page header into the content. `pt-section-md` is the
+          home page's own opening measure; this page previously opened flush
+          against the header's hairline (ADR-029).
+
+          `VISUAL_LANGUAGE.md` §2.1 permits a rule as a section boundary and
+          `SPACING.md` §4 makes space the default — here every section opens with
+          a 35 px heading after 106 px of space, which is not ambiguous, so no
+          rules are drawn. */}
+      <div className="pb-section-md pt-section-md">
         {/* ── Thesis ────────────────────────────────────────────────────
-            Above the fold. Nothing here animates (`MOTION.md` §5). */}
-        <Stack gap={6}>
+            Above the fold. Nothing here animates (`MOTION.md` §5). The three
+            elements descend 44 → 22.5 → 18 so the claim, its consequence and
+            its qualification are distinguishable at a glance rather than
+            reading as three equal paragraphs. */}
+        {/* A `div`, not a `<header>`. Inside `main` a `<header>` maps to no
+            role at all, so it adds nothing semantically — and it makes the
+            site's own landmark assertion count two `header` elements, which is
+            the check `ACCESSIBILITY.md` §8 relies on. `/work` uses a `div` in
+            the same position. */}
+        <div className="flex max-w-prose flex-col gap-6">
           <Text token="heading-1" as="h1">
             Workflow
           </Text>
-          <Text token="body">
+          <Text token="lede" color="secondary">
             Engineering is no longer constrained by writing code. It is constrained by making
             correct technical decisions.
           </Text>
-          <Text token="body">
+          <Text token="body" color="secondary">
             This is the process that follows from that. It is not a philosophy — it is what actually
             happens between a problem and a release, including the parts that go wrong.
           </Text>
-        </Stack>
+        </div>
 
         {/* ── The sequence ──────────────────────────────────────────────
             An `<ol>` so position and count are announced. Two columns at
@@ -229,29 +265,41 @@ export default function WorkflowPage() {
             1→10; row-major would put stage 2 beside stage 1 and break the
             sequence visually. At `lg` the whole shape is visible at once,
             connected by generated content that carries an empty alt string so
-            it is drawn but never announced. */}
+            it is drawn but never announced.
+
+            Stays at `container-wide` — wireframe §6 puts the prose measure on
+            the four sections below, not on this one, because the whole shape
+            being visible at once is the point of it. */}
         <Reveal>
-          <Stack gap={6}>
+          <section className="mt-section-lg flex flex-col gap-6">
             <Text token="heading-2" as="h2">
               The sequence
             </Text>
-            <ol className="grid list-inside list-decimal gap-3 md:grid-flow-col md:grid-rows-5 lg:flex lg:flex-wrap lg:gap-x-2">
-              {STAGES.map((stage) => (
-                <li
-                  key={stage.name}
-                  className="lg:after:mx-2 lg:after:text-color-text-tertiary lg:after:[content:'→'/''] lg:last:after:content-none"
-                >
-                  <Text token="body" as="span">
-                    {stage.name}
-                  </Text>
-                </li>
-              ))}
-            </ol>
-            <Text token="body">
-              Ten stages. Four are delegated. The other six are not, and that division is the whole
-              argument.
-            </Text>
-          </Stack>
+            {/* One rhythm across every section on this page: 24 px from a
+                heading to what it introduces, 40 px from that content to the
+                sentence or action that closes it. Both values are the home
+                page's. */}
+            <div className="flex flex-col gap-10">
+              <ol className="grid list-inside list-decimal gap-3 md:grid-flow-col md:grid-rows-5 lg:flex lg:flex-wrap lg:gap-x-2">
+                {STAGES.map((stage) => (
+                  <li
+                    key={stage.name}
+                    className="lg:after:mx-2 lg:after:text-color-text-tertiary lg:after:[content:'→'/''] lg:last:after:content-none"
+                  >
+                    <Text token="body" as="span">
+                      {stage.name}
+                    </Text>
+                  </li>
+                ))}
+              </ol>
+              <div className="max-w-prose">
+                <Text token="body" color="secondary">
+                  Ten stages. Four are delegated. The other six are not, and that division is the
+                  whole argument.
+                </Text>
+              </div>
+            </div>
+          </section>
         </Reveal>
 
         {/* ── Ownership ─────────────────────────────────────────────────
@@ -259,44 +307,58 @@ export default function WorkflowPage() {
             and is not delegated is checkable in five seconds; prose making the
             same point takes a paragraph and is easier to disbelieve. */}
         <Reveal>
-          <Stack gap={6}>
+          <section className="mt-section-md flex flex-col gap-6">
             <Text token="heading-2" as="h2">
               Ownership
             </Text>
-            <div className="grid gap-4 md:grid-cols-2">
-              <OwnershipCard label="Owned" stages={OWNED} />
-              <OwnershipCard label="Delegated" stages={DELEGATED} />
+            <div className="flex flex-col gap-10">
+              <div className="grid gap-10 md:grid-cols-2 md:gap-16">
+                <OwnershipColumn label="Owned" stages={OWNED} />
+                <OwnershipColumn label="Delegated" stages={DELEGATED} />
+              </div>
+              <div className="max-w-prose">
+                <Text token="body" color="secondary">
+                  The objection this answers: if agents write the code, do I understand it? I define
+                  what correct means and I verify it. I do not type the implementation, and I do not
+                  delegate the definition of correct.
+                </Text>
+              </div>
             </div>
-            <Text token="body">
-              The objection this answers: if agents write the code, do I understand it? I define
-              what correct means and I verify it. I do not type the implementation, and I do not
-              delegate the definition of correct.
-            </Text>
-          </Stack>
+          </section>
         </Reveal>
 
         {/* ── Each stage ────────────────────────────────────────────────
             The four-field shape, ten times. "Done when" is the field that
             makes the rest usable: a stage without an exit condition is a
-            stage that ends when somebody feels finished. */}
+            stage that ends when somebody feels finished.
+
+            48 px between stages against 16 px inside one. At the previous 32/12
+            the ten stages read as a single table; the ratio, not the absolute
+            value, is what makes each one its own block. `space-12` keeps this on
+            the component scale — `SPACING.md` §4 warns that reaching for the
+            section scale here is how section separation erodes into component
+            separation. */}
         <Reveal>
-          <Stack gap={8}>
+          <section className="mt-section-md flex max-w-prose flex-col gap-10">
             <Text token="heading-2" as="h2">
               Each stage
             </Text>
-            <Stack gap={8}>
+            <div className="flex flex-col gap-12">
               {STAGES.map((stage) => (
                 <StageDetail key={stage.name} stage={stage} />
               ))}
-            </Stack>
-          </Stack>
+            </div>
+          </section>
         </Reveal>
 
         {/* ── Verification model ────────────────────────────────────────
             The load-bearing section: it answers the objection every skeptical
-            reader arrives with. */}
+            reader arrives with. Wireframe §6 puts it at the prose measure; it
+            ran at 90 characters until ADR-029, against TYPOGRAPHY.md §5's cap
+            of 68. Four paragraphs of this density is exactly the case §5's
+            "return sweep becomes unreliable" is written about. */}
         <Reveal>
-          <Stack gap={6}>
+          <section className="mt-section-md flex max-w-prose flex-col gap-6">
             <Text token="heading-2" as="h2">
               How I know it is correct
             </Text>
@@ -333,78 +395,103 @@ export default function WorkflowPage() {
               weeks while verifying nothing, and both were found by asking what would have to be
               true for the result to be meaningless.
             </Text>
-          </Stack>
+          </section>
         </Reveal>
 
         {/* ── Failure modes ─────────────────────────────────────────────
             The pivotal section, and it is not buried. A collaborator has no
             interview to fall back on; they are deciding whether this person
-            will tell them when something is going wrong. Three explicit
-            callouts rather than a paragraph, per the wireframe's rationale. */}
+            will tell them when something is going wrong.
+
+            Wireframe §7 maps these to `Callout`, and ADR-029 replaces that with
+            three `<h3>` sub-sections. `Callout` renders an `<aside>` carrying a
+            `data-variant` attribute that no stylesheet has ever targeted, so
+            all three failure modes were visually identical to body text and the
+            names of the failures did not read as headings at all. §9's rationale
+            — "three explicit callouts rather than a paragraph" — is about the
+            three being separately named, and a real heading does that better
+            than an unstyled paragraph label. The level is correct here (`h3`
+            under an `h2`), which is the skip `Callout`'s own docstring exists to
+            avoid inside MDX. */}
         <Reveal>
-          <Stack gap={6}>
+          <section className="mt-section-md flex max-w-prose flex-col gap-10">
             <Text token="heading-2" as="h2">
               Where this breaks down
             </Text>
-            <Callout variant="caution" heading="Specification ambiguity">
-              <Text token="body">
-                The process assumes the specification answers the question. Five of this
-                project&rsquo;s decision records exist only because it did not — a budget that
-                contradicted its own architecture, a field required by the schema that nothing
-                rendered, an estimate nobody had measured. Each cost a stop. What compensates is
-                that stopping is cheaper than guessing: the ambiguity becomes a written decision
-                with its alternatives, and the next person meets an answer rather than the same gap.
-              </Text>
-            </Callout>
-            <Callout variant="caution" heading="Verification gaps">
-              <Text token="body">
-                A gate that passes without testing anything is worse than no gate, because it buys
-                confidence it has not earned. On this site the reduced-motion check ran for weeks
-                against a browser that had reduced motion switched off, and a diagram shipped with
-                every label invisible while the accessibility gate passed it. Both were found by
-                accident. What compensates is meta-assertion — the checks now fail loudly if their
-                own emulation stops applying — and the habit of asking what would make a green
-                result meaningless.
-              </Text>
-            </Callout>
-            <Callout variant="caution" heading="Volume outpacing review">
-              <Text token="body">
-                Implementation arrives faster than it can be read closely, and reading everything
-                closely would remove the advantage entirely. The failure mode is real: review
-                degrades into skimming, and skimming approves whatever looks familiar. What
-                compensates is putting the gates in place before the features, reviewing structure
-                rather than style, and refusing to merge on anything but a green pipeline — plus
-                accepting that some defects will be found later, by a gate that did not exist yet.
-              </Text>
-            </Callout>
-          </Stack>
+            <div className="flex flex-col gap-10">
+              <div className="flex flex-col gap-4">
+                <Text token="heading-3" as="h3">
+                  Specification ambiguity
+                </Text>
+                <Text token="body">
+                  The process assumes the specification answers the question. Five of this
+                  project&rsquo;s decision records exist only because it did not — a budget that
+                  contradicted its own architecture, a field required by the schema that nothing
+                  rendered, an estimate nobody had measured. Each cost a stop. What compensates is
+                  that stopping is cheaper than guessing: the ambiguity becomes a written decision
+                  with its alternatives, and the next person meets an answer rather than the same
+                  gap.
+                </Text>
+              </div>
+              <div className="flex flex-col gap-4">
+                <Text token="heading-3" as="h3">
+                  Verification gaps
+                </Text>
+                <Text token="body">
+                  A gate that passes without testing anything is worse than no gate, because it buys
+                  confidence it has not earned. On this site the reduced-motion check ran for weeks
+                  against a browser that had reduced motion switched off, and a diagram shipped with
+                  every label invisible while the accessibility gate passed it. Both were found by
+                  accident. What compensates is meta-assertion — the checks now fail loudly if their
+                  own emulation stops applying — and the habit of asking what would make a green
+                  result meaningless.
+                </Text>
+              </div>
+              <div className="flex flex-col gap-4">
+                <Text token="heading-3" as="h3">
+                  Volume outpacing review
+                </Text>
+                <Text token="body">
+                  Implementation arrives faster than it can be read closely, and reading everything
+                  closely would remove the advantage entirely. The failure mode is real: review
+                  degrades into skimming, and skimming approves whatever looks familiar. What
+                  compensates is putting the gates in place before the features, reviewing structure
+                  rather than style, and refusing to merge on anything but a green pipeline — plus
+                  accepting that some defects will be found later, by a gate that did not exist yet.
+                </Text>
+              </div>
+            </div>
+          </section>
         </Reveal>
 
         {/* ── Evidence ──────────────────────────────────────────────────
-            Every stage above is visible in this repository, which is the only
-            reason the page is worth reading. */}
+            The conclusion, not a link dump. Every stage above is visible in
+            this repository, which is the only reason the page is worth
+            reading. */}
         <Reveal>
-          <Stack gap={6}>
+          <section className="mt-section-md flex max-w-prose flex-col gap-6">
             <Text token="heading-2" as="h2">
               See it in practice
             </Text>
-            <Text token="body">
-              Every stage above is visible in this repository. The specification was written before
-              the application existed, the decisions record what was rejected, and the gates ran
-              against an empty page before any feature was built.
-            </Text>
-            <Stack gap={3} as="ul">
-              {EVIDENCE.map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href} external>
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </Stack>
-          </Stack>
+            <div className="flex flex-col gap-10">
+              <Text token="body" color="secondary">
+                Every stage above is visible in this repository. The specification was written
+                before the application existed, the decisions record what was rejected, and the
+                gates ran against an empty page before any feature was built.
+              </Text>
+              <ul className="flex flex-col gap-4">
+                {EVIDENCE.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} external>
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
         </Reveal>
-      </Stack>
+      </div>
     </Container>
   );
 }

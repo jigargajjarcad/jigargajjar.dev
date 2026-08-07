@@ -1,20 +1,20 @@
 {
   "measuredAt": "2026-08-07",
   "bundle": {
-    "homeFirstLoadKb": 104.9,
+    "homeFirstLoadKb": 1816.6,
     "homeFirstLoadBudgetKb": 120,
-    "sharedRuntimeKb": 100.3,
+    "sharedRuntimeKb": 1737,
     "sharedRuntimeCeilingKb": 105,
-    "cssKb": 6.3,
+    "cssKb": 0,
     "cssBudgetKb": 20,
-    "routes": 12
+    "routes": 3
   },
   "lighthouse": {
     "performance": 100,
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100,
-    "lcpMs": 493,
+    "lcpMs": 492,
     "fcpMs": 214,
     "tbtMs": 0,
     "cls": 0.006,
@@ -26,7 +26,7 @@
     "ciSteps": 9
   },
   "repository": {
-    "decisionRecords": 28,
+    "decisionRecords": 29,
     "caseStudies": 4,
     "caseStudyWords": 8800,
     "semanticColours": 21,

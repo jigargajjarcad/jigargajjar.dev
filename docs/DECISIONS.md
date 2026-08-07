@@ -44,6 +44,7 @@ Records are immutable once accepted. A decision that changes gets a new record t
 | [026](#adr-026) | Final proof: a missing favicon, and four things that were already right | Accepted |
 | [027](#adr-027) | Pre-launch validation: three defects the gates had never been able to see | Accepted |
 | [028](#adr-028) | `/work` adopts the home page's editorial language; the project card is withdrawn | Accepted |
+| [029](#adr-029) | `/workflow` is set as an article; two components leave it | Accepted |
 
 ---
 
@@ -1433,3 +1434,50 @@ What replaces the card is spacing taken from the documents rather than chosen: `
 - **`COMPONENT_GUIDELINES.md` §4.1 and `wireframes/02-work.md` now describe a component that does not exist.** They are amended rather than deleted, in this project's convention — the wireframe's ASCII layouts are the record of what the argument above is arguing against.
 - **§5.1 lifecycle badges and §5.2 stack tags are unused by this page** and were not implemented. Both are chip treatments in the same family as the card; if another surface needs them, that surface should decide, not inherit.
 - **Zero overflow and CLS 0 at 320–1440 px**, console clean, Lighthouse 100/100/100/100 on `/work` and on all ten routes.
+
+---
+
+<a id="adr-029"></a>
+## ADR-029 — `/workflow` is set as an article; two components leave it
+
+**Status:** Accepted · 2026-08-07 · Amends `wireframes/04-workflow.md` §7 · Extends ADR-028 to `COMPONENT_GUIDELINES.md` §4.2
+
+### Context
+
+`/workflow` carried the strongest content on the site and the weakest presentation of it: 1,127 words at 90 characters per line, opening flush against the header's hairline, with six sections separated by the same 80 px used inside them.
+
+**Two of those were straightforward failures to implement the contract.** Wireframe §6 states `⟨--container-prose 68ch for all remaining sections⟩` over *Each stage*, *How I know it is correct*, *Where this breaks down* and *See it in practice*. The page ran every one of them at `container-wide`. `TYPOGRAPHY.md` §5 calls measure "the largest single lever on reading comfort" and caps it at 68; four dense paragraphs at 90 is exactly the case it describes, where "the return sweep becomes unreliable and readers lose their line". Top padding was absent for the same reason it was absent everywhere before ADR-028 — nothing had ever set it.
+
+**The third was invisible and worse.** `Callout` renders `<aside data-variant="caution">` with a paragraph label, and **no stylesheet has ever targeted `data-variant`**. The three failure modes — the section wireframe §9 calls pivotal, the one a collaborator is actually reading for — were visually indistinguishable from body text, and their names did not read as headings at all. The component has been shipping unstyled since it was written.
+
+### Decision
+
+**The page is set as a long-form article.** Prose measure on the four sections the wireframe names; `pt-section-md` to open, matching the home page and `/work`; `section-md` between every section, per `SPACING.md` §5, which fixes `/workflow` at `default` density.
+
+**One rhythm, two values, both the home page's.** Twenty-four pixels from a heading to what it introduces, forty from that content to the sentence or action closing it. The page previously used three different heading-to-content gaps — 24, 32 and 40 — with nothing distinguishing them. Forty now means one thing only: an `<h2>` introducing a run of `<h3>` sub-blocks.
+
+**The failure modes become three `<h3>` sub-sections.** Wireframe §7 maps them to `Callout`; that mapping is amended. §9's rationale is that the section is "three explicit callouts rather than a paragraph" — the argument is about the three being *separately named*, and a real heading does that where an unstyled paragraph label does not. The heading level is correct here (`h3` under `h2`), which is the level-skip `Callout`'s own docstring exists to avoid inside MDX.
+
+**The ownership split loses the generic card**, extending ADR-028's reasoning one component further. `COMPONENT_GUIDELINES.md` §4.2 scopes the generic card to "grouped content within a case study"; this is not a case study, so the card was outside its own stated scope before any question of style. What made the split legible was two columns and a label, and both remain.
+
+**Stage metadata moves to the mono voice.** `INPUT`, `OUTPUT`, `OWNER` and `DONE WHEN` were `type-label` — a 14 px semibold sans, the same weight as the values it introduces, so the four fields read as two columns of content rather than as keys and values. Mono uppercase tertiary is the metadata voice used on the home page and `/work`.
+
+**The ADR count is now derived.** "Decision records — 19 ADRs" was hard-coded and had drifted nine short. It reads from `measured.json`, which `check:measured` re-verifies on every CI run — the same mechanism ADR-022 gave the home page's check count. A number in a link label is not copy, and a wrong one on a page whose subject is verification is the worst place on the site for it to be.
+
+### Alternatives considered
+
+**Style `Callout` instead of replacing it here.** Rejected for now, and it is the more complete fix. `Callout` is an MDX component used across four case studies, and giving it a visual treatment changes four pages that have not been reviewed. It is recorded as outstanding work rather than done quietly as a side effect of this page.
+
+**Keep the cards and simply tighten them.** Rejected. A raised surface with a border was the loudest object on a page carried entirely by typography, and §4.2 did not license it here in the first place.
+
+**Draw a rule between each section, as `/work` does at its one chapter boundary.** Rejected. `SPACING.md` §4 makes space the default and the rule an exception for where space is ambiguous; six sections each opening with a 35 px heading after 106 px of space are not ambiguous. `/work` needed one because a ragged two-column bottom edge made a single boundary genuinely unclear.
+
+**Number the stages in *Each stage* to differentiate them.** Rejected. The numbers already exist in *The sequence* directly above, and the home page's editorial vocabulary has no numbered lists — 48 px between stages against 16 px inside one does the same work with nothing added.
+
+### Consequences
+
+- **All 1,127 words are retained.** Nothing was cut, shortened or rewritten. Measure went from 90 characters to 68, top padding from 0 px to 106, and the page from 6.0 screens to 7.4 — it is longer precisely because it is now spaced to be read.
+- **`wireframes/04-workflow.md` §7 no longer describes the built page** in two rows: the ownership split and the failure modes. It is amended in place rather than deleted.
+- **`Callout` remains unstyled and is now used only by case studies.** That is a real outstanding defect, recorded here so the case-study pass starts from it rather than rediscovering it.
+- **A page-level `<header>` was tried and reverted.** Inside `main` it carries no role, and it made `tests/quality/accessibility.spec.ts` count two `header` elements — the check `ACCESSIBILITY.md` §8 relies on. Fixing the page rather than loosening the assertion is the correct direction, and worth recording because the temptation runs the other way.
+- Lighthouse 100/100/100/100 on `/workflow` and all ten routes; zero overflow and CLS 0 at 320–1440 px; console clean.

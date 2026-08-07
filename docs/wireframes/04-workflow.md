@@ -233,8 +233,8 @@ Density `default`.
 | Element | Component | Source |
 |---|---|---|
 | Stage sequence | Semantic `<ol>` — **not** Timeline | `ARCHITECTURE.md` §6.6 |
-| Ownership split | Generic card ×2, non-interactive | `COMPONENT_GUIDELINES.md` §4.2 |
-| Failure modes | Callout, `caution` variant | §8.1 |
+| Ownership split | ~~Generic card ×2~~ **Two labelled columns** — ADR-029 | §4.2 scopes the card to case studies |
+| Failure modes | ~~Callout, `caution` variant~~ **Three `<h3>` sub-sections** — ADR-029 | `Callout` renders unstyled |
 | Evidence links | Link, outbound `{arrow-up-right}` | §2.1 |
 | Stage detail, notes | Prose primitives | `ARCHITECTURE.md` §3 |
 

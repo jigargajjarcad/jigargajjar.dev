@@ -14,8 +14,8 @@
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100,
-    "lcpMs": 494,
-    "fcpMs": 215,
+    "lcpMs": 493,
+    "fcpMs": 214,
     "tbtMs": 0,
     "cls": 0.006,
     "measuredAt": "2026-08-07"
@@ -26,7 +26,7 @@
     "ciSteps": 9
   },
   "repository": {
-    "decisionRecords": 27,
+    "decisionRecords": 28,
     "caseStudies": 4,
     "caseStudyWords": 8800,
     "semanticColours": 21,

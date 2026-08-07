@@ -1,6 +1,7 @@
 # Wireframe — `/work`
 
 **Specification source:** [`ROUTE_SPECIFICATIONS.md`](../design/ROUTE_SPECIFICATIONS.md) §1 · [`COMPONENT_GUIDELINES.md`](../design/COMPONENT_GUIDELINES.md) §4.1
+**Status:** §§1–3 current. **§§4–6 draw project cards and are superseded by ADR-028** — the built page uses the home page's editorial language, with space rather than cards as the separator. The layouts below are retained as the record of what that decision argued against.
 
 ---
 

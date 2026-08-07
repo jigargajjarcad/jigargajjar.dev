@@ -120,6 +120,8 @@ Server component. Contact affordance, source links, theme control at narrow widt
 
 ### 4.1 Project card
 
+> **Visual treatment superseded by ADR-028 (2026-08-07).** `/work` is laid out in the home page's editorial language: no surface, no border, no grid, no hover lift — separation is space, per `SPACING.md` §4. The **rules** below all still hold and are still implemented: whole-entry link with one accessible name, competency label leads, no cover image, content determines height, and hover moves the title to `--color-interactive`. The structure list is unchanged; only its treatment is.
+
 Server component. The primary element of `/work` and the highest-value component on the site — it is where a hiring manager forms their impression of breadth.
 
 **Structure, in reading order.**

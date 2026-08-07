@@ -43,6 +43,7 @@ Records are immutable once accepted. A decision that changes gets a new record t
 | [025](#adr-025) | Final polish: the headline is measured, and outbound links open away | Accepted |
 | [026](#adr-026) | Final proof: a missing favicon, and four things that were already right | Accepted |
 | [027](#adr-027) | Pre-launch validation: three defects the gates had never been able to see | Accepted |
+| [028](#adr-028) | `/work` adopts the home page's editorial language; the project card is withdrawn | Accepted |
 
 ---
 
@@ -1373,3 +1374,62 @@ This is the one native-element override in the MDX map, and §6.4's closed set i
 - **All four Lighthouse categories remain 100 on all ten routes.**
 - **Three defects, and none of them was invisible to tooling — they were invisible to the tooling as configured.** `axe` runs on every route and would have caught the keyboard-access failure years earlier if anything had been scrollable; the overflow checks did not exist. A viewport sweep is now part of pre-deploy validation, and it is the check that found all three.
 - **Two of the three were specifications that had been written and never implemented.** Both components documented the behaviour in their own docstrings. That is a worse failure mode than an undocumented gap, because the docstring is what a reviewer reads instead of the code.
+
+---
+
+<a id="adr-028"></a>
+## ADR-028 — `/work` adopts the home page's editorial language; the project card is withdrawn
+
+**Status:** Accepted · 2026-08-07 · Supersedes `COMPONENT_GUIDELINES.md` §4.1 (visual treatment) · Amends `wireframes/02-work.md` §4–§6
+
+### Context
+
+Home V4 is the site's visual reference (ADR-023 through ADR-027). `/work` was built in Phase 5 against a specification written in Phase 3, and the audit measured the gap precisely:
+
+| | Home V4 | `/work` before |
+|---|---|---|
+| Space below the header | 106 px | **0 px** — the `<h1>` sat on the header's hairline |
+| Body measure | 68 ch | **90 ch**, roughly twice `TYPOGRAPHY.md` §5's cap |
+| Separation between projects | — | 24 px, against 8 px *inside* each entry |
+
+The last row is the whole problem. With entries separated by 24 px and their own six elements spaced 8 px apart, nothing told the eye where one project ended and the next began; the page read as one long column of similar-weight text.
+
+`COMPONENT_GUIDELINES.md` §4.1 specifies the fix as a *card*: `--color-surface-raised`, a 1 px border, a two-column grid at `--bp-sm`, and a 2 px lift on hover. That specification predates the home page's editorial language, which has no cards, no borders around content, and no decorative motion.
+
+**Two documents already pointed the other way.** `SPACING.md` §4: *"Section boundaries are marked by space, not by rules. A hairline appears between sections only where the space alone is ambiguous — which, at these values, is almost never."* And `VISUAL_LANGUAGE.md` §2.1 reserves the hairline for structure that space cannot express. A card is a stronger boundary than a hairline; if a hairline is more than the space needs, a card certainly is.
+
+### Decision
+
+**`/work` is laid out in the home page's language, and §4.1's visual treatment is withdrawn.**
+
+Everything in §4.1 that was not a visual choice is kept, and each was kept for its stated reason:
+
+- **The whole entry is one link with one accessible name.** `INTERACTION.md` §11 — three links inside an entry produce a link list full of "Read more".
+- **The competency label leads**, because ADR-012 requires the competency thesis to be legible at a glance.
+- **No cover image**, which would consume the above-the-fold image budget.
+- **Content determines height** (`SPACING.md` §7).
+- **Hover moves the title to `--color-interactive`** — the one piece of §4.1's hover state that is not motion.
+
+What replaces the card is spacing taken from the documents rather than chosen: `SPACING.md` §5 fixes `/work` at `default` density, so the rhythm is `section-md` between entries, `section-lg` at the two major boundaries — page header to content, and the flagship set to the methodology chapter — and `section-sm` between a heading and the sub-section it introduces. Summaries move into the measure column (§6). The page opens at `pt-section-md`, which is the home page's own opening measure.
+
+**The competency label spans both columns rather than sitting inside the left one.** Nested, it pushed the title 36 px down while the right column began immediately, so the eye reached the description before the project name — the exact inversion of the reading order `ROUTE_SPECIFICATIONS.md` §1 specifies. Spanning, it reads as what §1 calls it: a label over a section.
+
+**All four entries render identically**, per §1: *"a reader who came to compare needs comparable presentation."* The methodology study differs only in heading level, which `ACCESSIBILITY.md` §8 permits — level is a structural claim and size is not.
+
+### Alternatives considered
+
+**Implement §4.1 as written.** Rejected, and this is the substance of the record. It would have produced a page that looks like it was designed before the home page — which is exactly what the audit found, and exactly what this pass was asked to fix. A specification is superseded by a later decision, not by being ignored; hence this record rather than a silent departure.
+
+**Keep §4.1's two-column card grid at `--bp-sm`.** Rejected. A grid of cards is a comparison-by-scanning layout; the home page's language is comparison-by-reading, one subject at a time. Single column also means the entries stack identically at every width, so there is no breakpoint at which the layout has to be re-judged.
+
+**Separate entries with hairlines rather than space.** Rejected on `SPACING.md` §4 — space is the default and a rule is the exception, and at 106 px the boundary is not ambiguous.
+
+**Make the continue affordance a real action link, matching the home page's bordered control.** Rejected. It would be a second focusable element inside a link, which is both invalid and the precise failure §4.1 and `INTERACTION.md` §11 describe. It carries the home page's wording and glyph without pretending to be a separate target.
+
+### Consequences
+
+- **Measured against Home V4, the two pages now agree exactly** on space below the header (106 px), section heading size (35 px), lede size (22.5 px) and content left edge (208 px). The `<h1>` differs by design: `type-hero` has one consumer, and ADR-020 gave it to the home page's opening statement.
+- **The page grew from 1.7 screens to 2.5** on the same content. No copy changed.
+- **`COMPONENT_GUIDELINES.md` §4.1 and `wireframes/02-work.md` now describe a component that does not exist.** They are amended rather than deleted, in this project's convention — the wireframe's ASCII layouts are the record of what the argument above is arguing against.
+- **§5.1 lifecycle badges and §5.2 stack tags are unused by this page** and were not implemented. Both are chip treatments in the same family as the card; if another surface needs them, that surface should decide, not inherit.
+- **Zero overflow and CLS 0 at 320–1440 px**, console clean, Lighthouse 100/100/100/100 on `/work` and on all ten routes.

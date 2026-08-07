@@ -1,7 +1,7 @@
+import { ProfileMarks } from '@/components/content/ProfileMarks';
 import { Container } from '@/components/primitives/Container';
-import { Icon } from '@/components/primitives/Icon';
 import { Text } from '@/components/primitives/Text';
-import { NAME, PROFILE_LINKS, contact } from '@/content/site';
+import { NAME, contact } from '@/content/site';
 
 import { ThemeControl } from './ThemeControl';
 
@@ -42,23 +42,7 @@ export function Footer() {
           </div>
 
           <div className="flex items-center gap-2">
-            <ul className="flex list-none items-center gap-1">
-              {PROFILE_LINKS.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    {...(link.external ? { target: '_blank', rel: 'me noopener noreferrer' } : {})}
-                    className="flex min-h-target-min min-w-target-min items-center justify-center rounded-sm text-color-text-tertiary transition-colors duration-fast ease-standard hover:text-color-text-primary"
-                  >
-                    <Icon name={link.icon} size="md" />
-                    <span className="sr-only">
-                      {link.label}
-                      {link.external ? ' (opens in a new tab)' : ''}
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <ProfileMarks tone="muted" hang={false} label="Profiles and contact" />
             {/* Below `--bp-sm` the theme control lives here; above it, in the
                 header. Exactly one exists at any width. */}
             <div className="sm:hidden">

@@ -236,6 +236,16 @@
      the addresses are already in the contact line. The page-count target of two
      A4 sides is a content constraint, verified in the manual pass rather than
      asserted here. */
+  /* Content that exists only on paper. This has to sit *before* `@media print`
+     below: both selectors have the same specificity, so the later one wins, and
+     when this rule came after the print block it silently beat it — the marks
+     were hidden for print and their text replacement never appeared, leaving the
+     PDF with no contact details at all. Caught by measuring the print render
+     rather than by reading the CSS. */
+  [data-print-only] {
+    display: none;
+  }
+
   @media print {
     header,
     footer {
@@ -248,17 +258,40 @@
        each to a smaller step that is not itself remapped, so nothing resolves
        through a second substitution. */
     :root {
-      --space-20: var(--space-8);
-      --space-16: var(--space-6);
-      --space-12: var(--space-5);
-      --space-10: var(--space-4);
+      --space-20: var(--space-5);
+      --space-16: var(--space-5);
+      --space-12: var(--space-4);
+      --space-10: var(--space-3);
       --space-8: var(--space-3);
+      --space-6: var(--space-4);
+
+      /* The section scale is remapped for the same reason and was previously
+         missed. `/resume` paced itself with `--space-16`, which this block
+         already compressed; ADR-032 moved it onto the section rhythm
+         `SPACING.md` §5 assigns it, and those tokens are `clamp()` expressions
+         resolving against viewport width — on paper they resolve near their
+         desktop maximum and are compressed by nothing above. Left alone, the
+         correct screen rhythm added a page and a half to the PDF. */
+      --space-section-lg: var(--space-5);
+      --space-section-md: var(--space-3);
+      --space-section-sm: var(--space-3);
+
+      /* Leading, and the only type value paper changes. Screen and paper do not
+         want the same leading: 1.6 is set for a backlit display at an unknown
+         line length, and print has fixed measure, higher contrast and no
+         scrolling. 1.5 is still inside `TYPOGRAPHY.md` §4's comfortable band and
+         it is what took the expanded document from four pages to three — the
+         Education section was alone on page four and needed about 150 px.
+
+         §6 rejected "roughly a 16 % reduction in vertical rhythm or type size"
+         to force two pages. This is 6 % on one property to hold the three §6
+         already permits, and no type size changes. */
+      --type-body-line-height: 1.5;
+      --type-lede-line-height: 1.4;
     }
 
     /* A heading stranded at the foot of a page with its content overleaf is the
-       most common print defect and the easiest to prevent. Entries are kept
-       whole for the same reason: a role split across a page boundary reads as
-       two roles. */
+       most common print defect and the easiest to prevent. */
     h1,
     h2,
     h3 {
@@ -266,9 +299,26 @@
       break-inside: avoid;
     }
 
+    /* **`[data-print-keep]` no longer forbids an internal break, and the reason
+       is measured** (ADR-032). Keeping a whole entry together was meant to stop
+       a role reading as two roles across a boundary. What it actually did was
+       jump any entry taller than the space left on the page: with the expanded
+       projects, two entries were displaced by 87 px and 257 px, and 344 px of
+       waste turned a document that raw-measures 2.95 pages into four.
+
+       Orphans and widows do the same job without the waste. `break-after: avoid`
+       above already welds the role heading to what follows it, and three lines
+       minimum on either side of a break means a split lands mid-paragraph, which
+       reads as continuation. The failure the original rule described — a heading
+       at the foot of one page and its prose on the next — is prevented by the
+       heading rule, not by this one. */
+    p {
+      orphans: 3;
+      widows: 3;
+    }
+
     li,
-    dl,
-    [data-print-keep] {
+    dl {
       break-inside: avoid;
     }
 
@@ -277,6 +327,14 @@
     [href='#main'],
     [data-print-hide] {
       display: none;
+    }
+
+    /* The inverse: content that exists only on paper. `/resume` shows its
+       contact destinations as marks on screen and as extractable text here,
+       because a printed glyph cannot be clicked and an ATS parser cannot read
+       one (ADR-032). */
+    [data-print-only] {
+      display: block;
     }
   }
 
@@ -289,5 +347,46 @@
   svg {
     display: block;
     max-width: 100%;
+  }
+}
+
+/*
+ * Print fragmentation — deliberately outside `@layer base`.
+ *
+ * **Grid and flex containers are effectively monolithic to Chromium's
+ * fragmenter.** While each résumé entry stayed a grid, no orphan or widow rule
+ * could reach inside it: entries jumped whole rather than splitting, 344 px of
+ * page was wasted, and the document ran to four pages while its content
+ * measured 2.76. Below `lg` the metadata column collapses to one column anyway,
+ * and print is always below `lg`, so on paper the grid does nothing block flow
+ * does not.
+ *
+ * **The layer is the point.** `display: grid` reaches these elements as a
+ * Tailwind utility, and utilities sit in `@layer utilities`, which outranks
+ * `@layer base` no matter how specific the base selector is. The first version
+ * of this rule lived in `base`, applied to nothing, and left the page count
+ * unchanged — the CSS looked right and the measurement said otherwise. Unlayered
+ * declarations outrank every layer, which is what makes this one take effect.
+ *
+ * Block children have no `gap`, so the entry's internal rhythm returns as
+ * margins at the same step. An ATS also gets a plain block sequence to walk.
+ */
+@media print {
+  [data-print-keep],
+  [data-print-keep] > div {
+    display: block;
+  }
+
+  [data-print-keep] > * + *,
+  [data-print-keep] > div > * + * {
+    margin-top: var(--space-1);
+  }
+
+  /* The metadata label is a `span`, so the `h1, h2, h3` rule above never covered
+     it — and the first PDF to reach three pages ended page two on "AI PRODUCT
+     ENGINEERING" with "NovaMind AI" overleaf. That is the same stranding the
+     heading rule exists to prevent, one element short of being caught by it. */
+  [data-print-keep] > *:first-child {
+    break-after: avoid;
   }
 }

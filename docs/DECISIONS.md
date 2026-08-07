@@ -1561,3 +1561,47 @@ Two things stood in the way. `ICONOGRAPHY.md` §6 permits icon-only controls aga
 - **One word leaves `/connect`:** the `Elsewhere` field label ADR-030 added, no longer needed once the marks left the definition list. The visible words `Send an email`, `GitHub`, `LinkedIn` and `Résumé` are gone from the page body; all four survive as accessible names.
 - **This trades visible affordance for compactness on the page where the links matter most.** The mitigation is the link colour, and it is a real trade rather than a free one — recorded so that if the page later reads as having no call to action, the cause is written down.
 - Four 44 px targets, accessible names verified, external marks open away with `rel="me noopener noreferrer"`.
+
+## ADR-032 — `/resume` is a two-column document at `wide`; print is fixed by fragmentation, not by cutting
+
+**Status:** Accepted · 2026-08-07 · Amends `wireframes/07-resume.md` §6 · Extends ADR-030 and ADR-031 · Owner request
+
+### Context
+
+Five things were true of `/resume` before this pass, and only the first was visible.
+
+`Container width="prose"` centres, so the résumé's content edge sat at **382 px** while every other route on the site sat at 208 px — the last page still off the site's edge after ADR-030 fixed `/about` and `/connect`. Section rhythm was a flat 64 px, which is not on the section scale at all, though `SPACING.md` §5 fixes `/resume` at `default` density and therefore `md`. The heading-to-content gap was 32 px in Experience and 24 px everywhere else. Contact was a row of raw hyperlinks. And "Selected work" was three one-line labels naming a competency and a stack — the thinnest section on a page where it carries the strongest technical evidence.
+
+Underneath those was a contradiction between two frozen documents. Wireframe §6 puts dates and employer in a metadata column beside the prose, inside a 68ch container. Measured, the longest period — "November 2022 — January 2025" — sets at **253 px** in mono. A column that holds it leaves the description about **43 characters**, and `TYPOGRAPHY.md` §5 states that "below 50, the eye returns too frequently and the reader loses rhythm". The column as built was 192 px, which wrapped **all five** periods onto two lines and still only reached 49 characters. §6's metadata column, §6's 68ch container, and §5's floor on measure: at 772 px any two of the three can hold.
+
+### Decision
+
+**The document runs at `container-wide`, and the measure is capped inside it.** The column is 288 px — the width of the longest thing that has to sit on one line, the periods at 253 px and `AI INFRASTRUCTURE ENGINEERING` at 262 px — and the description is 712 px, which is 63 characters. All three constraints hold. §6's stated concern is that "a résumé that fills a 1440 px viewport is unreadable", and what makes it unreadable is the measure, not the container: the measure is still capped, at 63. Between `md` and `lg` the column has not engaged and the entry is single-column, so the description carries `max-w-prose` — without it that band ran to 85 characters.
+
+**One metadata column for the whole document.** Experience, Engineering projects, Technologies and Education all use 288 px, so labels begin at 208 px and content at 520 px on every section. Section rhythm is `section-md`, heading-to-content is 24 px, entries are 40 px apart against 8 px inside one.
+
+**"Selected work" becomes "Engineering projects", expanded.** Every clause is drawn from the case study's own `summary`, `role` and `outcomes` rather than written fresh, so the résumé cannot claim more than the case study substantiates. That cuts both ways: NovaMind states that its verification stayed manual, because the case study says so and a résumé quietly omitting what the linked document admits is exactly the discrepancy §9 exists to prevent. Edge10 stays short — Experience covers it across two roles.
+
+**Contact takes ADR-031's mark row, and paper gets text instead.** A printed glyph cannot be clicked and an ATS cannot read one, so the marks are `data-print-hide` and a `data-print-only` line carries the same four destinations as extractable text. **Download as PDF** takes the `action` variant the home page already uses — a hairline border on a 44 px target, no fill and no accent.
+
+**Print is fixed by fragmentation rather than by cutting content.** Four changes, in the order they were needed: `--space-section-*` is remapped for paper, which the existing block had missed; margins go from 14 mm to 12 mm; body leading goes from 1.6 to 1.5, which is 6 % on one property, against the 16 % on rhythm *or type size* §6 rejected for forcing two pages; and `[data-print-keep]` becomes block flow. Three pages, which §6 permits.
+
+### Alternatives considered
+
+**Widen the metadata column to 16 rem and keep `prose`.** Rejected: it puts the description at 43 characters, under §5's own floor. This was implemented and measured before being rejected.
+
+**Drop the column and lead each entry with a mono label, as `/work` does.** Implemented, measured, and rejected on review — it satisfied every number and read as a flat left-aligned stack, inconsistent with the two-column Technologies and Education directly beneath it. Recorded because the numbers were all green and the page was still wrong.
+
+**Abbreviate months to `Feb 2025 — Mar 2026`.** Fits a 12 rem column and is ordinary résumé practice. Rejected: the owner supplied the period in full and asked that no other date change, and a rendering that visibly differs from what was asked for is not a formatting decision to take unilaterally.
+
+**Cut the expanded projects back to fit two pages.** Rejected. §6 already established that "the page count follows the content rather than the content following the page count", and the expansion was the point of the pass.
+
+### Consequences
+
+- **All five routes now share one content edge.** 208 px, 0 px drift.
+- **`wireframes/07-resume.md` §6 no longer describes the built page** in two rows: the container is `wide`, and the metadata column is 288 px rather than unspecified. Amended in place.
+- **Three print defects were found only by measuring the print render**, and each looked correct in source. `[data-print-only]` was declared after `@media print` at equal specificity, so it lost on source order and the PDF carried *no contact details at all*. `display: block` for fragmentation was written in `@layer base`, where Tailwind's `grid` utility outranks it, so it applied to nothing and the page count did not move. And the metadata label is a `span`, so `h1, h2, h3 { break-after: avoid }` never covered it — page two ended on `AI PRODUCT ENGINEERING` with `NovaMind AI` overleaf.
+- **Entries may now split across a page.** The rule that kept them whole was costing 344 px of wasted page and a fourth side; `break-after: avoid` on the heading plus `orphans`/`widows` prevents the defect it was written for — a heading stranded from its prose — without the waste.
+- **`end: null` became `end: '2026-03'` on the current role.** `null` is this type's encoding for "current", and the owner's new period closes it; leaving the flag would have made the data disagree with the string it renders.
+- PDF verified at three pages with `pypdf`: every contact destination, both project names and their technical detail extractable as real text, `Download as PDF` correctly absent, no stranded heading or label at any page foot.
+- 123/123 browser checks, 53/53 unit, full CI green, Lighthouse 100/100/100/100 on all ten routes, zero overflow and 44 px targets at 320–1920 px, console clean.

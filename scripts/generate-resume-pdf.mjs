@@ -77,9 +77,12 @@ async function main() {
       path: OUTPUT,
       format: 'A4',
       printBackground: false,
-      // §6 caps the document at two sides of A4. Margins are the first lever
-      // before touching the page's own rhythm, which the screen shares.
-      margin: { top: '14mm', right: '14mm', bottom: '14mm', left: '14mm' },
+      // §6 prefers two sides of A4 and accepts three. Margins are the first
+      // lever before the page's own rhythm, which the screen shares: 12 mm
+      // rather than 14 buys about 15 px of column per side and was what took
+      // the expanded document from four pages back to three (ADR-032). Below
+      // 12 mm a résumé starts to look like it is fighting the page.
+      margin: { top: '12mm', right: '12mm', bottom: '12mm', left: '12mm' },
       // No header or footer template: page furniture is noise in a two-page
       // document and confuses ATS text extraction.
       displayHeaderFooter: false,

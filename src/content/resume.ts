@@ -58,8 +58,12 @@ export const experience: ExperienceEntry[] = [
     role: 'AI-Native Full-Stack Engineer',
     organisation: 'Edge10 Group',
     start: '2025-02',
-    end: null,
-    period: 'February 2025 — Present',
+    // Closed at the owner's instruction, 2026-08-07. `end` moves with `period`
+    // rather than staying `null`: null is this type's encoding for "current",
+    // and a role displaying a closing date while the data still calls it current
+    // is the kind of quiet disagreement this module exists to prevent.
+    end: '2026-03',
+    period: 'February 2025 — March 2026',
     summary:
       'Delivers production features, migrations and defect fixes on a live NHL athlete ' +
       'management platform entirely through AI-directed development, with no manually ' +
@@ -127,36 +131,86 @@ export const experience: ExperienceEntry[] = [
   },
 ];
 
-export type SelectedWork = {
+export type Project = {
   /** Matches a case-study slug where one exists, so the entry can link once published. */
   slug: string;
   name: string;
+  /** The competency label `/work` uses for the same project, so the two agree. */
+  kind: string;
+  /** Rendered as the metadata column, in the same position as an employer's dates. */
+  stack: string[];
+  /**
+   * Two to three lines. The test is whether a recruiter who never opens the case
+   * study still learns what was built, what was architecturally decided, and
+   * what was hard — `ROUTE_SPECIFICATIONS.md` §3's prose rule applied to
+   * projects rather than roles.
+   */
   description: string;
 };
 
 /**
- * Finalised in the wireframe. Each links to its case study only once that study
- * is published — an entry pointing at a draft would 404 and fail gate 12.
+ * Renamed from `selectedWork` and expanded — ADR-032.
  *
- * OrchestAI's description is corrected against ADR-019: the wireframe predates
- * it and reads "AI infrastructure and framework engineering". The framework
- * claim is withdrawn.
+ * **"Selected work" was three one-line labels**, each naming a competency and a
+ * stack and saying nothing about what was built. On a résumé that is the section
+ * carrying the strongest technical evidence, and it was the thinnest thing on
+ * the page: a reader had to leave the document to learn anything at all.
+ *
+ * Every clause below is drawn from the case study's own frontmatter — its
+ * `summary`, `role` and `outcomes` — rather than written fresh, so the résumé
+ * cannot claim more than the case study substantiates. Wireframe §9: nothing
+ * here is not also true elsewhere. That cuts both ways, which is why NovaMind
+ * states that its verification stayed manual: the case study says so, and a
+ * résumé quietly omitting what the linked document admits is the discrepancy
+ * §9 exists to prevent.
+ *
+ * Each links to its case study only once that study is published — an entry
+ * pointing at a draft would 404 and fail gate 12.
+ *
+ * OrchestAI's `kind` is corrected against ADR-019: the wireframe predates it and
+ * reads "AI infrastructure and framework engineering". The framework claim is
+ * withdrawn.
  */
-export const selectedWork: SelectedWork[] = [
+export const projects: Project[] = [
   {
     slug: 'orchestai',
     name: 'OrchestAI',
-    description: 'AI infrastructure engineering. .NET, CQRS, MCP.',
+    kind: 'AI infrastructure engineering',
+    stack: ['.NET 8', 'ASP.NET Core', 'MediatR', 'EF Core 8', 'PostgreSQL', 'MCP'],
+    description:
+      'Multi-tenant agent orchestration service exposed over HTTP, where the guarantees are ' +
+      'enforced by infrastructure rather than by convention. Tenant isolation fails closed ' +
+      'through EF Core query filters and a database constraint rather than developer ' +
+      'discipline; admission, budget and rate decisions resolve before any model call, so ' +
+      'rejected work never partially executes; and every run emits OpenTelemetry-shaped trace ' +
+      'and span identifiers, making an execution reconstructable end to end. Sole engineer — ' +
+      'architecture, decision records and verification strategy.',
   },
   {
     slug: 'novamind-ai',
     name: 'NovaMind AI',
-    description: 'AI product engineering. RAG, grounded citations, vector search.',
+    kind: 'AI product engineering',
+    stack: ['Python 3.11', 'FastAPI', 'pgvector', 'React 18', 'Voyage AI', 'Claude'],
+    description:
+      'Document-intelligence platform built to implement the full retrieval lifecycle directly, ' +
+      'without managed retrieval services or a RAG framework in between. Retrieval runs as four ' +
+      'inspectable stages — embed, vector search, rerank, cited generation — rather than one ' +
+      'opaque call, and every answer carries a citation to the passage supporting it. Vectors ' +
+      'live in the same PostgreSQL instance as users and documents, so a document and its ' +
+      'embeddings commit together. Sole engineer through deployment; verification stayed manual.',
   },
   {
     slug: 'edge10-athlete-performance',
     name: 'Edge10 platform',
-    description: 'Enterprise engineering. CQRS, SQL Server, React.',
+    kind: 'Enterprise engineering',
+    stack: ['C# .NET', 'CQRS', 'SQL Server', 'React'],
+    // Deliberately the shortest of the three. The Experience section above
+    // carries this work across two roles, and repeating it here would spend the
+    // reader's attention on the one project they have already read about.
+    description:
+      'Athlete performance and health platform in professional sport. Feature ownership end to ' +
+      'end on a CQRS .NET codebase over access-controlled SQL Server data, detailed under ' +
+      'Experience above.',
   },
 ];
 

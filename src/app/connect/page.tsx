@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 
 import { Reveal } from '@/components/motion/Reveal';
+import { ProfileMarks } from '@/components/content/ProfileMarks';
 import { Container } from '@/components/primitives/Container';
-import { Icon } from '@/components/primitives/Icon';
 import { Text } from '@/components/primitives/Text';
-import { PROFILE_LINKS, contact } from '@/content/site';
+import { contact } from '@/content/site';
 import { pageMetadata } from '@/app/metadata';
 
 /**
@@ -86,55 +86,6 @@ function Bullets({ items, label }: { items: string[]; label: string }) {
           <Text token="body" as="span">
             {item}
           </Text>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-/**
- * The four destinations as marks, in the footer's treatment — ADR-031.
- *
- * `PROFILE_LINKS` is the same list the footer renders, so the two cannot list a
- * different résumé path or profile URL. Each mark keeps a visually-hidden label,
- * so the accessible name is a word and the glyph is reinforcement — the
- * condition `ICONOGRAPHY.md` §6 attaches to every icon-only control.
- *
- * **Two deliberate differences from the footer, both about being in page content
- * rather than at the page edge.**
- *
- * The marks take the link colour instead of the footer's tertiary grey. §6 also
- * says an icon is never the sole indicator that something is interactive; a
- * footer row survives that on position and convention alone, but here these are
- * the actions the page exists to offer, and they replaced text links that were
- * unmistakably links. Colour is what carries the affordance once the words are
- * gone.
- *
- * The row hangs left by 12 px. A 20 px glyph centred in a 44 px target sits 12 px
- * inside its own box, which is exactly `space-3`, so cancelling it puts the first
- * mark on the section's own edge — flush with the heading and the `EMAIL` label,
- * not indented under the address, which sits in the grid's value column. The
- * target stays 44 px square (`ACCESSIBILITY.md` §7); only the optical edge moves.
- */
-function ProfileMarks() {
-  return (
-    <ul
-      aria-label="Profiles and direct contact"
-      className="-ml-3 flex list-none items-center gap-1"
-    >
-      {PROFILE_LINKS.map((link) => (
-        <li key={link.label}>
-          <a
-            href={link.href}
-            {...(link.external ? { target: '_blank', rel: 'me noopener noreferrer' } : {})}
-            className="flex min-h-target-min min-w-target-min items-center justify-center rounded-sm text-color-text-accent transition-colors duration-fast ease-standard hover:text-color-interactive-hover active:text-color-interactive-pressed"
-          >
-            <Icon name={link.icon} size="md" />
-            <span className="sr-only">
-              {link.label}
-              {link.external ? ' (opens in a new tab)' : ''}
-            </span>
-          </a>
         </li>
       ))}
     </ul>

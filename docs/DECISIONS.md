@@ -1,7 +1,7 @@
 # Architecture Decision Records
 
 **Owner:** Jigar Gajjar
-**Last reviewed:** 2026-08-04
+**Last reviewed:** 2026-08-06
 **Governed by:** [`FOUNDATION.md`](./FOUNDATION.md) · Implemented per [`ARCHITECTURE.md`](./ARCHITECTURE.md)
 
 Decisions that shape this project, with the reasoning intact. The purpose is not to document what was chosen — that is visible in the code — but to preserve *why*, and what was rejected, so that a future maintainer can tell a deliberate constraint from an accident and knows what would have to change for the decision to be reopened.
@@ -35,6 +35,14 @@ Records are immutable once accepted. A decision that changes gets a new record t
 | [017](#adr-017) | The cover image is metadata, never rendered in the article | Accepted |
 | [018](#adr-018) | Motion is implemented natively; the animation library is removed | Accepted |
 | [019](#adr-019) | OrchestAI is an orchestration service; the framework claim is withdrawn | Accepted |
+| [020](#adr-020) | The home page argues by demonstration, not by description | Accepted |
+| [021](#adr-021) | Ambient system motion is a second motion system, bounded separately | Superseded by ADR-023 |
+| [022](#adr-022) | The home page reports measurements, and prints what it cannot measure | Superseded by ADR-023 |
+| [023](#adr-023) | The home page is one idea in two hundred words | Accepted |
+| [024](#adr-024) | Art direction pass: the home page is finished as a composition | Accepted |
+| [025](#adr-025) | Final polish: the headline is measured, and outbound links open away | Accepted |
+| [026](#adr-026) | Final proof: a missing favicon, and four things that were already right | Accepted |
+| [027](#adr-027) | Pre-launch validation: three defects the gates had never been able to see | Accepted |
 
 ---
 
@@ -931,3 +939,437 @@ Authorised by this record but **not applied here**, as corrections to frozen doc
 - **A precedent, and a gap.** Claims in frozen documents about *external* repositories are only as current as the last time they were checked against those repositories. This is the first such correction. `FOUNDATION.md` §9's descriptions of NovaMind AI and the Edge10 platform have **not** been verified against their sources, and should be before either case study is written.
 - ADR-012's non-competition rule is unaffected. Infrastructure engineering remains distinct from product engineering and from enterprise engineering; only the sub-claim about extension points is withdrawn.
 - `README.md` still says "14 ADRs" and "`ADR-001 – ADR-014`". That was already stale before this record and is now stale by five. Noted here; not fixed by this record, since `README.md` is outside the freeze register and can be corrected directly.
+
+---
+
+<a id="adr-020"></a>
+## ADR-020 — The home page argues by demonstration, not by description
+
+**Status:** Accepted · 2026-08-06 · Amends `FOUNDATION.md` §5, `HOMEPAGE_NARRATIVE.md` §4–§5, `TOKENS.md` §3.2 and §4.5
+
+### Context
+
+Version 1 of `/` shipped at the end of Phase 5 and was, by the measures this project had set itself, correct. Six bands in the objection sequence from `FOUNDATION.md` §3. The positioning sentence verbatim in the primary position, per §5. Every band a `Stack` of `Text` inside one `Container`, every value from a token, every heading at the right level, 100 on the accessibility audit.
+
+It was also flat, and the reason is structural rather than cosmetic.
+
+**Every band made its argument by asserting it in prose.** The claim "I design systems rather than write code" was a paragraph saying so. The claim "verification is the scarce part" was a sentence saying so. A reader is asked to accept six assertions from a stranger, and the only evidence offered is that the assertions are well written. That is the exact rhetorical position ADR-013 says this portfolio should not occupy: it demonstrates writing ability and asks for engineering ability to be inferred.
+
+**Every band also looked identical.** Six `Stack gap={6}` blocks in one column produce a document. Nothing in peripheral vision tells a reader they have crossed from one idea into another, so scrolling reads as continuing a page rather than as progressing through an argument, and there is no reason at any point to keep going.
+
+And the `<h1>` was `POSITIONING` — "AI-Native Full-Stack Engineer designing reliable software systems through architecture, orchestration, and verification." That sentence names a category and lists three disciplines. It is precisely the right sentence for a `<meta name="description">`, where a machine is matching terms, and precisely the wrong one for the first three seconds of a human visit, where a category is not a claim and a list is not remembered.
+
+### Decision
+
+**The home page presents systems the reader can explore, in place of paragraphs describing them. Seven bands, each with its own surface, its own number, and its own visual form.**
+
+Four changes carry it:
+
+1. **The `<h1>` becomes `THESIS`** — "I build AI systems that survive production." A claim that can be wrong, which is what makes the evidence below it worth reading. `POSITIONING` is unchanged, remains the document description, and remains on the page verbatim as the line directly beneath. This amends `FOUNDATION.md` §5's *position* requirement; it does not touch §5's identity requirement, which is that the sentence is defined once and never paraphrased.
+2. **Bands 2, 3 and 4 become explorable diagrams** — a seven-stage lifecycle rail, a six-layer architecture explorer, a seven-stage retrieval pipeline. Each is a WAI-ARIA tablist over a data model in `src/content/home.ts`, each server-renders every stage, and script only adds the ability to move between them.
+3. **The band becomes a component** (`components/layout/Band.tsx`) owning surface, numbering, and section rhythm — so a section boundary is visible before it is read, and band spacing cannot drift band by band.
+4. **A ninth type step and a mono annotation token** (`type-hero` at step 900; `type-mono`) give the page two voices: the display serif for statements a person makes, mono for labels a system emits. That pairing is the whole visual argument, and it is why the site does not need decoration to look like engineering.
+
+Band 5 is new and deliberately slim: the six-section structure names two projects, the site has four case studies, and two of them appeared in no other band.
+
+**Every number in `src/content/home.ts` is checkable against a case study**, and the file cites the source above each block. The chunk size, the embedding dimensions, the ten-to-five narrowing, the six agent names — all are stated in `content/case-studies/`. A diagram that flatters the architecture would be the worst artefact on the site, because it is the one a reader assumes was drawn from the code.
+
+### Alternatives considered
+
+**Keep V1 and improve its typography and spacing.** Rejected, and this was the owner's explicit instruction, but it is worth recording why the instruction was right. V1's problem was not that the paragraphs were badly set. It was that they were paragraphs. Better spacing on an assertion leaves an assertion.
+
+**Use an animation library and a richer visual vocabulary.** Rejected — see ADR-021. Every effect specified was achievable in CSS and SVG at ~9 KB of client JavaScript, against roughly 40 KB for the library alone. ADR-006 makes the budget precede the effect, and a portfolio whose thesis is production discipline cannot exceed its own budget for decoration.
+
+**Draw the architecture as a static image.** Rejected. An image is not checkable, cannot be read by assistive technology beyond its alt text, cannot be kept in sync with the case study by review, and would have to be re-exported by hand every time a fact changed. A data model in TypeScript is reviewable in a diff.
+
+**Present all four case studies as equal explorable systems.** Rejected. That is the menu that featuring exists to avoid (`HOMEPAGE_NARRATIVE.md` §4). Two systems at full depth and the rest as a quiet index is a stronger claim than four at half depth.
+
+**Leave `FOUNDATION.md` §5 alone and open with `POSITIONING`.** Rejected. §5's purpose is to stop the positioning sentence drifting across surfaces, and it still does that — the sentence is still defined once and still rendered verbatim here. What §5 additionally fixed was its screen position, and that was a layout decision recorded inside a content document.
+
+### Consequences
+
+- **The band structure is no longer frozen at six.** `HOMEPAGE_NARRATIVE.md` §5 said it was. That freeze existed to stop bands accumulating by drift, and this record replaces it with a stronger constraint: a band must produce a belief no other band produces, and it must justify its form. Band 5 is the test case, and it is the quietest band on the page for exactly that reason.
+- **The page now ships client JavaScript it did not before** — 5.0 KB route-specific, 112 KB first load against the 120 KB budget. Nine percent headroom is the tightest this project has run. The next feature that wants client JavaScript on `/` will have to displace something, which is what a budget is for.
+- **`tests/quality/homepage.spec.ts` was rewritten.** The band contract it asserted is gone. What it asserts now is what did not change: the objection sequence, the positioning sentence's presence, the absence of any call to action, and — new — that every diagram renders in full without JavaScript.
+- **Content and presentation are now coupled in one direction.** `src/content/home.ts` restates facts that live in MDX case studies. There is no mechanism that catches divergence; the file says so, and it is reviewed when a case study changes. This is a real gap and it is the most likely source of a future factual error on this site.
+- Three documents are amended by this record rather than superseded: `FOUNDATION.md` §5 (position only), `HOMEPAGE_NARRATIVE.md` §4–§5 (band count and band form), `TOKENS.md` §3.2 and §4.5 (step 900, `type-hero`, `type-mono`, `color-grid-line`, `color-flow`).
+
+---
+
+<a id="adr-021"></a>
+## ADR-021 — Ambient system motion is a second motion system, bounded separately
+
+**Status:** Superseded by ADR-023 · 2026-08-06 · Amends `ARCHITECTURE.md` §9, `MOTION.md`
+
+### Context
+
+`ARCHITECTURE.md` §9 prohibits outright "any animation exceeding 400 ms," and ADR-011 froze the motion scale at four durations. ADR-018 removed the animation library after measuring it at 95× the cost of the behaviour it provided.
+
+ADR-020 needs a request to visibly traverse an architecture diagram. There is no honest way to do that inside 400 ms: a pulse crossing six nodes in under half a second reads as a flicker, not as a journey, and the duration is not incidental to the effect — it *is* the effect. The alternative is a static diagram, which loses the one thing that distinguishes an architecture drawing on a portfolio from an architecture drawing in a README.
+
+The prohibition is nonetheless correct for everything it was written about. §9's three sanctioned purposes — orienting to new content, confirming an interaction, establishing continuity — are all cases where a reader is *waiting* for the animation before they can read or act. A 2.6-second transition in any of them is a 2.6-second delay.
+
+So the conflict is not between the rule and the feature. It is that one rule is covering two different things.
+
+### Decision
+
+**Motion is two systems with separate budgets, and they are kept separate in code, not merely in prose.**
+
+| System | Token export | Bound | Character |
+|---|---|---|---|
+| Interface motion | `duration`, `easing`, `stagger` | ≤ 400 ms, ADR-011 | The reader is waiting on it |
+| Ambient system motion | `flow` | 2.6 s / 4.4 s cycles | The reader is never waiting on it |
+
+Admission to the ambient system requires all four:
+
+1. It depicts a process that the diagram is *about*. It is not applied to interface chrome.
+2. It is continuous and non-blocking. No content is unreadable, and no control is unusable, at any point in the cycle.
+3. It is removable without loss. Every diagram renders its full topology and every label with animation removed — the moving dash is drawn *over* a static edge that is always present.
+4. It is compositor-cheap and library-free. `stroke-dashoffset` and `opacity` on a handful of SVG paths.
+
+The separation is enforced rather than documented: `flow` is a distinct export, `tests/unit/tokens.test.ts` asserts that `duration` still holds exactly four values none of which exceeds 400 ms, and that every `flow` cycle exceeds it. Merging the two — the obvious future "tidy-up" — fails the suite.
+
+`src/styles/systems.css` is the second exception this project grants to "no component styling in the global stylesheet," and it is granted for the same reason as the first: `@keyframes`, SVG paint properties, and dash geometry have no Tailwind expression and no per-component home.
+
+### Alternatives considered
+
+**Raise §9's ceiling to cover both.** Rejected, and it is the tempting one. It would take one number and no new concepts — and it would license a 2.6-second hover state, a 2.6-second page transition, and a 2.6-second entrance reveal, none of which anyone decided to allow. A ceiling raised to accommodate a case it was not written for stops constraining the cases it *was* written for.
+
+**Add `duration.ambient` alongside the existing four.** Rejected for the same reason in smaller form. It puts a value in the scale that §9's own sentence forbids, so the rule and the scale contradict each other in the same repository.
+
+**Adopt an animation library now that there is a real consumer.** Rejected. ADR-018's arithmetic did not change: the total client cost of all three explorable diagrams plus every flow animation is about 9 KB gzipped. The library alone is roughly four times that, and `/` is already the worst route against a budget that ADR-006 does not permit raising for a visual effect.
+
+**Draw static diagrams and drop the motion.** Rejected, but it is the honest fallback and it is exactly what reduced-motion readers get. Constraint 3 exists to guarantee that path is not a degraded experience but a complete one.
+
+### Consequences
+
+- **Reduced motion removes ambient flow entirely, and this is verified, not assumed.** `globals.css` sets `animation: none` globally under `prefers-reduced-motion`, and `progressive-enhancement.spec.ts` already asserts across every route that no element has a running animation in that mode. The new diagrams came under that gate without a line of new test code.
+- **There are now two motion systems to learn**, and a contributor can pick the wrong one. The mitigation is that picking wrong is visible: `flow.cycle` on a hover state is a 2.6-second hover.
+- **`flow.origin` exists solely so that a zero delay is a token.** It looks like over-engineering and it is deliberate: `check-tokens.mjs` rejects a bare duration in CSS, and an exemption for "it is only zero" is how a scale starts leaking.
+- The `flow` cycle values are chosen, not measured. There is no user research behind 2.6 seconds; it is the value at which a pulse crossing the hero topology reads as deliberate rather than as either urgent or stalled, judged by looking at it.
+
+---
+
+<a id="adr-022"></a>
+## ADR-022 — The home page reports measurements, and prints what it cannot measure
+
+**Status:** Superseded by ADR-023 · 2026-08-06 · Supersedes the band structure of ADR-020; amends `HOMEPAGE_NARRATIVE.md` §4–§5
+
+### Context
+
+Version 2 shipped a home page that was, by every gate this project owns, correct: seven bands in the objection sequence, 100 on accessibility, inside every budget, explorable diagrams with full keyboard support and a complete no-JavaScript path.
+
+It was also ordinary, and the owner's reaction — *"this is well designed"* rather than *"this engineer builds world-class AI systems"* — identified the failure precisely. Four things were wrong, and none of them was a defect any gate could have caught.
+
+**The diagrams illustrated systems rather than measuring them.** The hero drew OrchestAI's topology with a pulse looping along its edges. Nothing was flowing; the pulse was an animation. A tasteful architecture drawing is reproducible in an afternoon and is evidence of nothing, which puts it in the same category as the gradient blobs the visual language exists to avoid — better executed, equally unfalsifiable.
+
+**The page argued that verification is the scarce skill and showed no verification.** The thesis is *systems that survive production*. V2 wrote `npm run ci` in a lifecycle stage and stopped. Meanwhile the most credible artefact this project owns — a site with hard budgets that actually block merges, 170 checks, a token pipeline, and 21 decision records, all currently green — appeared nowhere on it.
+
+**Every interaction was a tablist.** Three of them. Click a thing, a paragraph swaps. That is the lowest-information interaction that exists: it reveals prose, it does not teach a relationship, and it was reaching for interactivity rather than for meaning.
+
+**Nothing on the page required AI engineering to have built**, and nothing showed judgement about *not* using AI — which is the rarest signal in this market and the one the material already supported.
+
+### Decision
+
+**The home page reports measurements of itself, teaches the notation those measurements are in, and applies that notation to two real systems. Then it prints what it cannot measure, and what it refused to build.**
+
+Five bands, each producing a belief no other band produces:
+
+| Band | Produces | Mechanism |
+|---|---|---|
+| 1 Hero | This person instruments things — and I just watched it | Live span waterfall of the reader's own page load, from the Performance API |
+| 2 Verification | Everything here is checkable | Budgets, gates and scores from the build, re-verified every CI run — then what none of it reaches |
+| 3 Systems | They build real systems, and I can read them | OrchestAI and NovaMind in the notation band 1 taught |
+| 4 Failure | They think about production, not demos | Failure modes, containment mechanisms, and a map that dims when nothing contains one |
+| 5 Judgement | They know when the AI-shaped answer is wrong | Six refusals, each with its cost stated |
+
+Three things carry it, and each is a rule rather than a component.
+
+**1. Numbers on this page are produced by a tool and verified by CI.** `scripts/measure.mjs` reads the build output and writes `src/content/measured.json`; `scripts/check-measured.mjs` recomputes everything on every CI run and fails on any drift. Nothing is typed by hand. A portfolio that states figures which were true once is worse than one that states none.
+
+**2. One notation, and it is honest about which axis it is on.** The same `Trace` component renders all three waterfalls. The hero's bars are milliseconds. The two system traces encode *span containment*, and their axis caption says so, because neither system has production traffic and a latency column on either would be the one fabricated number on a page whose whole argument is that its numbers are checkable. The contrast between the two — real milliseconds two screens above, an explicit refusal below — is a stronger demonstration of where the line sits than any statement about integrity would be.
+
+**3. The unflattering material is load-bearing, and it is protected by tests.** `NOT_VERIFIED` sits directly beneath four green gauges. One failure mode has an empty `enforcedBy` and dims the whole containment map. Every refusal states what it cost, including nine days rebuilding a solved problem and a system shipped with no automated tests. `tests/quality/homepage.spec.ts` asserts each of these, because softening them would break no build, fail no lint, and look like an improvement in review.
+
+Two V2 bands are gone. The lifecycle merged into band 2, where the method now arrives with its output attached. The philosophy quotes were deleted: band 5 demonstrates the same positions at a stated cost, and a principle that is visibly expensive is worth more than one that is well phrased.
+
+### Alternatives considered
+
+**Iterate on V2 — better typography, richer diagrams, more motion.** Rejected, and the owner ruled it out explicitly, but the reason stands on its own: V2's problem was not that its assertions were badly set. It was that they were assertions. No amount of typographic care converts a claim into evidence.
+
+**Use an animation library, as requested, to make the page feel richer.** Declined for the third time, and the arithmetic is now on the page: `/` renders at 110.1 KB against a 120 KB first-load budget, 8% headroom. The library alone is roughly four times the total client cost of every interaction here. More to the point, nothing in this design needed it — the trace bars are `scaleX`, the containment highlight is a class, and the honest place to spend the remaining budget was the instrumentation. A portfolio arguing that budgets are not negotiable cannot exceed its own for a tween library, and the refusal is now band 5, entry 5.
+
+**Fabricate plausible latencies for the system traces.** Rejected, and it is worth recording that it was considered, because a duration column would make those two diagrams unambiguously better-looking. It would also be the only unverifiable number on the page, in the section a reader is most likely to check against the repository.
+
+**Show live figures without a stale-check.** Rejected. Recorded measurements with no verification are claims with a timestamp. `check:measured` is what converts them back into measurements.
+
+**Keep the philosophy band as well.** Rejected under the page's own rule: it produced no belief that band 5 does not produce better, and two bands making the same argument is a signal that one of them is decoration.
+
+### Consequences
+
+- **`/` is now the tightest route in the project**: 110.1 KB against 120 KB, and the framework runtime sits at 4% headroom. The next feature wanting client JavaScript on this page has to displace something. That is a budget working, and it is visible to the reader, which is the point.
+- **`measured.json` cannot be edited by hand without CI failing**, which is the property that makes the numbers worth printing. It also means `npm run measure` must be re-run and committed after any change that moves the bundle — a real workflow cost, and the correct one.
+- **A circularity had to be designed out.** The page renders its own first-load JavaScript size. Importing `measured.json` into a client component would ship the figures inside the chunk they describe, so re-measuring would change the number that changes the number. The recorded values are read on the server and passed down; `npm run measure` now converges on the first run, which was verified by running it twice against the same build.
+- **The editorial tests are unusual and deliberate.** Asserting that a page still admits NovaMind has no test suite is not a normal use of a test suite. It is the only mechanism that makes the admission durable, and ADR-019 established that this project's characteristic failure is description drifting away from truth.
+- **A latent defect surfaced while building this and is fixed here.** `Text` composed its size class as `` `text-type-${token}` ``, which Tailwind's extractor cannot see, so nine of fourteen type utilities were never generated. It was invisible because `globals.css` styles `h1`–`h4` as elements: headings resolved correctly through the element rule, while `lede`, `display`, and any heading token on a non-heading element silently rendered at body size. `src/design/typeClasses.ts` maps every token to a complete literal and `tests/unit/tokens.test.ts` asserts the map stays exhaustive. **V1 and V2 both shipped with this bug**, which is a direct instance of the failure mode ADR-019 named: nothing checked the artefact against its specification until someone measured it.
+- **The page is longer than V2 and reading it takes real effort.** That is accepted rather than mitigated. The audience this page is written for reads a failure-mode table carefully or not at all, and shortening band 4 to save a screen would remove the reason they stayed.
+
+---
+
+<a id="adr-023"></a>
+## ADR-023 — The home page is one idea in two hundred words
+
+**Status:** Accepted · 2026-08-06 · Supersedes ADR-020, ADR-021 and ADR-022; supersedes `HOMEPAGE_NARRATIVE.md` §4–§5
+
+### Context
+
+Three redesigns in one day, each of which passed every gate this project owns and none of which produced the reaction it was built for.
+
+V1 was six prose bands. V2 replaced them with explorable diagrams. V3 replaced those with live instrumentation, a measurement pipeline, and a CI step proving the numbers were still true. Each was a genuine improvement on the last, each was correct, and the owner's reaction to V3 — *"this is well designed"* rather than *"this engineer builds world-class AI systems"* — was the same reaction V2 had produced.
+
+**The number that ended the argument: V3 rendered 1,914 words across 11,926 pixels — thirteen screens.** At 250 words per minute that is an eight-minute read. The audience it was written for spends forty-five seconds, so roughly nine per cent of the page was ever seen, and which nine per cent was determined by scroll position rather than by importance.
+
+**The pattern across all three versions was mine, and it is worth naming precisely.** Every iteration added a *system* — a token architecture, then a diagram engine, then a measurement pipeline — because that is the kind of work I am good at, and because each one was defensible on its own terms. Rigour was repeatedly mistaken for taste. The tell was visible inside V3 before anyone said anything: its strongest section, *What I didn't build*, was the only one with no visualisation in it.
+
+**And the strategic error underneath the aesthetic one:** the home page was trying to *be* the evidence. The evidence already exists — 8,800 words of case studies, one click away, written properly. V3 was competing with its own best content and losing, then charging the reader eight minutes for the privilege.
+
+### Decision
+
+**The home page carries one idea, in six screens and roughly two hundred words.**
+
+> **Good systems are defined by what they refuse.**
+
+Every screen is an instance of that sentence rather than a separate subject, which is what makes the page an argument instead of a table of contents:
+
+| Screen | Belief | How it is an instance of the idea |
+|---|---|---|
+| 1 Hero | This person builds production AI systems | The page is fast because things were refused — one line says so |
+| 2 Method | There is a repeatable way of working here | *Verification that blocks the merge* — a gate that says no |
+| 3 OrchestAI | This system is elegant | Every run that can be rejected is rejected before any model is called |
+| 4 NovaMind | This pipeline is beautifully designed | Ten candidates discarded to five before the model sees anything |
+| 5 Refusals | This person has judgement, including about AI | Four things not built, one of them a failure |
+| 6 Connect | I know what to do if I want to act | — |
+
+The idea is stated outright exactly once, as the last line of screen 5, after four demonstrations of it. Stating it in the hero was tried and abandoned: an idea asserted before its evidence is a slogan, and the same sentence after its evidence is a thesis.
+
+**Three rules follow, and they are what actually constrain future changes.**
+
+**1. One screen, one belief.** If a screen needs three diagrams, five paragraphs or eight labels to land its belief, the belief is wrong or the screen is two screens. Asserted as a section count in CI.
+
+**2. A visualisation must be faster than the sentence it replaces.** `10 → 5 → 1` at display size communicates NovaMind's pipeline faster than the six-row waterfall it replaced could be read, so it stays. OrchestAI has no figure, because its idea is a sentence and a diagram of it would be slower. This is the test every deleted component failed.
+
+**3. The word count is a budget.** 340 words, enforced in CI alongside the byte budgets. This is the mechanism the project did not have and needed most: nothing in types, lint, bundle size, axe or Lighthouse has any opinion about length, so all of them stayed green across thirteen screens while the page failed at its actual job. Each addition was individually reasonable. A budget is what makes the aggregate someone's problem.
+
+### Alternatives considered
+
+**Keep V3 and trim it.** Rejected. The problem was not that V3 was long — it was that its form was wrong. A shorter dashboard is still a dashboard, and trimming would have preserved the components whose existence was the error.
+
+**Keep the live trace waterfall, just smaller.** Rejected, and this was the closest call. The page-load trace was the single most original thing built in three versions. But eight rows of spans, bars and durations made an unusual idea read as *look what I measured*, which is the exact register the redesign existed to escape. The fact survives at full strength in eleven words; only its volume changed.
+
+**Keep the failure-mode screen.** Rejected, and it is the loss that costs most. It was the section a staff engineer would read first. Its bravest sentence — *the description drifted away from the software, and nothing catches it* — is retained as one line in screen 5; the full treatment already exists in the OrchestAI case study, which is where a reader who wants it has already chosen to be.
+
+**Go further: three screens, ninety words.** Rejected. The refusals are the rarest signal on the site and would have been the casualty, and neither system would have had room for its idea. Six screens is the point where every remaining screen still earns its place.
+
+**Use an animation library, as requested for the fourth time.** Declined, and it is now on the page rather than in a footnote: screen 5, entry 3. The page carries 906 bytes of route JavaScript. The library is roughly forty times that, for behaviour this page does not have.
+
+### Consequences
+
+- **2,305 lines of working, tested, documented code were deleted**: the trace renderer, the live waterfall, the budget gauges, the failure matrix, the node-graph engine, the roving-tabs hook, four section components, and `systems.css`. All of it functioned. None of it was necessary, and the deletion is the decision.
+- **Route JavaScript fell from 5.63 kB to 906 B; first load from 110.2 KB to 105.4 KB.** The page-load footnote is the only client component left.
+- **ADR-021 is superseded and its motion system withdrawn.** The ambient `flow` tokens had exactly one consumer — animated diagrams — and the diagrams are gone. Retaining them "in case" would contradict TYPOGRAPHY.md §12's own rule, which this project applied to a font axis and should apply to itself. `color-flow` and `color-grid-line` are withdrawn for the same reason.
+- **ADR-022's measurement pipeline survives, and only one number from it reaches the page.** `measure` and `check:measured` still run in CI, still fail on drift, and the home page renders a single figure from them. That ratio — an entire verification pipeline behind one sentence — is the right one, and it took writing the wrong version to see it.
+- **The word budget will be inconvenient**, which is the point. The next genuinely good idea for this page will have to displace something rather than be appended, and appending is precisely how the page reached thirteen screens without any individual change ever looking wrong.
+- **Four versions in one day is not a process to be proud of.** The first three were each defensible and each wrong in the same way, and what corrected it was not a gate — it was being told the page felt like documentation. This project's characteristic failure, named in ADR-019, is description drifting from reality; the equivalent here is *effort drifting from effect*, and nothing in CI can see it.
+
+---
+
+<a id="adr-024"></a>
+## ADR-024 — Art direction pass: the home page is finished as a composition
+
+**Status:** Accepted · 2026-08-06 · Amends `FOUNDATION.md` §5, `TOKENS.md` §3.2 and §4.6, `ICONOGRAPHY.md` §3, `COMPONENT_GUIDELINES.md` §3.3
+
+### Context
+
+ADR-023 settled what the home page says and how long it is: one idea, six screens, under three hundred words. That decision was about structure, and structure is where the previous three versions had gone wrong.
+
+What it did not do was look at the page as a *composition*. A page can be correctly structured, correctly budgeted, and still read as a set of components that happen to be stacked — and reviewing V4 against the work it is meant to sit beside surfaced a list of specific, unglamorous defects, none of which any gate can see:
+
+- The opening statement at 80 px ran nearly the full width of a 1440 px viewport. It was the only thing on the screen and it looked like it knew it: heavy rather than confident.
+- The line beneath it was `POSITIONING` — a category description, doing the one job a subtitle must not do, which is restate the headline in duller words.
+- The evidence line read "Nothing reaches `main` until N checks pass", with the branch name set at 14.5 px against 22.5 px of surrounding lede. At that ratio an inline technical term stops reading as a change of voice and starts reading as a stylesheet that failed to load.
+- Section rhythm at 192 px between screens had passed the point where a gap reads as deliberate and become a gap that reads as empty.
+- The primary control was a default-shaped button: 4 px radius, tight padding, no indication of direction.
+- Navigation put "Work" next to "Workflow" — two items sharing a stem, so the eye had to read both to tell them apart.
+- The footer restated the contact screen it sat directly beneath, heading and all.
+
+### Decision
+
+**Sixteen changes, none of which alters the structure ADR-023 fixed.** The ones that carry a principle:
+
+**1. The opening statement drops from 80 px to 66 px, gains `text-balance`, and is held at prose width.** Size was only part of it — most of what made 80 px feel heavy was measure. Balanced and constrained, the statement sets in two near-equal lines and reads as a shape rather than as a paragraph that wrapped.
+
+**2. `POSITIONING` leaves the hero and stays in the metadata.** It is replaced by `VOICE`: *"I care more about what a system does when it fails than what it does when it works."* This amends `FOUNDATION.md` §5 for the third time, and the amendment is narrower than it looks — §5 exists to stop the canonical sentence being *paraphrased* across surfaces, and it still is not. It is defined once, used verbatim, and now sits where a category description belongs: the `<meta name="description">` a search engine reads. What replaced it is the only sentence on the page written in a human voice, which is the correct number.
+
+**3. Every remaining number and label was reviewed as typography, not as content.** Section rhythm down ~17% at every step. The two systems' metadata shortened until each sets on one line — the OrchestAI string had been breaking inside ".NET 8", splitting a version number across two lines. Refusal rows widened to 5/7 so no subject wraps, and set to share a first baseline across the serif and the sans. The closing line balanced so it no longer ends on a two-word orphan.
+
+**4. `10 → 5 → 1` splits its colour.** Numerals in the primary text colour, arrows in the tertiary. Set uniformly it read as a string of characters; split, the eye lands on the three numbers and the arrows fall back to punctuation. That is the difference between a line of text and a diagram, and it cost one `map`.
+
+**5. The action control becomes a designed one.** Radius to 2 px so it belongs to the same family as every hairline on the page; padding to 24 px; and a trailing arrow that moves 4 px on hover. That arrow is the only motion on the page and it is directional rather than decorative — it points where the control goes. Under reduced motion the global rule narrows `transition-property` to colour and the arrow arrives instantly, which is the correct degradation and is free.
+
+**6. Two navigation labels change; no routes do.** "Workflow" becomes "Method", because four items of navigation must never require reading two of them to tell them apart. "Connect" becomes "Contact", because that is the word people look for — ADR-014 decided the route should exist, not what to call it.
+
+**7. The footer stops being the contact section a second time.** It is now one row: wordmark, four marks, the year. It still satisfies `ARCHITECTURE.md` §4 — no route is a dead end — at the weight a footer should carry.
+
+**8. Brand marks are the one exception to `ICONOGRAPHY.md` §3.** GitHub's and LinkedIn's marks drawn at 1.5 stroke with no fill are outlines nobody recognises, which is the single failure an icon cannot survive. They are reproductions of someone else's mark and their recognisability *is* their meaning, so they are drawn filled, on the same 24 grid, in the same `currentColor`. Every icon link keeps a visually-hidden label — §6 is unchanged, and an icon still never carries meaning alone.
+
+### Alternatives considered
+
+**Leave the hero at 80 px and fix only the measure.** Rejected, but it was close, and constraining the measure did most of the work. 66 px is the size at which the statement stops competing with itself for the reader's attention while remaining 1.5× the largest heading beneath it.
+
+**Keep `POSITIONING` in the hero and add the human sentence as a third line.** Rejected. Three lines under a headline is a paragraph, and the category line was the one contributing least. Adding rather than replacing is the exact instinct that produced V3.
+
+**Set the branch name larger instead of removing it.** Rejected. Raising `type-code` to fix one sentence changes every inline code span on the site, including the case studies, to solve a problem that exists in one place. "Merges" carries the same fact, needs no second typeface, and is a word shorter.
+
+**Draw GitHub and LinkedIn in the house stroke grammar.** Rejected — see above. Consistency that destroys recognition is not consistency.
+
+**Add a second micro-interaction somewhere.** Rejected. One directional arrow is the whole motion budget of this page, and a second would make the first ordinary.
+
+### Consequences
+
+- **The page is 251 words across 4.7 screens**, from 274 across 5.6. Nothing was cut for length; the reduction is entirely tightened sentences and tightened rhythm.
+- **`text-balance` is now load-bearing in three places** — the statement, the hero subtitle, and the closing line. It is well supported and degrades to normal wrapping, but it is a rendering behaviour rather than a layout we control, and a browser without it will set those lines less elegantly rather than incorrectly.
+- **`FOUNDATION.md` §5 has now been amended three times** (ADR-020, ADR-022, this record). The sentence has never been paraphrased and never appeared twice, which is what §5 actually protects. That the *position* has moved three times suggests §5 was specifying layout inside a content document, and a future revision should probably say so.
+- **The icon set is at ten of a documented maximum of fifteen**, and two of them are not ours. That exception should not be extended: a third brand mark would mean the footer is turning into a social bar.
+- **Nothing here was verifiable by a gate**, and that is the honest summary of this record. Every defect it fixes was visible only by looking at the page beside the work it wants to be compared to. The word budget from ADR-023 catches length; nothing catches *heavy*.
+
+---
+
+<a id="adr-025"></a>
+## ADR-025 — Final polish: the headline is measured, and outbound links open away
+
+**Status:** Accepted · 2026-08-06 · Amends `TOKENS.md` §3.2 and §4.5 · **Reverses `INTERACTION.md` §6**
+
+### Context
+
+ADR-024 art-directed the page. This record covers the pass after it, which was a section-by-section review against a specific list rather than a redesign — and two items on that list turned out to be decisions rather than adjustments.
+
+**The headline.** It set on two lines at 66 px, and two lines is one line too many for a statement of forty-three characters. The instruction was to reduce it 5–8% and fit it on one line, and those two things are not compatible: the string needs 1120 px at 66 px against a content column of 1024 px, so a 5–8% reduction lands at 60–61 px and still needs 1018–1035 px. Fitting is not the same as fitting well.
+
+**Outbound links.** `INTERACTION.md` §6 held that opening in a new tab is the reader's decision, not the author's. That is the correct default for a document a reader moves through, and it is the wrong default for the links this site has.
+
+### Decision
+
+**The headline anchor is 58 px, and the number was measured.** At 58 the statement occupies 984 px of a 1024 px column, leaving 40 px either side — the difference between a line that fits and a line that is wedged. The fluid clamp keeps it on one line down to roughly 1000 px of viewport, because the size and the column shrink together; below that it wraps, and should.
+
+**Outbound links open in a new tab, with `rel="noopener noreferrer"`, announced.** Every external link on this site is a repository, a profile, or a résumé — a *reference*, opened while reading rather than instead of it. §6's principle is sound and its application here was wrong.
+
+`noopener` is the part that matters: without it the opened document holds a live `window.opener` handle back into this one. Browsers imply it for `target="_blank"` now, and a security property that depends on the browser being current is not a property, so both tokens are written out and `tests/quality/shell.spec.ts` asserts them on every outbound link on every route.
+
+**The rest of the pass, briefly.** `type-mono` moves from step 100 to step 200 — at 11.5 px the project metadata did not read as quiet, it read as unavailable, and a mono face is optically smaller than a sans at the same size. Project titles drop from `heading-2` to `heading-3`, because at 35 px a project name sat within nine points of the 44 px statement beside it and the two columns competed. The metadata splits into two authored lines rather than one wrapping string, which is what fixes the stranded separator. Contact columns align on their first baseline so "Available" and "BASED IN" sit on the same line. The hero closes ~54 px tighter. Refusal rows gain 16 px each.
+
+### Alternatives considered
+
+**Reduce the headline only 5–8%, as asked, and accept the wrap.** Rejected — the single line was the priority, and it was the right one. A statement that wraps is a sentence; a statement on one line is a statement.
+
+**Widen the container for the hero.** Rejected. `SPACING.md` §6 allows three widths on the grounds that a fourth would mean the layout has more cases than the content does, and one headline is not a case. Reducing the type solved it without touching the layout system.
+
+**Bring the method screen's right column 40–60 px closer, as asked.** Not done, and it is worth recording why rather than quietly leaving it. The longest clause needs 640 px at `heading-1`, which is more than seven of twelve columns hold at any gap — narrowing the heading breaks "Verification that blocks the merge." across two lines, and three clauses that each occupy one line is the entire form of that block. The grid gap came down from 48 px to 40 px, which is all the geometry has to give. Closing the remaining distance means moving the evidence line beneath the clauses, which is a layout change and was out of scope for a polish pass.
+
+**Reduce the action control's vertical padding, as asked.** Not done. Its height is `--target-min`, 44 px, which `ACCESSIBILITY.md` §2 sets above the WCAG 2.2 floor of 24 px on the grounds that the reference device is a phone and the cost is zero. The control was made to feel more compact by closing the gap between label and arrow instead, which changes the proportion without touching the target.
+
+**Keep `justify-between` on the contact specification rows.** Rejected. Across a 300 px column the label and its value sat 140 px apart and read as two lists rather than one block.
+
+### Consequences
+
+- **246 words across 4.5 screens**, from 248 across 4.7. Nothing was cut; the reduction is spacing.
+- **`type-mono` grew everywhere it is used**, not only in the metadata — the hero footnote and the contact labels are larger too. Both are better for it, but that is a site-wide change made for one call site, and if a future consumer needs 11.5 px mono it will need its own token rather than a smaller `type-mono`.
+- **Two items on the polish list were declined with reasons** rather than approximated. Both are geometry: one bounded by the longest clause, one by an accessibility floor. Recording them here means the next pass does not rediscover them.
+- **`INTERACTION.md` §6 is reversed rather than amended**, and this is the first outright reversal of a frozen design rule on this project. The rule was not wrong in principle; it was applied to a class of link it was not written about. That distinction is worth preserving, because the principle still governs internal navigation.
+- The step-900 assertion in `tests/unit/tokens.test.ts` was rewritten a third time and then replaced. It had been asserting a *ratio*, which is an art-direction value and changed with every pass; it now asserts what is actually invariant — that 900 is the top of the scale and `type-hero` is its only consumer. A test that needs editing every time the design moves was testing the design, not the system.
+
+---
+
+<a id="adr-026"></a>
+## ADR-026 — Final proof: a missing favicon, and four things that were already right
+
+**Status:** Accepted · 2026-08-07 · Amends `TOKENS.md` §4.5 · Adds `src/app/icon.svg`
+
+### Context
+
+A section-by-section proof pass over the finished home page, of the kind that happens before a launch rather than during design. The brief was explicit that anything already correct should be left alone, which makes *measuring* the point of the exercise: an art director's eye can be wrong about a three-pixel offset in either direction, and half the items on the list turned out to be correct already.
+
+Everything below was measured in the browser — ink metrics from `canvas.measureText` for optical edges, and zero-width inline probes for true first baselines, because element bounding boxes are line boxes and not what an eye aligns to.
+
+### Decision
+
+**One real defect, and it was not on the list.**
+
+**There was no favicon.** Every route requested `/favicon.ico`, received a 404, and logged a browser console error. Lighthouse counts that: `errors-in-console` was the single audit holding Best Practices at 96 rather than 100 across all ten routes, and it had been doing so since the site was built. `src/app/icon.svg` is added — the wordmark's initial, set in Georgia, which is the face declared as `Newsreader Fallback` and therefore the one a reader actually sees for the first few hundred milliseconds of a visit. A bespoke logotype would have been a design decision nobody asked for. **All four Lighthouse categories are now 100 on all ten routes.**
+
+**Two adjustments, both measured.**
+
+The project metadata read as detached from its title. The gap closes from 8 px to 4 px and `type-mono`'s leading comes down from 1.5 to 1.4 — the 1.5 was set when that metadata was one string that wrapped, and once it became two authored lines (ADR-025) the same value separated them into two statements instead of binding them into one block under the title. Size is unchanged at 14.5 px: the requested hierarchy is title → metadata → case study, and the next step on the scale is 18 px, which would put the metadata within four points of the 22.5 px consequence line and invert it.
+
+Contact column alignment was wrong, and wrong in the way that is worst: `lg:items-baseline` did not propagate across two differently-structured grid children, so "Available" and "BASED IN" sat **11.45 px** apart — near enough to look intended, far enough to look missed. `lg:items-start` aligns the box tops exactly, which lands the two cap-heights within about three pixels. That is the correct trade: baseline alignment between a 35 px serif heading and a 14.5 px mono label was never going to be exact, and cap-height is what the eye reads across a 700 px gutter anyway.
+
+### Alternatives considered
+
+**Raise the metadata to the next type step.** Rejected — see above. Twice-requested, and the measurement is what settles it: 18 px mono against a 22.5 px consequence is not a hierarchy.
+
+**Baseline-align the project columns.** Rejected. The two columns are top-aligned to the pixel (measured identical), and their first baselines differ by 13.4 px on OrchestAI and 27.6 px on NovaMind because the right column opens with a 44 px statement in one and a 58 px figure in the other. Baseline-aligning would fix each screen in isolation and put the two project titles at different heights relative to each other, which is the worse inconsistency.
+
+**Force uniform refusal row heights.** Rejected. Rows measure 116, 116, 142.6 and 143.6 px; the difference is entirely whether the right-hand sentence wraps to two lines. Equalising them means padding the short rows with 27 px of nothing. The rows are already internally correct — the left and right first baselines are **exactly** 0.00 px apart in all four.
+
+### Consequences
+
+- **100 / 100 / 100 / 100 on every route**, from 100 / 100 / 96 / 100. The favicon was the whole of it.
+- **`type-mono`'s leading changed globally** for a metadata-specific reason. It is single-line at both other call sites, so nothing else moved — but that is luck rather than design, and the token now carries a value tuned for one consumer.
+- **Four of the eleven review items required no change**, and the measurements are recorded here so the next pass does not re-open them: hero optical left edge (h1 and subtitle ink differ by 0.6 px), project column top alignment (identical), refusal baselines (0.00 px), footer icon alignment (all four identical, 20 × 20).
+- **The method screen's optical gutter is 73 px** from the longest clause's ink to the right column. ADR-025 recorded why it cannot close further; this records the number so the question is answerable without re-measuring.
+- The page holds one line at 58 px down to laptop width, wraps at tablet and below, and reports **CLS 0 with no console output at 320, 390, 900, 1024 and 1440 px**.
+
+---
+
+<a id="adr-027"></a>
+## ADR-027 — Pre-launch validation: three defects the gates had never been able to see
+
+**Status:** Accepted · 2026-08-07 · Amends `ARCHITECTURE.md` §6.4 · Adds `PreBlock`
+
+### Context
+
+Final validation before the first production deploy. Everything was green — types, lint, format, 53 unit tests, 121 browser checks, four Lighthouse categories at 100 across ten routes — and a sweep at six viewport widths found three defects anyway. All three had shipped, and each one is instructive about a different blind spot.
+
+### Decision
+
+**1. `<pre>` never scrolled, and the specification said it did.**
+
+`COMPONENT_GUIDELINES.md` §8.3 reads: *"Horizontal scroll within the block; the page never scrolls horizontally."* No `overflow` property was ever written. Two case studies pushed the document 110 px and 338 px wide at 390 px, and one pushed it at 375 px — inside the documented minimum viewport. Fixed in the base layer rather than in `CodeBlock`, because markdown emits bare `<pre>` for fenced blocks and the guarantee has to hold for all of them. `max-width: 100%` is the load-bearing half: without it a `<pre>` in a grid track sizes to its content and `overflow-x` never gets a chance to apply.
+
+**2. `Comparison` declared a scroll region and never enabled scrolling.**
+
+`tabIndex={0}`, `role="region"` and `aria-label` were all present — every part of making a scroll container keyboard-accessible except the part that makes it a scroll container. A three-column table cannot shrink below its content, so it widened the page instead.
+
+**3. Fixing the first two exposed a WCAG 2.1.1 failure, and `axe` caught it immediately.**
+
+Once every `<pre>` actually scrolled, the ones markdown produces became scrollable regions with no keyboard access — a keyboard-only reader could see content was cut off and had no way to reach it. `PreBlock` maps the native element to the same treatment `CodeBlock` already used.
+
+This is the one native-element override in the MDX map, and §6.4's closed set is intact: an author still cannot reference `PreBlock`, and a case study reaching outside the eight enumerated components still fails to compile. What changed is how an element the author already had renders.
+
+**Also removed:** `RevealGroup` and the `delayMs` prop that existed only to serve it. No surface has staggered a group since V2.
+
+### Alternatives considered
+
+**Treat the 320 px overflow as out of scope.** Tempting — `VIEWPORT_MIN` is 375 and the wireframes specify 375 as the mobile anchor. Rejected once the same table was measured overflowing by 3 px at 375 px itself. The narrow-viewport check is what surfaced a defect that existed inside the supported range.
+
+**Convert the fenced blocks in the affected case studies to `<CodeBlock>`.** Rejected. It fixes two documents and leaves the next fenced block anyone writes with the same defect. The failure was structural.
+
+**Add `tabIndex` without `role` and `aria-label`.** Rejected. It satisfies `axe`, and a bare `tabIndex` on non-interactive content produces a tab stop that announces nothing — `CodeBlock`'s existing comment already says why.
+
+**Withdraw the `stagger` token now that `RevealGroup` is gone.** Deferred. It has no consumer, and ADR-023 withdrew `flow` on exactly that reasoning — but `stagger` is frozen by ADR-011 and part of the documented motion scale, so removing it is a design decision rather than cleanup. Noted in `Reveal`'s docstring so the next motion change starts from the fact.
+
+### Consequences
+
+- **Zero horizontal overflow and zero console output at 320, 375, 390, 768, 1024 and 1440 px**, on all ten routes. Previously four routes overflowed at 320 and two at 390.
+- **All four Lighthouse categories remain 100 on all ten routes.**
+- **Three defects, and none of them was invisible to tooling — they were invisible to the tooling as configured.** `axe` runs on every route and would have caught the keyboard-access failure years earlier if anything had been scrollable; the overflow checks did not exist. A viewport sweep is now part of pre-deploy validation, and it is the check that found all three.
+- **Two of the three were specifications that had been written and never implemented.** Both components documented the behaviour in their own docstrings. That is a worse failure mode than an undocumented gap, because the docstring is what a reviewer reads instead of the code.

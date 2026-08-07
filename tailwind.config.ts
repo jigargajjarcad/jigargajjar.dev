@@ -102,7 +102,12 @@ const config: Config = {
       full: cssVar('container-full'),
     },
     size: fromKeys(icon, 'icon'),
-    minHeight: { 'target-min': cssVar('target-min') },
+    // The spacing scale is reachable as a minimum height so that a panel whose
+    // content changes on interaction can be floored at a step from the same
+    // scale that spaces it. Without this, an explorable diagram's detail panel
+    // resizes under the reader's cursor as they move between stages — which is
+    // a layout shift the CLS budget never sees, because it happens after load.
+    minHeight: { 'target-min': cssVar('target-min'), ...fromKeys(space, 'space') },
     minWidth: { 'target-min': cssVar('target-min') },
     textUnderlineOffset: { link: cssVar('link-underline-offset') },
     textDecorationThickness: {

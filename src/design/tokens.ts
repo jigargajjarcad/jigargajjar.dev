@@ -94,7 +94,26 @@ export const status = {
   },
 } as const;
 
-/** TOKENS.md §3.2 — type scale. Fluid between the 375 px and 1280 px anchors. */
+/**
+ * TOKENS.md §3.2 — type scale. Fluid between the 375 px and 1280 px anchors.
+ *
+ * Step 900 is the ninth step, added by ADR-020 for exactly one consumer — the
+ * home page's opening statement.
+ *
+ * **Its desktop anchor is 58, and that number was measured rather than chosen**
+ * (ADR-024, then ADR-025). The opening statement is 43 characters; set in
+ * Newsreader it needs 1120 px to hold one line at 66 px, against a content
+ * column of 1024 px at every viewport from 1280 up. 60 px fits with six pixels
+ * to spare, which is not fitting — it is crowding both gutters. 58 leaves 40 px
+ * either side and sets the statement on a single line, which is what a
+ * statement should do.
+ *
+ * The clamp keeps it on one line down to roughly 1000 px, because the size and
+ * the column shrink together. Below that it wraps, and should.
+ *
+ * Its mobile anchor stays at 40. The constraint at 375 px is line count, and
+ * lowering it there buys nothing.
+ */
 export const typeScale = {
   100: { mobile: 11.5, desktop: 11.5 },
   200: { mobile: 14, desktop: 14.5 },
@@ -104,6 +123,7 @@ export const typeScale = {
   600: { mobile: 28, desktop: 35 },
   700: { mobile: 32, desktop: 44 },
   800: { mobile: 38, desktop: 55 },
+  900: { mobile: 40, desktop: 58 },
 } as const;
 
 /**
@@ -269,6 +289,57 @@ export interface TypeToken {
 }
 
 export const semanticType = {
+  /**
+   * ADR-020 — the home page's opening statement, and nothing else.
+   *
+   * `type-display` already exists at step 800 and is not this. The distinction
+   * is that `display` is the largest size a *page* uses, whereas `hero` is the
+   * size the *site* opens at: one instance, one surface, once per visit. Line
+   * height drops to 1.0 and tracking tightens to -0.03em because at 80 px the
+   * defaults that serve a 55 px heading leave the block reading as separated
+   * lines rather than as a single mass.
+   */
+  'type-hero': {
+    step: 900,
+    family: 'display',
+    weight: 'regular',
+    // 1.0 and -0.03em were set for 80 px, where a statement needs holding
+    // together. At 66 the same values read as cramped rather than as one mass:
+    // optical tracking is a function of size, and a value that is correct at one
+    // is wrong at the other. ADR-024.
+    lineHeight: 1.08,
+    tracking: '-0.022em',
+  },
+  /**
+   * ADR-020 — the machine voice.
+   *
+   * `type-code` is a source listing; this is an annotation on a diagram — a node
+   * name, an edge label, a stage counter, a field type. The two are the same
+   * family and must not be the same token: code is set at reading size because
+   * it is read line by line, and an annotation is set small and tracked open
+   * because it is scanned as a label. Setting annotations in `type-code` made
+   * every diagram look like a terminal.
+   */
+  'type-mono': {
+    step: 200,
+    family: 'mono',
+    weight: 'regular',
+    // ADR-025. At step 100 this was 11.5 px, and the project metadata set in it
+    // did not read as quiet — it read as unavailable. A mono face is already
+    // optically smaller than a sans at the same size, so 11.5 px of mono sits
+    // somewhere below 10 px of Inter to the eye.
+    //
+    // Step 200 (14.5 px) is the smallest size at which it is comfortably
+    // readable. Tracking comes down with the size increase: 0.04em was opening
+    // up 11.5 px type that needed the help, and at 14.5 px the same value reads
+    // as spaced-out rather than as set.
+    //
+    // Leading is 1.4. It was raised to 1.5 when the metadata was one string that
+    // wrapped; now that it is two authored lines, 1.5 separates them into two
+    // statements when they should read as one block under the title (ADR-026).
+    lineHeight: 1.4,
+    tracking: '0.02em',
+  },
   'type-display': {
     step: 800,
     family: 'display',
@@ -337,11 +408,20 @@ export const semanticType = {
   'type-code': { step: 200, family: 'mono', weight: 'regular', lineHeight: 1.55, tracking: '0' },
 } as const satisfies Record<string, TypeToken>;
 
-/** TOKENS.md §4.6 — section rhythm. Fluid, and deliberately not on the component scale. */
+/**
+ * TOKENS.md §4.6 — section rhythm. Fluid, and deliberately not on the component
+ * scale.
+ *
+ * **ADR-024 reduced every step by roughly 17%.** V4's page breathed, and then
+ * kept breathing: at 192 px between screens the reader crossed a void rather
+ * than a boundary, and scrolling felt like waiting. The rule the new values
+ * follow is that the gap between two screens should read as *deliberate*, which
+ * is a smaller distance than the one that reads as *empty*.
+ */
 export const sectionSpace = {
-  sm: { mobile: 56, desktop: 80 },
-  md: { mobile: 80, desktop: 128 },
-  lg: { mobile: 112, desktop: 192 },
+  sm: { mobile: 48, desktop: 68 },
+  md: { mobile: 68, desktop: 106 },
+  lg: { mobile: 96, desktop: 160 },
 } as const;
 
 /** TOKENS.md §4.7 — density multipliers. Applied once, by the container. */

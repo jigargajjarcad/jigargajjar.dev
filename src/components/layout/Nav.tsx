@@ -13,11 +13,21 @@ import NextLink from 'next/link';
  * `aria-current="page"`. Colour alone would fail the same test link colour does
  * (ACCESSIBILITY.md §5).
  */
+/**
+ * ADR-024 relabelled two of the four. Routes are unchanged.
+ *
+ * "Work" and "Workflow" sat next to each other and shared a stem, so the eye
+ * had to read both to tell them apart — the one thing four items of navigation
+ * must never require. "Method" is what the page and the document both call it.
+ *
+ * "Connect" became "Contact" for a plainer reason: it is the word people look
+ * for. ADR-014's decision was about the route existing, not about its label.
+ */
 export const PRIMARY_NAV = [
   { href: '/work', label: 'Work' },
-  { href: '/workflow', label: 'Workflow' },
+  { href: '/workflow', label: 'Method' },
   { href: '/about', label: 'About' },
-  { href: '/connect', label: 'Connect' },
+  { href: '/connect', label: 'Contact' },
 ] as const;
 
 export function Nav({ orientation = 'horizontal' }: { orientation?: 'horizontal' | 'vertical' }) {
@@ -37,7 +47,7 @@ export function Nav({ orientation = 'horizontal' }: { orientation?: 'horizontal'
             <NextLink
               href={item.href}
               aria-current={current ? 'page' : undefined}
-              className={`flex min-h-target-min items-center font-text text-type-body-sm no-underline transition-colors duration-fast ease-standard hover:text-color-interactive ${
+              className={`flex min-h-target-min items-center font-text text-type-body-sm no-underline transition-colors duration-fast ease-standard hover:text-color-text-primary ${
                 current ? 'font-semibold text-color-text-primary' : 'text-color-text-secondary'
               }`}
             >

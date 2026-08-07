@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!--
+    Site icon — ADR-026.
+
+    There was no favicon at all, so every route logged a 404 for
+    /favicon.ico. That is a browser console error on every page load, and
+    Lighthouse counts it: `errors-in-console` was the single audit keeping
+    Best Practices at 96 rather than 100 across all ten routes.
+
+    Drawn rather than designed. The mark is the wordmark's initial in the same
+    serif the site falls back to when Newsreader has not loaded — Georgia is
+    declared as `Newsreader Fallback` in `globals.css`, so this is literally the
+    face a reader sees for the first few hundred milliseconds of a visit. A
+    bespoke logotype would be a design decision nobody asked for; this is the
+    site's own typography at 16 px.
+
+    Colours are fixed rather than themed, because a favicon is composited
+    against the browser chrome and not against the page: it has to hold on a
+    light tab strip and a dark one. The `prefers-color-scheme` block flips it
+    for browsers that honour it in SVG icons, and the default is the dark mark
+    that survives on both.
+  -->
+  <style>
+    .ground { fill: #0f1115; }
+    .mark { fill: #fafafb; }
+    @media (prefers-color-scheme: light) {
+      .ground { fill: #fefeff; }
+      .mark { fill: #16181d; }
+    }
+  </style>
+  <rect class="ground" width="64" height="64" rx="12" />
+  <text
+    class="mark"
+    x="32"
+    y="33"
+    text-anchor="middle"
+    dominant-baseline="central"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="42"
+  >J</text>
+</svg>

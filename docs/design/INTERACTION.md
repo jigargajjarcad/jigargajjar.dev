@@ -75,6 +75,17 @@ Focus behaviour is specified in full in `ACCESSIBILITY.md` §4. The behavioural 
 
 ## 6. Navigation
 
+> **Reversed by ADR-025 (2026-08-06).** Outbound links now open in a new tab,
+> with `rel="noopener noreferrer"` and an announced "opens in a new tab".
+>
+> The original rule — that the new-tab decision belongs to the reader — is the
+> better default for a document a reader moves *through*. It is the wrong
+> default for the outbound links this site actually has: every one is a
+> repository, a profile, or a résumé, which is a reference someone opens *while*
+> reading. Losing the page to reach one is the failure the rule was meant to
+> prevent. Enforced in `tests/quality/shell.spec.ts`.
+
+
 - **Every navigation is a real link with a real URL.** No JavaScript-driven route changes that bypass the address bar, no history manipulation. A reader can bookmark, share, open in a new tab, and use the back button, always.
 - **No page transitions** (`MOTION.md` §8). The decision and its full reasoning are recorded there.
 - **The current route is marked by two channels** — weight and `aria-current` (`COMPONENT_GUIDELINES.md` §3.1). Never by colour alone.

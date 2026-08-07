@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+import { ROUTES } from './routes';
+
 /**
  * Application shell infrastructure — COMPONENT_GUIDELINES.md §3.1–§3.3,
  * INTERACTION.md §11, ACCESSIBILITY.md §4.
@@ -74,8 +76,41 @@ test('navigation is a plain visible list without JavaScript', async ({ browser }
   const page = await context.newPage();
   await page.goto('http://localhost:3000/');
   // Markup first, disclosure second (INTERACTION.md §9).
-  for (const label of ['Work', 'Workflow', 'About', 'Connect']) {
+  for (const label of ['Work', 'Method', 'About', 'Contact']) {
     await expect(page.getByRole('link', { name: label, exact: true })).toHaveCount(1);
   }
   await context.close();
+});
+
+/**
+ * Outbound links — ADR-025, reversing `INTERACTION.md` §6.
+ *
+ * Two properties, and the second is the one that matters. Opening in a new tab
+ * is a preference; `rel="noopener"` is a security boundary — without it the
+ * opened document receives a live `window.opener` handle back into this one.
+ * Modern browsers imply it for `target="_blank"`, and a security property that
+ * depends on the browser being current is not a property, so it is asserted.
+ */
+test('every outbound link opens away, and opens safely', async ({ page }) => {
+  for (const route of ROUTES) {
+    await page.goto(route);
+    const external = page.locator('a[href^="http"]:not([href*="jigargajjar.dev"])');
+
+    for (const link of await external.all()) {
+      const href = await link.getAttribute('href');
+      expect(await link.getAttribute('target'), `${route} → ${href}`).toBe('_blank');
+
+      const rel = (await link.getAttribute('rel')) ?? '';
+      expect(rel, `${route} → ${href}`).toContain('noopener');
+      expect(rel, `${route} → ${href}`).toContain('noreferrer');
+    }
+  }
+});
+
+test('an outbound link says so before it is followed', async ({ page }) => {
+  // ACCESSIBILITY.md §5 — focus is about to move somewhere the back button does
+  // not return from, and that must be announced rather than discovered.
+  await page.goto('/');
+  const github = page.locator('footer a[href*="github.com"]');
+  await expect(github).toContainText('opens in a new tab');
 });

@@ -1,44 +1,51 @@
+import { Fragment } from 'react';
 import type { Metadata } from 'next';
 
+import { PageReading } from '@/components/instrument/PageReading';
+import { Screen } from '@/components/layout/Screen';
 import { Reveal } from '@/components/motion/Reveal';
 import { Container } from '@/components/primitives/Container';
 import { Link } from '@/components/primitives/Link';
-import { Stack } from '@/components/primitives/Stack';
 import { Text } from '@/components/primitives/Text';
+import { CLOSING, METHOD, METHOD_EVIDENCE, REFUSALS, SYSTEMS, THESIS } from '@/content/home';
 import { loadCaseStudies } from '@/content/loader';
-import { AVAILABILITY, NAME, POSITIONING } from '@/content/site';
-import type { CaseStudy } from '@/content/types';
+import { totalChecks } from '@/content/measured';
+import { AVAILABILITY, NAME, POSITIONING, VOICE, contact } from '@/content/site';
 import { pageMetadata } from '@/app/metadata';
 
 /**
- * `/` — implemented from `docs/wireframes/01-home.md`, which is the contract.
- * Narrative reasoning is `HOMEPAGE_NARRATIVE.md`; the band structure there is
- * frozen at six.
+ * `/` — Version 4. Decided in ADR-023; layout contract in
+ * `docs/wireframes/01-home.md` §15.
  *
- * Optimised for conviction, not navigation (§1). The page does not ask the
- * reader to choose; depth arrives at band 3 before any navigation is required.
+ * **One idea, six screens, two hundred words.**
  *
- * Density: `compact` for band 1, the layer-1 region above the fold; `default`
- * for bands 2–6 (`SPACING.md` §5).
+ *     Good systems are defined by what they refuse.
  *
- * Bands 3 and 4 are content-driven. They render nothing until the flagship case
- * studies exist, which is Phase 6 of `ROADMAP.md`. The wireframe's `‹OWNER›`
- * slots are a wireframe convention and are not shipped as copy.
+ * Every screen is an instance of that sentence rather than a separate subject.
+ * OrchestAI rejects a run before any model is called. NovaMind discards five of
+ * ten candidates before the model sees anything. The method screen is a gate
+ * that blocks a merge. The last screen is a list of things not built. The page
+ * itself is two hundred words because everything else was refused — which is the
+ * final proof of the idea and the reason the page is this short.
  *
- * Motion: bands 2–6 carry the entrance reveal (`MOTION.md` §5). Band 1 does not
- * — it is above the fold, where content must be visible immediately.
+ * **What V3 got wrong.** It measured 1,914 words across thirteen screens: an
+ * eight-minute read for a visitor who stays forty-five seconds, so about nine
+ * per cent of it was ever seen. Every version had added a *system* — a token
+ * architecture, then a diagram engine, then a measurement pipeline — and
+ * mistaken rigour for taste. The tell was already visible in V3: its strongest
+ * section was the only one with no visualisation in it.
+ *
+ * **The homepage's job is not to prove; it is to make someone want to read the
+ * case studies.** The proof exists — 8,800 words of them, one click away. V3 was
+ * competing with its own best content and losing.
+ *
+ * The objection sequence from `FOUNDATION.md` §3 goal 4 survives intact: screen
+ * 2 answers *agents wrote this, so what did you do* before any project appears.
+ * It now takes fifteen words.
  */
 
-/** `HOMEPAGE_NARRATIVE.md` §4 names the featured project explicitly. */
-const FEATURED_SLUG = 'orchestai';
-
-const COMPETENCY_LABEL: Record<CaseStudy['frontmatter']['competency'], string> = {
-  'ai-product': 'AI Product Engineering',
-  // ADR-019 — the framework claim is withdrawn; the `competency` slug is unchanged.
-  'ai-infrastructure': 'AI Infrastructure Engineering',
-  enterprise: 'Enterprise Software Engineering',
-  methodology: 'Engineering Methodology',
-};
+/** Featured in screen order. The rest of the work lives at `/work`. */
+const FEATURED = SYSTEMS.map((system) => system.slug);
 
 /**
  * §3 — the home page sets an absolute title rather than using the template,
@@ -51,149 +58,278 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  // `/work` houses the methodology study; it has no homepage band
-  // (`ROUTE_SPECIFICATIONS.md` §1).
-  const flagship = loadCaseStudies().filter((s) => s.frontmatter.competency !== 'methodology');
-  const featured = flagship.find((s) => s.frontmatter.slug === FEATURED_SLUG) ?? flagship[0];
-  const additional = flagship.filter((s) => s !== featured);
+  const published = loadCaseStudies();
+  const featured = SYSTEMS.map((system) => ({
+    system,
+    study: published.find((s) => s.frontmatter.slug === system.slug),
+  })).filter((entry) => entry.study !== undefined);
+
+  const total = published.length;
+  const hasMore = published.some((s) => !FEATURED.includes(s.frontmatter.slug));
 
   return (
-    <Container width="wide">
-      <Stack gap={20}>
-        {/* ── Band 1 · Hero ──────────────────────────────────────────────
-            Produces: this is a specific person, not a category.
-            Answers R1, R2, R3 and provides the R5 exit. Present without
-            scroll at 375 px; nothing here animates (`MOTION.md` §5). */}
-        <Stack gap={6}>
-          <Text token="heading-1" as="h1">
-            {POSITIONING}
-          </Text>
-          <Text token="body" color="secondary">
-            .NET · TypeScript · React · PostgreSQL · MCP
-          </Text>
-          <Stack gap={2}>
-            <Link href="/work">Read the work</Link>
-            <Link href="/resume">Résumé</Link>
-          </Stack>
-        </Stack>
+    <>
+      {/* ── 1 · Hero ───────────────────────────────────────────────────────
+          Belief: this person builds production AI systems.
+          Nothing animates — it is above the fold (`MOTION.md` §5). */}
+      <section>
+        <Container width="wide">
+          <div className="flex flex-col gap-12 pb-section-sm pt-section-md">
+            <div className="flex flex-col gap-8">
+              {/*
+                `text-balance` is what fixes the line breaks. At 66 px the
+                statement sets in two lines either way; balanced, the two are
+                near-equal in length and the block reads as a shape rather than
+                as a paragraph that happened to wrap. `max-w-prose` stops it
+                running the full 1120 px, which was most of why 80 px felt heavy.
+              */}
+              <h1 className="text-balance font-display text-type-hero text-color-text-primary">
+                {THESIS}
+              </h1>
 
-        {/* ── Band 2 · Qualification ─────────────────────────────────────
-            Produces: the claim is a position, not a shortcut. The only band
-            that removes a belief rather than creating one, and the reason it
-            precedes the evidence (`FOUNDATION.md` §3, goal 4). It states a
-            position and does not link away. */}
-        <Reveal>
-          <Stack gap={6}>
-            <Text token="heading-2" as="h2">
-              What I actually do
-            </Text>
-            <Text token="body">
-              Agents write the implementation. I decide what gets built, how it is structured, and
-              how anyone knows it is correct.
-            </Text>
-            <Text token="body">
-              Architecture, decomposition, verification, and the decisions in between are not
-              delegated. They are the part that is scarce.
-            </Text>
-            {/* Band 2's closing statement, set in the display face. Not the Pull
-                quote component — §8.2 forbids a pull quote introducing new
-                content, and this sentence appears nowhere else on the page. */}
-            <Text token="heading-3" as="p">
-              Engineering is not measured by how quickly code is written, but by how confidently it
-              can be verified.
-            </Text>
-          </Stack>
-        </Reveal>
+              {/* ADR-024 — the one sentence on this page in a human voice.
+                  `POSITIONING` remains the document description; it is no longer
+                  the line beneath the claim, because a category cannot explain
+                  a claim. */}
+              <p className="max-w-prose text-balance font-text text-type-lede text-color-text-secondary">
+                {VOICE}
+              </p>
+            </div>
 
-        {/* ── Band 3 · Featured flagship ─────────────────────────────────
-            Produces: I have seen this person solve something hard, and I did
-            not have to go looking for it. A taste of the case study, never a
-            compression of it — a reader who feels they have read it will not
-            open it. One exit only: the case study. */}
-        {featured ? (
-          <Reveal>
-            <Stack gap={6}>
-              <Text token="label" color="secondary" as="p" uppercase>
-                {COMPETENCY_LABEL[featured.frontmatter.competency]}
+            <div>
+              <Link href="/work" variant="action">
+                Read the engineering
+              </Link>
+            </div>
+
+            {/* The one surviving instrument. A footnote, deliberately. */}
+            <div className="border-t-hairline border-color-border-subtle pt-6">
+              <PageReading />
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* ── 2 · Method ─────────────────────────────────────────────────────
+          Belief: there is a repeatable way of working here. Holds the
+          objection-sequence position across all four versions — the third
+          clause answers it, and is the page's idea in its first form. */}
+      <Reveal>
+        <Screen>
+          {/*
+            The column split is 8/4 and cannot usefully be tightened. The
+            longest clause needs 640 px at `heading-1`, which is more than seven
+            of twelve columns hold at any gap — narrowing the heading breaks
+            "Verification that blocks the merge." onto two lines, and three
+            clauses that each occupy one line is the entire form of this block.
+            The gap comes down from 48 px to 40 px, which is the whole of what
+            the grid has to give here. ADR-025.
+          */}
+          <div className="grid gap-x-10 gap-y-12 lg:grid-cols-12">
+            <h2 className="flex flex-col gap-1 lg:col-span-8">
+              {METHOD.map((clause) => (
+                <span key={clause} className="font-display text-type-heading-1">
+                  {clause}
+                </span>
+              ))}
+            </h2>
+            <div className="flex flex-col gap-5 lg:col-span-4 lg:justify-end">
+              <Text token="lede" color="secondary">
+                {`${METHOD_EVIDENCE} ${totalChecks} checks pass.`}
               </Text>
+              <div>
+                <Link href="/workflow">How it works</Link>
+              </div>
+            </div>
+          </div>
+        </Screen>
+      </Reveal>
+
+      {/* ── 3–4 · The systems ──────────────────────────────────────────────
+          Belief: these are elegant. One idea each, and each is the page's
+          idea — one rejects before working, the other discards before
+          answering. */}
+      {featured.map(({ system, study }) => (
+        <Reveal key={system.slug}>
+          <Screen>
+            <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
+              <div className="flex flex-col gap-1 lg:col-span-4">
+                {/*
+                  `heading-3`, not `heading-2`. At 35 px the project name sat
+                  within nine points of the 44 px statement beside it, so the two
+                  columns competed. At 28 px the name reads as what it is — a
+                  label on a statement — which is the editorial relationship this
+                  layout was drawn for. ACCESSIBILITY.md §8 explicitly permits
+                  two headings at the same level to take different sizes; the
+                  level is a structural claim and the size is not.
+                */}
+                <Text token="heading-3" as="h2">
+                  {study?.frontmatter.title}
+                </Text>
+                {/* `secondary`, not `tertiary`: 7:1 against the surface rather
+                    than 4.5:1. Combined with the token's size increase this is
+                    the fix for the weakest area on the page. Two lines, set
+                    rather than wrapped — see `System.kind`. */}
+                <div className="flex flex-col">
+                  <Text token="mono" color="secondary">
+                    {system.kind}
+                  </Text>
+                  <Text token="mono" color="secondary">
+                    {system.stack}
+                  </Text>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-10 lg:col-span-8">
+                {/* The figure exists only where three numerals arrive faster
+                    than a sentence. One system has one; one does not. */}
+                {system.figure ? (
+                  /*
+                    The page's only figure, and the craft is in the split:
+                    numerals in the primary colour, arrows in the tertiary. Set
+                    uniformly they read as one string of characters; set this way
+                    the eye lands on 10, 5 and 1 and the arrows fall back to
+                    being punctuation. That is the difference between a line of
+                    text and a diagram. ADR-024.
+                  */
+                  <p
+                    aria-hidden="true"
+                    className="flex items-baseline gap-4 font-display text-type-hero"
+                  >
+                    {system.figure.split(' → ').map((value, index) => (
+                      <span key={value} className="flex items-baseline gap-4">
+                        {index > 0 ? (
+                          <span className="text-color-text-tertiary">&rarr;</span>
+                        ) : null}
+                        <span className="text-color-text-primary">{value}</span>
+                      </span>
+                    ))}
+                  </p>
+                ) : null}
+
+                <div className="flex flex-col gap-5">
+                  <p className="max-w-prose text-balance font-display text-type-heading-1 text-color-text-primary">
+                    {system.idea}
+                  </p>
+                  <div className="max-w-prose">
+                    <Text token="lede" color="secondary">
+                      {system.consequence}
+                    </Text>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-8">
+                  <Link href={`/work/${system.slug}`} variant="action">
+                    Read the case study
+                  </Link>
+                  {system.figure && hasMore ? (
+                    <Link href="/work">{`All ${total} case studies`}</Link>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          </Screen>
+        </Reveal>
+      ))}
+
+      {/* ── 5 · Refusals ───────────────────────────────────────────────────
+          Belief: this person has judgement, and says no. The page's idea,
+          named — after four demonstrations of it rather than before. */}
+      <Reveal>
+        <Screen>
+          <div className="flex flex-col gap-12">
+            <Text token="heading-2" as="h2">
+              What I didn’t build
+            </Text>
+
+            <ul className="flex flex-col">
+              {REFUSALS.map((refusal) => (
+                <li
+                  key={refusal.id}
+                  className="grid gap-x-16 gap-y-3 border-t-hairline border-color-border-subtle py-10 last:border-b-hairline md:grid-cols-12 md:items-baseline"
+                >
+                  <div className="md:col-span-5">
+                    <Text token="heading-3" as="span">
+                      {refusal.what}
+                    </Text>
+                  </div>
+                  <div className="md:col-span-7">
+                    <Text token="body" as="span" color="secondary">
+                      {refusal.line}
+                    </Text>
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <p className="mt-4 max-w-prose text-balance font-display text-type-heading-2 text-color-text-primary">
+              {CLOSING}
+            </p>
+          </div>
+        </Screen>
+      </Reveal>
+
+      {/* ── 6 · Connect ────────────────────────────────────────────────────
+          Belief: I know what to do if I want to act. No call to action —
+          `EXPERIENCE_PRINCIPLES.md` §3 refuses urgency and obligation. */}
+      <Reveal>
+        <Screen last>
+          {/*
+            `items-baseline` aligns the first baseline of each column, so
+            "Available" and "BASED IN" sit on exactly the same line. Bottom
+            alignment had them within twenty pixels of each other, which is the
+            worst of both — near enough to look intended, far enough to look
+            missed. ADR-025.
+          */}
+          <div className="grid gap-12 lg:grid-cols-12 lg:items-start lg:gap-16">
+            <div className="flex flex-col gap-8 lg:col-span-7">
               <Text token="heading-2" as="h2">
-                {featured.frontmatter.title}
+                Available
               </Text>
-              <Text token="body-sm" color="secondary">
-                {featured.frontmatter.lifecycle}
-              </Text>
-              <Text token="body">{featured.frontmatter.summary}</Text>
-              <Link href={`/work/${featured.frontmatter.slug}`}>Read the full case study</Link>
-            </Stack>
-          </Reveal>
-        ) : null}
+              <div className="max-w-prose">
+                <Text token="lede" color="secondary">
+                  {AVAILABILITY}
+                </Text>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/connect" variant="action">
+                  Start a conversation
+                </Link>
+                <Link href="/resume" variant="action">
+                  Résumé
+                </Link>
+              </div>
+            </div>
 
-        {/* ── Band 4 · Additional projects ───────────────────────────────
-            Produces: three genuinely different competencies. Deliberately
-            lighter than band 3 — equal weight would recreate the menu that
-            featuring exists to avoid. Presented as competency stories with a
-            project attached, not as cards. */}
-        {additional.length > 0 ? (
-          <Reveal>
-            <Stack gap={6}>
-              <Text token="heading-2" as="h2">
-                Two more, of a different kind
-              </Text>
-              <Stack gap={6} as="ul">
-                {additional.map((study) => (
-                  <li key={study.frontmatter.slug}>
-                    <Stack gap={2}>
-                      <Text token="label" color="secondary" as="span" uppercase>
-                        {COMPETENCY_LABEL[study.frontmatter.competency]}
-                      </Text>
-                      <Text token="heading-3" as="h3">
-                        <Link href={`/work/${study.frontmatter.slug}`} variant="bare">
-                          {study.frontmatter.title}
-                        </Link>
-                      </Text>
-                      <Text token="body" as="span">
-                        {study.frontmatter.summary}
-                      </Text>
-                    </Stack>
-                  </li>
-                ))}
-              </Stack>
-              <Link href="/work">Compare every case study</Link>
-            </Stack>
-          </Reveal>
-        ) : null}
-
-        {/* ── Band 5 · Workflow ──────────────────────────────────────────
-            Produces: the method is documented, not asserted. Placed after the
-            work, because a method claim is credible in proportion to the
-            evidence already in hand. */}
-        <Reveal>
-          <Stack gap={6}>
-            <Text token="heading-2" as="h2">
-              How the work gets made
-            </Text>
-            <Text token="body">
-              Problem, architecture, decision records, planning, implementation, verification,
-              review, release, retrospective. Where it breaks down is documented too.
-            </Text>
-            <Link href="/workflow">Read the workflow</Link>
-          </Stack>
-        </Reveal>
-
-        {/* ── Band 6 · Connect ───────────────────────────────────────────
-            Produces: I know what to do if I want to act. A distinct band, not
-            merged into the footer. No call to action —
-            `EXPERIENCE_PRINCIPLES.md` §3 refuses urgency and obligation. */}
-        <Reveal>
-          <Stack gap={6}>
-            <Text token="heading-2" as="h2">
-              Work with me
-            </Text>
-            <Text token="body">{AVAILABILITY}</Text>
-            <Link href="/connect">What to bring, and what to expect back</Link>
-          </Stack>
-        </Reveal>
-      </Stack>
-    </Container>
+            {/*
+              A two-column grid rather than three rows of `justify-between`.
+              Spread across the full column the label and its value sat 140 px
+              apart and read as two lists; sized to the widest label, they read
+              as one specification block.
+            */}
+            <dl className="grid grid-cols-[auto_1fr] items-baseline gap-x-8 gap-y-4 lg:col-span-4 lg:col-start-9">
+              {[
+                ['Based in', contact.location],
+                ['Hours', contact.timezone],
+                ['Email', contact.email],
+              ].map(([term, value]) => (
+                <Fragment key={term}>
+                  <dt>
+                    <Text token="mono" as="span" color="tertiary" uppercase>
+                      {term}
+                    </Text>
+                  </dt>
+                  <dd>
+                    <Text token="body-sm" as="span" color="secondary">
+                      {value}
+                    </Text>
+                  </dd>
+                </Fragment>
+              ))}
+            </dl>
+          </div>
+        </Screen>
+      </Reveal>
+    </>
   );
 }

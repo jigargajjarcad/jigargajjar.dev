@@ -2,6 +2,13 @@
 
 **Specification source:** [`HOMEPAGE_NARRATIVE.md`](../design/HOMEPAGE_NARRATIVE.md) · [`EXPERIENCE_FLOW.md`](../design/EXPERIENCE_FLOW.md) §6
 **Shell:** see [`README.md`](./README.md) §4
+**Status:** §§1–3 current. **§§4–6 are Version 1, §13 is Version 2, §14 is Version 3. All are superseded by §15** (ADR-023, 2026-08-06).
+
+---
+
+> **Read §15 first.** The layouts drawn in §4, §5 and §6 are the Version 1 page, which shipped at the end of Phase 5 and was replaced on 2026-08-06. They are retained rather than deleted, in keeping with this project's convention that a superseded record is more useful than a tidy one — each version's rationale is largely an argument about what was wrong with the one before it, and those arguments are unreadable without the thing they criticise.
+>
+> §§1–3 (purpose, audience, narrative goal) survived both redesigns and remain the contract, with the band renumbering noted in §15.5.
 
 ---
 
@@ -318,3 +325,205 @@ One `<h1>` (band 1). Bands 2–6 open at `<h2>`; band 3's two subsections are `<
 ## 12. Open questions
 
 None blocking. `HOMEPAGE_NARRATIVE.md` §10 records none outstanding.
+
+
+---
+
+## 13. Version 2 layout contract
+
+**Authorised by ADR-020. Supersedes §§4–6.** Narrative source: `HOMEPAGE_NARRATIVE.md` §4, version 0.3.0.
+
+### 13.1 Why this section replaces ASCII wireframes
+
+The V1 sections above drew every band as a box diagram at three widths, and that was the right form for a page of stacked prose blocks: the layout *was* the design, and it was fully described by where the text sat.
+
+It is the wrong form for V2. Three of the seven bands are explorable diagrams whose layout is a function of a data model — seven lifecycle stages, six architecture layers, seven pipeline stages — and redrawing them in ASCII would produce a document that is stale the moment a stage is added and that describes less than the model does. **The model is the wireframe.** It lives in `src/content/home.ts`, it is typed, and it is reviewable in a diff.
+
+What this section specifies instead is what the model cannot: band order, surface alternation, responsive behaviour, and the rules a future band must satisfy.
+
+### 13.2 Band structure
+
+| # | Label | Surface | Heading | Form | Component |
+|---|---|---|---|---|---|
+| 1 | — | base + grid | `<h1>` thesis | Two columns; statement left, live topology right | `sections/Hero` |
+| — | facts strip | raised | — | Three mono statements, hairline above and below | `sections/Hero` |
+| 2 | Method | sunken | What actually happens | Seven-stage rail, explorable | `system/LifecycleRail` |
+| 3 | AI Infrastructure Engineering | base | OrchestAI | Six-layer stack, explorable | `system/ArchitectureExplorer` |
+| 4 | AI Product Engineering | sunken | NovaMind AI | Seven-stage pipeline, explorable | `system/PipelineFlow` |
+| 5 | Also on this site | base | The rest of the work | Compact list, derived from content | `app/page.tsx` |
+| 6 | Position | sunken | *(visually hidden)* | Four numbered statements | `app/page.tsx` |
+| 7 | Availability | base | Work with me | Two columns; invitation left, contact details right | `app/page.tsx` |
+
+**Surfaces alternate, and that is the mechanism.** V1's central failure was that six identical blocks in one container read as a document, so a reader could not tell from peripheral vision that they had crossed from one idea to another. Every band owns its full-bleed surface and carries a numbered mono rule at its head. Elevation is surface lightness plus a hairline, never a shadow (`COLOR_SYSTEM.md` §6).
+
+**Section rhythm is owned by `layout/Band`** and applied in exactly one place, so band spacing cannot drift band by band.
+
+### 13.3 Responsive behaviour
+
+Three breakpoints, and only two of them change anything structural.
+
+- **375 px.** Everything is one column. Band 1 stacks statement-then-topology in DOM order, so the claim occupies the first screen and the diagram is the reward for scrolling rather than an obstacle before it. The lifecycle rail runs vertically; the pipeline runs vertically with vertical connectors.
+- **900 px (`md`).** The lifecycle rail becomes horizontal. Architecture layers put their stack chips on the same line as the layer name, right-aligned. Detail panels split into two columns.
+- **1280 px (`lg`).** Band 1 becomes two columns, 7 / 5. The pipeline becomes horizontal. The architecture explorer splits 7 / 5 into stack and detail panel.
+
+Both orientations of every rail are keyboard-navigable on both axes, because the same component is a row at one width and a column at another.
+
+### 13.4 Rules a band must satisfy
+
+1. **It renders completely without JavaScript.** Script adds the ability to *move between* stages; it never supplies a stage. Asserted in `tests/quality/homepage.spec.ts`.
+2. **It produces a belief no other band produces** (`HOMEPAGE_NARRATIVE.md` §4).
+3. **Its form differs from its neighbours'** where its argument differs. Two bands in the same component is a signal that one is redundant.
+4. **Nothing in band 1 animates on entrance** (`MOTION.md` §5). Bands 2–7 carry the reveal.
+5. **Ambient diagram motion is removable without loss** (ADR-021). Every topology renders in full with animation disabled.
+
+### 13.5 Band renumbering against §3
+
+§3's narrative table is unchanged in substance; the beats moved as follows. V1 band 5 (Workflow) is no longer a band — its content became band 2's explorable form, and `/workflow` is now reached from band 1.
+
+| §3 beat | V1 band | V2 band |
+|---|---|---|
+| Recognition | 1 | 1 |
+| Disarmament | 2 | 2 |
+| Engagement | 3 | 3 |
+| Widening | 4 | 4 and 5 |
+| Substantiation | 5 | 6 |
+| Intent | 6 | 7 |
+
+---
+
+## 14. Version 3 layout contract
+
+**Authorised by ADR-022. Supersedes §§4–6 and §13.** Narrative source: `HOMEPAGE_NARRATIVE.md` §4, version 0.4.0.
+
+### 14.1 Band structure
+
+| # | Label | Surface | Heading | Form | Component |
+|---|---|---|---|---|---|
+| 1 | — | base + grid | `<h1>` thesis | Statement, then a live page-load waterfall at full width | `sections/Hero` → `instrument/LiveTrace` |
+| 2 | Verification | sunken | Everything here is checkable | Pipeline grid, four gauges, counts, then the limits | `sections/Verification` → `instrument/Gauge` |
+| 3 | Systems | base | Two systems, one notation | Two containment waterfalls, then a quiet index | `sections/Systems` → `instrument/Trace` |
+| 4 | Failure | sunken | What breaks, and where it stops | Failure rows, and a topology that lights the containment | `instrument/FailureMatrix` |
+| 5 | Judgement | base | What I didn’t build | Six refusals, each with its cost | `sections/Refusals` |
+| 6 | Availability | sunken | Work with me | Two columns; invitation left, contact right | `app/page.tsx` |
+
+Surfaces alternate; `layout/Band` owns the numbered rule and the section rhythm, applied in exactly one place.
+
+### 14.2 The instrument
+
+One notation for all three waterfalls, and it is the page's visual signature. `Trace` renders rows; producers supply them.
+
+| Trace | Axis | Producer | Source of truth |
+|---|---|---|---|
+| Page load | **milliseconds, live** | `LiveTrace` | `PerformanceNavigationTiming`, paint and LCP entries, on the reader's device |
+| Agent run | **span containment, not time** | `containmentRows` | `AGENT_TRACE` in `content/home.ts` |
+| Retrieval | **span containment, not time** | `containmentRows` | `RETRIEVAL_TRACE` in `content/home.ts` |
+
+**A duration column on rows two and three is prohibited**, and the prohibition is enforced in CI. Neither system has production traffic, so a latency figure there would be the only unverifiable number on the page.
+
+### 14.3 Where numbers come from
+
+Nothing on this page is a hand-typed figure.
+
+```
+build output ──▶ scripts/measure.mjs ──▶ src/content/measured.json ──▶ page
+                        ▲                                    │
+                        └──── scripts/check-measured.mjs ◀────┘
+                             recomputes on every CI run;
+                             any drift fails the build
+```
+
+`measured.json` must be read on the **server** side of every client boundary. The page renders its own first-load JavaScript size, so importing the figures into a client component ships them inside the chunk they describe, and re-measuring never converges.
+
+### 14.4 Band renumbering against §3
+
+| §3 beat | V1 | V2 | V3 |
+|---|---|---|---|
+| Recognition | 1 | 1 | 1 |
+| Disarmament | 2 | 2 | 2 |
+| Engagement | 3 | 3 | 3 |
+| Widening | 4 | 4 and 5 | 3 (index) |
+| Substantiation | 5 | 6 | 2 and 4 |
+| Judgement | — | — | 5 |
+| Intent | 6 | 7 | 6 |
+
+*Judgement* is a beat V1 and V2 did not have. §3's table predates it and is otherwise unchanged.
+
+### 14.5 Rules a band must satisfy
+
+The four tests in `HOMEPAGE_NARRATIVE.md` §4.1, plus:
+
+1. **Nothing in band 1 animates on entrance** (`MOTION.md` §5). Trace bars growing to a measured length are data arriving, not an entrance.
+2. **Ambient diagram motion is removable without loss** (ADR-021).
+3. **Every interaction teaches a relationship.** A control that only swaps a paragraph is a control that should have been a paragraph — this is the test that removed V2's three tablists.
+
+---
+
+## 15. Version 4 layout contract
+
+**Authorised by ADR-023; art-directed by ADR-024 and ADR-025.** Supersedes §§4–6, §13 and §14. Narrative source: `HOMEPAGE_NARRATIVE.md` §4, version 0.5.0.
+
+### 15.1 Screens
+
+One surface for the whole page. No numbered eyebrows, no labels, no alternating backgrounds — a hairline where one screen meets the next, and the largest step on the section scale between them.
+
+| # | Heading | Content | Words |
+|---|---|---|---|
+| 1 | `<h1>` thesis | Positioning verbatim, one link, one measured footnote | ~40 |
+| 2 | Three clauses of method | One sentence naming the check count, one link | ~25 |
+| 3 | OrchestAI | One idea, one consequence, one link | ~45 |
+| 4 | NovaMind AI | `10 → 5 → 1`, one idea, one consequence, two links | ~55 |
+| 5 | What I didn’t build | Four refusals, then the closing line | ~90 |
+| 6 | Work with me | Availability, two links, three contact facts | ~30 |
+
+`layout/Screen` owns the divider and the rhythm and does nothing else. The final screen halves its bottom padding, because `Footer` already opens with `mt-section-lg`.
+
+### 15.2 Typographic hierarchy
+
+The page has no visual system beyond this. Five sizes carry everything.
+
+| Role | Token | Desktop |
+|---|---|---|
+| Thesis, and the one figure | `hero` | 58 px — measured to set the statement on one line at ≥1000 px |
+| Method clauses, system ideas | `heading-1` | 44 px |
+| Screen headings, closing line | `heading-2` | 35 px |
+
+Project names take `heading-3` while screen headings take `heading-2`, though both are `<h2>`. `ACCESSIBILITY.md` §8 sanctions this explicitly: the level is a structural claim and the size is not, and a project name beside a 44 px statement is a label rather than a section heading.
+| Project names, refusal subjects | `heading-3` | 28 px |
+| Consequences, positioning | `lede` | 22.5 px |
+| Metadata and the footnote | `mono` | 14.5 px |
+
+Mono is demoted to metadata only. It carried node labels, axis captions, gauge readouts and status chips in V2 and V3; it now appears in four places.
+
+**No inline `<code>` anywhere on this page** (ADR-024). At 14.5 px against 22.5 px of lede an inline technical term reads as a broken stylesheet rather than as a change of voice. Asserted in CI.
+
+**`text-balance` on the statement, the hero subtitle, and the closing line.** All three set in two lines; balanced, the lines are near-equal and each block reads as a shape rather than as text that wrapped.
+
+### 15.3 The figure test
+
+A visualisation ships only if it communicates **faster than the sentence it would replace**. This is the whole rule, and it is what removed the trace waterfalls, the gauges, the failure matrix and the node graph.
+
+`10 → 5 → 1` passes: three numerals at 80 px say what NovaMind's six-row waterfall said, faster than its labels could be read. OrchestAI has no figure — its idea is a sentence, and a diagram of a sentence is slower than the sentence.
+
+### 15.4 Budgets
+
+| Budget | Ceiling | Authority |
+|---|---|---|
+| Words in `<main>` | 340 | ADR-023, `tests/quality/homepage.spec.ts` |
+| Screens | 6 | ADR-023 |
+| Route JavaScript | — | 906 B measured; the footnote is the only client component |
+| Motion | 1 | ADR-024 — the arrow on an action control. A second would make the first ordinary |
+| Outbound links | — | ADR-025 — `target="_blank"` + `rel="noopener noreferrer"`, announced. Asserted in CI |
+
+The word budget is the one this project did not previously have. Bytes, types, contrast and axe were all green across thirteen screens and 1,914 words, because none of them measures attention.
+
+### 15.5 Band renumbering against §3
+
+| §3 beat | V1 | V2 | V3 | V4 |
+|---|---|---|---|---|
+| Recognition | 1 | 1 | 1 | 1 |
+| Disarmament | 2 | 2 | 2 | 2 |
+| Engagement | 3 | 3 | 3 | 3 |
+| Widening | 4 | 4 and 5 | 3 | 4 |
+| Substantiation | 5 | 6 | 2 and 4 | 2 |
+| Judgement | — | — | 5 | 5 |
+| Intent | 6 | 7 | 6 | 6 |

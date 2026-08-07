@@ -153,6 +153,21 @@
     font-size: var(--type-code-size);
   }
 
+  /* `COMPONENT_GUIDELINES.md` §8.3 — "horizontal scroll within the block; the
+     page never scrolls horizontally". That was specified and never implemented:
+     a long line inside a `<pre>` widened the document instead, and two case
+     studies overflowed at 390 px by 110 px and 338 px. Set here rather than on
+     `CodeBlock`, because MDX also emits bare `<pre>` for fenced code and the
+     guarantee has to hold for every one of them.
+
+     `max-width` is the part that actually contains it: without it a `<pre>`
+     inside a grid or flex track resolves its width from its content rather than
+     from its parent, and `overflow-x` never gets the chance to apply. */
+  pre {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
   /* ACCESSIBILITY.md §4 — two-tone ring, :focus-visible, never removed. */
   :focus-visible {
     outline: var(--border-emphasis) solid var(--color-focus-ring);

@@ -19,6 +19,7 @@ import {
   typeScale,
   type Oklch,
 } from '../../src/design/tokens';
+import { TYPE_CLASS } from '../../src/design/typeClasses';
 
 /** CIE L* -> relative luminance, then the WCAG contrast ratio. */
 const luminance = (l: number): number => ((l * 100 + 16) / 116) ** 3;
@@ -43,10 +44,31 @@ describe('primitives match TOKENS.md', () => {
     expect(Object.values(accent).every((c) => c.h === 220)).toBe(true);
   });
 
-  it('type scale is 8 steps with the documented anchors', () => {
-    expect(Object.keys(typeScale)).toHaveLength(8);
+  it('type scale is 9 steps with the documented anchors', () => {
+    expect(Object.keys(typeScale)).toHaveLength(9);
     expect(typeScale[300]).toEqual({ mobile: 17, desktop: 18 });
     expect(typeScale[800]).toEqual({ mobile: 38, desktop: 55 });
+    // ADR-020 — step 900 exists for the home page's opening statement.
+    expect(typeScale[900]).toEqual({ mobile: 40, desktop: 58 });
+  });
+
+  it('step 900 is the top of the scale and has exactly one consumer', () => {
+    // This assertion has been rewritten twice to accommodate a design change,
+    // which is the signal that the thing it was testing — a ratio against
+    // whatever size happened to sit beneath it — was an opinion rather than an
+    // invariant. It kept needing revision because it was encoding a value, not
+    // a rule.
+    //
+    // What is actually true of step 900, and stays true: it is the largest step
+    // on the scale, and `type-hero` is the only token that reaches it. Its
+    // exact value is an art-direction decision recorded in ADR-025 and measured
+    // against the column it has to fit; a unit test is the wrong place to
+    // relitigate it.
+    const steps = Object.keys(typeScale).map(Number);
+    expect(Math.max(...steps)).toBe(900);
+
+    const atTop = Object.entries(semanticType).filter(([, token]) => token.step === 900);
+    expect(atTop.map(([name]) => name)).toEqual(['type-hero']);
   });
 
   it('space scale omits steps 7, 9, 11, 13-15, 17-19 deliberately', () => {
@@ -54,7 +76,11 @@ describe('primitives match TOKENS.md', () => {
   });
 
   it('motion is four durations and three easings, frozen by ADR-011', () => {
+    // ADR-021 added a second, ambient motion system for animated diagrams;
+    // ADR-023 withdrew it with the diagrams. The scale is back to exactly what
+    // ADR-011 froze, and nothing on the site animates for longer than 400 ms.
     expect(Object.values(duration)).toEqual([100, 160, 240, 400]);
+    expect(Object.values(duration).every((ms) => ms <= 400)).toBe(true);
     expect(Object.keys(easing)).toHaveLength(3);
     expect(stagger).toEqual({ interval: 60, max: 4 });
   });
@@ -132,6 +158,40 @@ describe('contrast floors — ACCESSIBILITY.md §3', () => {
     expect(
       contrast(semanticColor['color-text-on-accent'].dark, accent[500]),
     ).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
+describe('type tokens reach the stylesheet', () => {
+  /**
+   * Guards a defect that shipped and was invisible for weeks.
+   *
+   * `Text` built its size class as a template literal, so Tailwind — which finds
+   * class names by scanning source text — generated only the five that happened
+   * to appear as complete literals elsewhere. Nine tokens were missing from the
+   * stylesheet entirely. It looked correct because `globals.css` styles h1–h4 as
+   * elements, so headings resolved through the element rule; what silently broke
+   * was `lede`, `display`, and any heading token applied to a non-heading, which
+   * is a combination the `Text` API exists to support.
+   */
+  it('every semantic type token has a literal class name', () => {
+    for (const key of Object.keys(semanticType)) {
+      const token = key.replace('type-', '') as keyof typeof TYPE_CLASS;
+      expect(TYPE_CLASS[token]).toBe(`text-${key}`);
+    }
+  });
+
+  it('the class map carries no token the scale does not define', () => {
+    for (const token of Object.keys(TYPE_CLASS)) {
+      expect(Object.keys(semanticType)).toContain(`type-${token}`);
+    }
+  });
+
+  it('every class name is a complete literal, never assembled', () => {
+    // The failure mode is a value like `text-type-${x}`. A literal contains no
+    // interpolation and matches the class-name grammar exactly.
+    for (const value of Object.values(TYPE_CLASS)) {
+      expect(value).toMatch(/^text-type-[a-z0-9-]+$/);
+    }
   });
 });
 

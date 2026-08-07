@@ -5,6 +5,7 @@ import { Decision } from './Decision';
 import { Diagram } from './Diagram';
 import { Figure } from './Figure';
 import { Metric } from './Metric';
+import { PreBlock } from './PreBlock';
 import { Timeline } from './Timeline';
 
 /**
@@ -23,6 +24,14 @@ import { Timeline } from './Timeline';
  * typography from the base layer in `globals.css`. COMPONENT_GUIDELINES.md §8.2
  * specifies Blockquote as quoted external material, which is what the native
  * `blockquote` element already is.
+ *
+ * **`pre` is the one exception, and it is an accessibility obligation rather
+ * than a presentation preference** (ADR-027). Every `<pre>` is a horizontal
+ * scroll container, and a scrollable region must be reachable by keyboard
+ * (WCAG 2.1.1). `PreBlock` adds nothing but that reachability. The closed set of
+ * *authorable* components is still exactly the eight §6.4 enumerates — an author
+ * cannot reference this one, and a case study reaching for anything outside the
+ * eight still fails to compile.
  */
 export const mdxComponents = {
   Figure,
@@ -33,6 +42,7 @@ export const mdxComponents = {
   Comparison,
   Callout,
   CodeBlock,
+  pre: PreBlock,
 } as const;
 
 export type MdxComponentName = keyof typeof mdxComponents;

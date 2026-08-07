@@ -1,8 +1,6 @@
 'use client';
 
-import { Children, useEffect, useRef, type ReactNode } from 'react';
-
-import { stagger } from '@/design/motion';
+import { useEffect, useRef, type ReactNode } from 'react';
 
 /**
  * Entrance reveal — `MOTION.md` §5, `ARCHITECTURE.md` §9, ADR-018.
@@ -25,6 +23,13 @@ import { stagger } from '@/design/motion';
  *
  * **Applied to blocks, not text runs** — a section, a card, a figure. Never a
  * paragraph, heading, or list item in isolation.
+ *
+ * `RevealGroup` and the `delayMs` prop that served it were removed in the V4
+ * cleanup: the home page reveals whole screens, and no surface on the site has
+ * staggered a group since. The `stagger` token remains in the scale — it is
+ * frozen by ADR-011 and withdrawing it is a design decision rather than a
+ * cleanup — but it currently has no consumer, and that is worth knowing before
+ * the next motion change.
  */
 
 /** §5 — 20% of the element's height intersecting the viewport. */
@@ -33,14 +38,9 @@ const THRESHOLD = 0.2;
 type RevealProps = {
   children: ReactNode;
   className?: string;
-  /**
-   * Stagger offset in milliseconds. Set by `RevealGroup`; passing it directly
-   * bypasses the group-size rule in §5 and should be rare.
-   */
-  delayMs?: number;
 };
 
-export function Reveal({ children, className, delayMs = 0 }: RevealProps) {
+export function Reveal({ children, className }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -108,42 +108,8 @@ export function Reveal({ children, className, delayMs = 0 }: RevealProps) {
   }, []);
 
   return (
-    <div
-      ref={ref}
-      className={className}
-      style={delayMs > 0 ? { transitionDelay: `${delayMs}ms` } : undefined}
-    >
+    <div ref={ref} className={className}>
       {children}
-    </div>
-  );
-}
-
-/**
- * Staggered group — `MOTION.md` §5, "Stagger".
- *
- * Up to four children arrive `--stagger-interval` apart, reading as one gesture
- * with internal order. Beyond four, the last arrival is late enough that a
- * reader scrolling at normal speed has already passed it, so the group animates
- * as a single unit instead — which is why this rule lives here rather than at
- * each call site.
- *
- * Four elements resolve at 400 + (3 × 60) = 580 ms. §5 records that the 400 ms
- * ceiling in `ARCHITECTURE.md` §9 governs a single animation, not a sequence.
- */
-export function RevealGroup({ children, className }: { children: ReactNode; className?: string }) {
-  const items = Children.toArray(children);
-
-  if (items.length > stagger.max) {
-    return <Reveal className={className}>{children}</Reveal>;
-  }
-
-  return (
-    <div className={className}>
-      {items.map((child, index) => (
-        <Reveal key={index} delayMs={index * stagger.interval}>
-          {child}
-        </Reveal>
-      ))}
     </div>
   );
 }

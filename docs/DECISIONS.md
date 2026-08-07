@@ -1658,3 +1658,27 @@ The four case studies carry 8,747 words across 32 chapters and are the highest-v
 - **`Prose` is used for the first time since it was written.** A component can pass every test it has and still be dead code, and nothing in CI notices.
 - Live URLs updated: OrchestAI to `orchestai-two.vercel.app`, NovaMind to `www.trynovamind.com`.
 - 123/123 browser checks, 53/53 unit, full CI green, Lighthouse 100/100/100/100 on all ten routes, zero page overflow and clean console across four pages × seven widths.
+
+## ADR-034 — the competency label rejoins its column; baseline alignment replaces spanning
+
+**Status:** Accepted · 2026-08-07 · Reverses one decision in ADR-028 · Extends ADR-033 · Owner-reported
+
+### Context
+
+ADR-028 made `/work`'s competency label span both columns rather than sit inside the left one, and gave a real reason: nested, the label pushed the title thirty-six pixels down while the right column started immediately, so the eye reached the description before the project name — an inversion of the reading order `ROUTE_SPECIFICATIONS.md` §1 specifies.
+
+That reasoning was written before the entry grid was baseline-aligned. Once it was, the spanning label had a cost that only appears while scrolling, and the owner reported it as exactly that: the four labels — *AI Infrastructure Engineering*, *AI Product Engineering*, *Enterprise Software Engineering*, *Engineering Methodology* — sat on a row with nothing beside them, so each entry read as slightly out of register with its own description.
+
+Measured, the title and summary baselines were already exact at every width from 1280 to 2560. The defect was real and it was not the one the numbers were looking for, which is worth recording: four separate baseline measurements returned zero while the page still read as misaligned.
+
+### Decision
+
+**The label returns to the left column, above the title, and the row is aligned on first baselines.** The summary now begins on the label's line; the title and lifecycle follow beneath it. The problem ADR-028 identified is solved by the alignment rather than by the spanning — the eye reaches the label and the summary together, then the project name, which is §1's order.
+
+**This is the structure the rest of the site already uses.** `/resume` puts period, employer and role in one identity column with the description beside it; the case-study header puts competency, title and lifecycle in the same order. `/work` was the last surface with its own arrangement.
+
+### Consequences
+
+- **One decision in ADR-028 is reversed, and the rest of it stands** — the withdrawn card, the hover treatment, the single accessible name, and identical rendering for all four entries are unaffected.
+- **Label-to-summary baseline delta is 0 on all four entries**, and the label, title and lifecycle share one left edge at 208 px.
+- **A defect can survive a measurement that was aimed at the wrong pair.** The title-to-summary baseline was checked at six widths and was correct every time; the misalignment was between the label and the summary, which nothing had measured.

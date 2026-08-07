@@ -61,24 +61,31 @@ function CaseStudyEntry({ study, level }: { study: CaseStudy; level: 'h2' | 'h3'
   return (
     <li>
       <Link href={`/work/${f.slug}`} variant="bare">
-        <article className="group flex flex-col gap-5">
-          {/*
-            The competency label spans both columns rather than sitting inside
-            the left one. Nested, it pushed the title thirty-six pixels down
-            while the right column started immediately, so the eye reached the
-            description before the project name — the exact inversion of the
-            reading order §1 specifies. Spanning, it reads as what it is: a
-            section label over a two-column block.
-          */}
-          <Text token="mono" as="span" color="tertiary" uppercase>
-            {COMPETENCY_LABEL[f.competency]}
-          </Text>
+        {/*
+          `items-baseline` puts the *label's* first line on the same baseline as
+          the summary's, which is what makes the two columns read as one row.
 
-          {/* `items-baseline` puts the title and the summary's first line on the
-              same baseline. Top-aligned, a 35 px serif and a 22.5 px sans start
-              at different optical heights and the two columns read as slipped. */}
-          <div className="grid gap-6 lg:grid-cols-12 lg:items-baseline lg:gap-16">
-            <div className="flex flex-col gap-1 lg:col-span-4">
+          **ADR-028 had the label span both columns, and that is reversed here**
+          (ADR-034). Its reasoning was sound at the time: nested, the label
+          pushed the title thirty-six pixels down while the right column started
+          immediately, so the eye reached the description before the project
+          name. But that was written before the grid was baseline-aligned, and
+          the fix for it is the alignment, not the spanning — with the label
+          inside the column and the row aligned on first baselines, the summary
+          begins on the label's line and the title follows underneath it.
+
+          Spanning had a cost that only shows up in scrolling: the label sat on
+          a row with nothing beside it, so every entry read as slightly out of
+          register with its own description. This is also the structure
+          `/resume` and the case-study header already use — label, then title,
+          then lifecycle, in one identity column.
+        */}
+        <article className="group grid gap-6 lg:grid-cols-12 lg:items-baseline lg:gap-16">
+          <div className="flex flex-col gap-4 lg:col-span-4">
+            <Text token="mono" as="span" color="tertiary" uppercase>
+              {COMPETENCY_LABEL[f.competency]}
+            </Text>
+            <div className="flex flex-col gap-1">
               {/* Raw element rather than `Text`, which owns its own colour and
                   cannot be overridden at the call site. This is the one piece of
                   §4.1's hover treatment that survives ADR-028 — the title moves
@@ -91,40 +98,40 @@ function CaseStudyEntry({ study, level }: { study: CaseStudy; level: 'h2' | 'h3'
                 {f.lifecycle}
               </Text>
             </div>
+          </div>
 
-            {/*
+          {/*
               Two values, both taken from the home page's project screen rather
               than chosen: 20 px inside the content group, 40 px before the
               action. At a uniform 24 px the stack read as a third peer of the
               description and the CTA read as a fourth, so the eye reached the
               action before it had finished reading.
             */}
-            <div className="flex flex-col gap-10 lg:col-span-8">
-              <div className="flex flex-col gap-5">
-                {/* `SPACING.md` §6 — all body copy sits in the measure column.
+          <div className="flex flex-col gap-10 lg:col-span-8">
+            <div className="flex flex-col gap-5">
+              {/* `SPACING.md` §6 — all body copy sits in the measure column.
                     The summary previously ran the full 1120 px container, at
                     roughly twice `TYPOGRAPHY.md` §5's 68-character cap. */}
-                <div className="max-w-prose">
-                  <Text token="lede" as="span" color="secondary">
-                    {f.summary}
-                  </Text>
-                </div>
-                <Text token="mono" as="span" color="tertiary">
-                  {f.stack.join(' · ')}
+              <div className="max-w-prose">
+                <Text token="lede" as="span" color="secondary">
+                  {f.summary}
                 </Text>
               </div>
-              {/* Not a nested link — the entry already is one, and a second
+              <Text token="mono" as="span" color="tertiary">
+                {f.stack.join(' · ')}
+              </Text>
+            </div>
+            {/* Not a nested link — the entry already is one, and a second
                   focusable control inside it is exactly the "link list full of
                   Read more" that INTERACTION.md §11 rules out. It carries the
                   home page's action-link wording and glyph so the affordance
                   reads the same, without pretending to be a separate target. */}
-              <span className="flex items-center gap-2 text-color-text-primary">
-                <Text token="label" as="span">
-                  Read the case study
-                </Text>
-                <span aria-hidden="true">&rarr;</span>
-              </span>
-            </div>
+            <span className="flex items-center gap-2 text-color-text-primary">
+              <Text token="label" as="span">
+                Read the case study
+              </Text>
+              <span aria-hidden="true">&rarr;</span>
+            </span>
           </div>
         </article>
       </Link>

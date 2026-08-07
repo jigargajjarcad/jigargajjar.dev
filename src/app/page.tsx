@@ -137,8 +137,16 @@ export default function HomePage() {
               <Text token="lede" color="secondary">
                 {`${METHOD_EVIDENCE} ${totalChecks} checks pass.`}
               </Text>
-              <div>
-                <Link href="/workflow">How it works</Link>
+              {/* The `action` variant, like every other call to action on this
+                  page and on `/resume`. This was the one that had stayed a
+                  prose link — accent plus a hairline underline — so the method
+                  screen offered its next step in a different voice from the
+                  four around it. `self-start` keeps it sized by its label
+                  rather than stretched to the column. */}
+              <div className="self-start">
+                <Link href="/workflow" variant="action">
+                  How it works
+                </Link>
               </div>
             </div>
           </div>

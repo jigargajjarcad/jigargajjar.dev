@@ -5,7 +5,7 @@
     "homeFirstLoadBudgetKb": 120,
     "sharedRuntimeKb": 100.3,
     "sharedRuntimeCeilingKb": 105,
-    "cssKb": 6.8,
+    "cssKb": 6.9,
     "cssBudgetKb": 20,
     "routes": 12
   },

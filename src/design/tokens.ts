@@ -332,9 +332,12 @@ export const semanticType = {
     // Step 200 (14.5 px) is the smallest size at which it is comfortably
     // readable. Tracking comes down with the size increase: 0.04em was opening
     // up 11.5 px type that needed the help, and at 14.5 px the same value reads
-    // as spaced-out rather than as set. Line height rises to 1.5 because the one
-    // place this token wraps — the metadata line — wrapped tightly at 1.35.
-    lineHeight: 1.5,
+    // as spaced-out rather than as set.
+    //
+    // Leading is 1.4. It was raised to 1.5 when the metadata was one string that
+    // wrapped; now that it is two authored lines, 1.5 separates them into two
+    // statements when they should read as one block under the title (ADR-026).
+    lineHeight: 1.4,
     tracking: '0.02em',
   },
   'type-display': {

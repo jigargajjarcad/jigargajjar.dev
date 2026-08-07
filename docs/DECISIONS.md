@@ -41,6 +41,7 @@ Records are immutable once accepted. A decision that changes gets a new record t
 | [023](#adr-023) | The home page is one idea in two hundred words | Accepted |
 | [024](#adr-024) | Art direction pass: the home page is finished as a composition | Accepted |
 | [025](#adr-025) | Final polish: the headline is measured, and outbound links open away | Accepted |
+| [026](#adr-026) | Final proof: a missing favicon, and four things that were already right | Accepted |
 
 ---
 
@@ -1284,3 +1285,44 @@ ADR-024 art-directed the page. This record covers the pass after it, which was a
 - **Two items on the polish list were declined with reasons** rather than approximated. Both are geometry: one bounded by the longest clause, one by an accessibility floor. Recording them here means the next pass does not rediscover them.
 - **`INTERACTION.md` §6 is reversed rather than amended**, and this is the first outright reversal of a frozen design rule on this project. The rule was not wrong in principle; it was applied to a class of link it was not written about. That distinction is worth preserving, because the principle still governs internal navigation.
 - The step-900 assertion in `tests/unit/tokens.test.ts` was rewritten a third time and then replaced. It had been asserting a *ratio*, which is an art-direction value and changed with every pass; it now asserts what is actually invariant — that 900 is the top of the scale and `type-hero` is its only consumer. A test that needs editing every time the design moves was testing the design, not the system.
+
+---
+
+<a id="adr-026"></a>
+## ADR-026 — Final proof: a missing favicon, and four things that were already right
+
+**Status:** Accepted · 2026-08-07 · Amends `TOKENS.md` §4.5 · Adds `src/app/icon.svg`
+
+### Context
+
+A section-by-section proof pass over the finished home page, of the kind that happens before a launch rather than during design. The brief was explicit that anything already correct should be left alone, which makes *measuring* the point of the exercise: an art director's eye can be wrong about a three-pixel offset in either direction, and half the items on the list turned out to be correct already.
+
+Everything below was measured in the browser — ink metrics from `canvas.measureText` for optical edges, and zero-width inline probes for true first baselines, because element bounding boxes are line boxes and not what an eye aligns to.
+
+### Decision
+
+**One real defect, and it was not on the list.**
+
+**There was no favicon.** Every route requested `/favicon.ico`, received a 404, and logged a browser console error. Lighthouse counts that: `errors-in-console` was the single audit holding Best Practices at 96 rather than 100 across all ten routes, and it had been doing so since the site was built. `src/app/icon.svg` is added — the wordmark's initial, set in Georgia, which is the face declared as `Newsreader Fallback` and therefore the one a reader actually sees for the first few hundred milliseconds of a visit. A bespoke logotype would have been a design decision nobody asked for. **All four Lighthouse categories are now 100 on all ten routes.**
+
+**Two adjustments, both measured.**
+
+The project metadata read as detached from its title. The gap closes from 8 px to 4 px and `type-mono`'s leading comes down from 1.5 to 1.4 — the 1.5 was set when that metadata was one string that wrapped, and once it became two authored lines (ADR-025) the same value separated them into two statements instead of binding them into one block under the title. Size is unchanged at 14.5 px: the requested hierarchy is title → metadata → case study, and the next step on the scale is 18 px, which would put the metadata within four points of the 22.5 px consequence line and invert it.
+
+Contact column alignment was wrong, and wrong in the way that is worst: `lg:items-baseline` did not propagate across two differently-structured grid children, so "Available" and "BASED IN" sat **11.45 px** apart — near enough to look intended, far enough to look missed. `lg:items-start` aligns the box tops exactly, which lands the two cap-heights within about three pixels. That is the correct trade: baseline alignment between a 35 px serif heading and a 14.5 px mono label was never going to be exact, and cap-height is what the eye reads across a 700 px gutter anyway.
+
+### Alternatives considered
+
+**Raise the metadata to the next type step.** Rejected — see above. Twice-requested, and the measurement is what settles it: 18 px mono against a 22.5 px consequence is not a hierarchy.
+
+**Baseline-align the project columns.** Rejected. The two columns are top-aligned to the pixel (measured identical), and their first baselines differ by 13.4 px on OrchestAI and 27.6 px on NovaMind because the right column opens with a 44 px statement in one and a 58 px figure in the other. Baseline-aligning would fix each screen in isolation and put the two project titles at different heights relative to each other, which is the worse inconsistency.
+
+**Force uniform refusal row heights.** Rejected. Rows measure 116, 116, 142.6 and 143.6 px; the difference is entirely whether the right-hand sentence wraps to two lines. Equalising them means padding the short rows with 27 px of nothing. The rows are already internally correct — the left and right first baselines are **exactly** 0.00 px apart in all four.
+
+### Consequences
+
+- **100 / 100 / 100 / 100 on every route**, from 100 / 100 / 96 / 100. The favicon was the whole of it.
+- **`type-mono`'s leading changed globally** for a metadata-specific reason. It is single-line at both other call sites, so nothing else moved — but that is luck rather than design, and the token now carries a value tuned for one consumer.
+- **Four of the eleven review items required no change**, and the measurements are recorded here so the next pass does not re-open them: hero optical left edge (h1 and subtitle ink differ by 0.6 px), project column top alignment (identical), refusal baselines (0.00 px), footer icon alignment (all four identical, 20 × 20).
+- **The method screen's optical gutter is 73 px** from the longest clause's ink to the right column. ADR-025 recorded why it cannot close further; this records the number so the question is answerable without re-measuring.
+- The page holds one line at 58 px down to laptop width, wraps at tablet and below, and reports **CLS 0 with no console output at 320, 390, 900, 1024 and 1440 px**.

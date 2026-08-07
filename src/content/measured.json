@@ -1,5 +1,5 @@
 {
-  "measuredAt": "2026-08-06",
+  "measuredAt": "2026-08-07",
   "bundle": {
     "homeFirstLoadKb": 105.4,
     "homeFirstLoadBudgetKb": 120,
@@ -12,13 +12,13 @@
   "lighthouse": {
     "performance": 100,
     "accessibility": 100,
-    "bestPractices": 96,
+    "bestPractices": 100,
     "seo": 100,
-    "lcpMs": 535,
-    "fcpMs": 217,
+    "lcpMs": 533,
+    "fcpMs": 215,
     "tbtMs": 0,
     "cls": 0,
-    "measuredAt": "2026-08-06"
+    "measuredAt": "2026-08-07"
   },
   "gates": {
     "unitTests": 53,
@@ -26,7 +26,7 @@
     "ciSteps": 9
   },
   "repository": {
-    "decisionRecords": 25,
+    "decisionRecords": 26,
     "caseStudies": 4,
     "caseStudyWords": 8800,
     "semanticColours": 21,

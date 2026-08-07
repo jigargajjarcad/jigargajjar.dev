@@ -87,7 +87,7 @@
   --type-mono-size: clamp(0.875rem, 0.8621rem + 0.0552vw, 0.9063rem);
   --type-mono-family: var(--font-mono);
   --type-mono-weight: var(--weight-regular);
-  --type-mono-line-height: 1.5;
+  --type-mono-line-height: 1.4;
   --type-mono-tracking: 0.02em;
   --type-display-size: clamp(2.375rem, 1.9347rem + 1.8785vw, 3.4375rem);
   --type-display-family: var(--font-display);

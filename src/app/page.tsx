@@ -153,7 +153,7 @@ export default function HomePage() {
         <Reveal key={system.slug}>
           <Screen>
             <div className="grid gap-10 lg:grid-cols-12 lg:gap-16">
-              <div className="flex flex-col gap-2 lg:col-span-4">
+              <div className="flex flex-col gap-1 lg:col-span-4">
                 {/*
                   `heading-3`, not `heading-2`. At 35 px the project name sat
                   within nine points of the 44 px statement beside it, so the two
@@ -281,7 +281,7 @@ export default function HomePage() {
             worst of both — near enough to look intended, far enough to look
             missed. ADR-025.
           */}
-          <div className="grid gap-12 lg:grid-cols-12 lg:items-baseline lg:gap-16">
+          <div className="grid gap-12 lg:grid-cols-12 lg:items-start lg:gap-16">
             <div className="flex flex-col gap-8 lg:col-span-7">
               <Text token="heading-2" as="h2">
                 Available

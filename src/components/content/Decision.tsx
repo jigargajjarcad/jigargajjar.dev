@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import type { ReactNode } from 'react';
 
 /**
@@ -22,16 +23,26 @@ export function Decision({
   alternatives: ReactNode;
   consequence: ReactNode;
 }) {
+  const REGIONS: [string, ReactNode][] = [
+    ['Context', context],
+    ['Choice', choice],
+    ['Alternatives considered', alternatives],
+    ['Consequence', consequence],
+  ];
+
   return (
-    <dl>
-      <dt>Context</dt>
-      <dd>{context}</dd>
-      <dt>Choice</dt>
-      <dd>{choice}</dd>
-      <dt>Alternatives considered</dt>
-      <dd>{alternatives}</dd>
-      <dt>Consequence</dt>
-      <dd>{consequence}</dd>
+    /* §8.6 — "Contained by a 1 px border, no fill", which is what keeps it
+       "visually distinct from a callout": bordered-no-fill against
+       filled-with-left-rule. Labels are `--type-label` uppercase at
+       `--color-text-secondary`, bodies `--type-body`, in the fixed order the
+       spec requires. */
+    <dl className="grid grid-cols-1 gap-y-6 border-hairline border-color-border-subtle p-6 sm:grid-cols-[10rem_1fr] sm:gap-x-6 sm:gap-y-5">
+      {REGIONS.map(([label, body]) => (
+        <Fragment key={label}>
+          <dt className="font-text text-type-label uppercase text-color-text-secondary">{label}</dt>
+          <dd className="m-0 font-text text-type-body text-color-text-primary">{body}</dd>
+        </Fragment>
+      ))}
     </dl>
   );
 }

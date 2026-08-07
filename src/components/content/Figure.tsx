@@ -28,11 +28,25 @@ export function Figure({
   children?: ReactNode;
 }) {
   return (
-    <figure>
-      {children ?? (
-        <Image src={src ?? ''} alt={alt ?? ''} width={width ?? 0} height={height ?? 0} />
-      )}
-      <figcaption>{caption}</figcaption>
+    /* §8.4 — "Framed by a hairline, nothing else. No shadow, no device frame,
+       no perspective." The caption is `--type-caption` and tertiary: it is
+       context, not content, and it must not compete with the body it sits
+       under. */
+    <figure className="m-0">
+      <div className="overflow-hidden rounded-sm border-hairline border-color-border-subtle">
+        {children ?? (
+          <Image
+            src={src ?? ''}
+            alt={alt ?? ''}
+            width={width ?? 0}
+            height={height ?? 0}
+            className="block h-auto w-full"
+          />
+        )}
+      </div>
+      <figcaption className="mt-3 font-text text-type-caption text-color-text-tertiary">
+        {caption}
+      </figcaption>
     </figure>
   );
 }

@@ -1610,3 +1610,50 @@ Underneath those was a contradiction between two frozen documents. Wireframe §6
 - **`end: null` became `end: '2026-03'` on the current role.** `null` is this type's encoding for "current", and the owner's new period closes it; leaving the flag would have made the data disagree with the string it renders.
 - PDF verified at three pages with `pypdf`: every contact destination, both project names and their technical detail extractable as real text, `Download as PDF` correctly absent, no stranded heading or label at any page foot.
 - 123/123 browser checks, 53/53 unit, full CI green, Lighthouse 100/100/100/100 on all ten routes, zero overflow and 44 px targets at 320–1920 px, console clean.
+
+## ADR-033 — the case-study template is implemented, not redesigned
+
+**Status:** Accepted · 2026-08-07 · Implements `TYPOGRAPHY.md` §4, `COMPONENT_GUIDELINES.md` §8.1–§8.8 · Amends `ICONOGRAPHY.md` §6 · Closes the defect recorded in ADR-029
+
+### Context
+
+The four case studies carry 8,747 words across 32 chapters and are the highest-value surface on the site — `EXPERIENCE_FLOW.md` §2 calls this the handoff a cold arrival lands on. They were also the only route whose presentation had never been written. Measured on `/work/orchestai` before this pass:
+
+- The body rendered inside `Container width="wide"`, so prose set at **90 characters** against `TYPOGRAPHY.md` §5's cap of 68 — the measure §5 describes as the point where "the return sweep becomes unreliable and readers lose their line". `Prose`, the component that exists to prevent exactly this, was never used by anything.
+- **`TYPOGRAPHY.md` §4's vertical rhythm existed nowhere in the stylesheet.** `globals.css` resets `p` and `h1`–`h4` margins to zero and nothing put them back: every paragraph gap measured **0 px**, and the space above and below all eight `<h2>` chapter headings measured **0 px**.
+- **All eight content components were unstyled.** Not "roughly styled" — `grep -c className` returned zero for seven of the eight. `Callout` was the one ADR-029 recorded; the other seven were the same defect, unnoticed.
+- The competency printed its raw slug, `ai-infrastructure`. The metadata was a bare `<dl>`, whose `dd` has no indent once the reset removes its margin, so terms and definitions ran together. The header spaced its label, title, lifecycle, lede and metadata at a uniform 16 px, which is a list, not a hierarchy.
+
+### Decision
+
+**Nothing here is a design decision that the documentation had not already made.** §4 specifies the rhythm as a table; §8.1–§8.8 specify each component property by property. This ADR records that they were implemented and how, not what was chosen.
+
+**Prose rhythm is derived from line height, not the spacing scale.** `SPACING.md` §2 draws that boundary in as many words: "prose spacing derives from line height (`TYPOGRAPHY.md` §4); everything else uses this scale. Two systems, each in its correct domain." So the unit is one body line — `--type-body-size × --type-body-line-height` — and every value is a multiple of it: 1 line between paragraphs, 3 before an `<h2>`, 2 before an `<h3>`, 0.5 after any heading, 0.75 into a list, 1.5 either side of a block. Because the body size is a `clamp()`, the entire rhythm resolves fluidly and needs no breakpoints.
+
+**Leading trim is implemented rather than approximated.** Each heading subtracts its own half-leading, `(line-height − 1) ÷ 2 × 1em`, where `1em` inside the heading is its own size. §4 is right that without it "every heading in the document is misaligned by a different amount depending on its size" — one expression, correct at every viewport.
+
+**Margins are top-only.** Bottom margins collapse against top margins differently by element and by browser, and the rule that wins is then not predictable from reading the stylesheet.
+
+**The hero takes the home page's project-screen hierarchy** — mono label, title bound to its lifecycle at 4 px, lede at 24 px, metadata block at 40 px — and the metadata takes the labelled grid `/resume` and `/connect` use, so a reader crossing from either recognises it. Outcomes move above the body behind a hairline: a reader who stops at the fold has still read what the project achieved.
+
+**Source and Live become marks**, in ADR-031's treatment. `ICONOGRAPHY.md` §6 gains no sixth icon-only entry: its "profile mark row" is generalised to a mark row, because a repository and a deployment are the same kind of thing as a profile — a destination the page names rather than describes. A `globe` icon joins the set as its eleventh of a documented fifteen, drawn in §3's stroke grammar rather than as a third brand mark.
+
+### Alternatives considered
+
+**Style the components individually and skip the shared rhythm.** Rejected. Part of the brief was that "every improvement should automatically benefit all four case-study pages", and rhythm is the improvement that does — one scoped block fixed 32 chapters across four documents, where per-component styling would have left the native markdown between them still flush.
+
+**Put the rhythm in each component.** Rejected on `globals.css`'s own charter: it owns base typography, and the spacing between a paragraph and the heading above it belongs to neither element's component.
+
+**Break code blocks and comparison tables out to `--container-wide`,** as §8.3 and §8.8 permit. Deferred rather than rejected: both already scroll horizontally inside a focusable region, which is the accessibility obligation, and a break-out needs negative margins whose value the token scale does not carry. Recorded as outstanding.
+
+**Use `<header>` and `<footer>` inside `<article>`.** Valid HTML, and both carry no landmark role there. Rejected because `tests/quality/accessibility.spec.ts` counts `header` *elements* to prove there is one page header, and four routes failed. ADR-029 hit this on `/workflow` and settled the direction: fix the page, not the assertion.
+
+### Consequences
+
+- **All four case studies are now structurally identical**, verified rather than asserted: label top 183 px, content edge 208 px, measure 772 px, 84 px above a chapter and 14 px below it, 96 px metadata column, 24 px callout padding, 1 px footer rule — the same on every one.
+- **The reading measure is 68 characters at desktop** and never exceeds it; at 320 px, 17 elements extend past the viewport and **all 17 are inside `role="region"` scroll containers**, which is §8.3's "horizontal scroll within the block; the page never scrolls horizontally". Zero uncontained.
+- **`Callout` is styled, closing the defect ADR-029 left open.** Nine callouts across four studies were indistinguishable from body text.
+- **The documents got longer, and that is the point.** `/work/orchestai` went from 7,601 px to roughly 12,900 px without a word being added or removed. It is longer because it is now spaced to be read.
+- **`Prose` is used for the first time since it was written.** A component can pass every test it has and still be dead code, and nothing in CI notices.
+- Live URLs updated: OrchestAI to `orchestai-two.vercel.app`, NovaMind to `www.trynovamind.com`.
+- 123/123 browser checks, 53/53 unit, full CI green, Lighthouse 100/100/100/100 on all ten routes, zero page overflow and clean console across four pages × seven widths.

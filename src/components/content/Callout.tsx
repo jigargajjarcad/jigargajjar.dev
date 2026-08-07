@@ -17,6 +17,24 @@ import type { ReactNode } from 'react';
  */
 export type CalloutVariant = 'note' | 'caution' | 'critical';
 
+/**
+ * §8.1: "left border 2 px in the status colour, `--color-surface-raised`
+ * background, `--space-6` padding". Specified in Phase 3 and never written —
+ * `data-variant` was rendered and no stylesheet ever targeted it, so nine
+ * callouts across four case studies were visually indistinguishable from body
+ * text (ADR-029 recorded this; ADR-033 fixes it).
+ *
+ * `note` has no status colour in `COLOR_SYSTEM.md` §7 because it carries no
+ * status — it is a constraint or an aside — so it takes the strong border
+ * colour. The variant stays legible from the text regardless: §8.1 is explicit
+ * that "a callout whose meaning depends on its border colour has failed".
+ */
+const RULE: Record<CalloutVariant, string> = {
+  note: 'border-color-border-strong',
+  caution: 'border-color-status-caution',
+  critical: 'border-color-status-critical',
+};
+
 const slug = (value: string): string =>
   value
     .toLowerCase()
@@ -37,8 +55,13 @@ export function Callout({
     <aside
       data-variant={variant}
       {...(labelId ? { 'aria-labelledby': labelId } : { 'aria-label': `${variant} callout` })}
+      className={`border-l-emphasis bg-color-surface-raised p-6 ${RULE[variant]}`}
     >
-      {heading ? <p id={labelId}>{heading}</p> : null}
+      {heading ? (
+        <p id={labelId} className="mb-2 font-text text-type-heading-4 text-color-text-primary">
+          {heading}
+        </p>
+      ) : null}
       {children}
     </aside>
   );

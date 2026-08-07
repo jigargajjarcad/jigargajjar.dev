@@ -25,13 +25,29 @@ export function Comparison({
 }) {
   return (
     <div tabIndex={0} role="region" aria-label={caption} className="max-w-full overflow-x-auto">
-      <table>
-        <caption>{caption}</caption>
+      {/* §8.8 — header row at `--color-surface-raised` separated by a hairline,
+          and explicitly "No zebra striping — alternating rows are a workaround
+          for tables that are too dense, and the fix is fewer columns". Row
+          separation is a hairline per row, which is the same structural element
+          the rest of the site uses. */}
+      <table className="w-full border-collapse text-left font-text text-type-body-sm">
+        <caption className="mb-3 text-left font-text text-type-caption text-color-text-tertiary">
+          {caption}
+        </caption>
         <thead>
-          <tr>
-            <th scope="col">Option</th>
+          <tr className="border-b-hairline border-color-border-strong bg-color-surface-raised">
+            <th
+              scope="col"
+              className="px-4 py-3 font-text text-type-label text-color-text-secondary"
+            >
+              Option
+            </th>
             {columns.map((column) => (
-              <th scope="col" key={column}>
+              <th
+                scope="col"
+                key={column}
+                className="px-4 py-3 font-text text-type-label text-color-text-secondary"
+              >
                 {column}
               </th>
             ))}
@@ -39,10 +55,20 @@ export function Comparison({
         </thead>
         <tbody>
           {rows.map((row) => (
-            <tr key={row.label}>
-              <th scope="row">{row.label}</th>
+            <tr key={row.label} className="border-b-hairline border-color-border-subtle">
+              <th
+                scope="row"
+                className="px-4 py-3 align-top font-text text-type-label text-color-text-primary"
+              >
+                {row.label}
+              </th>
               {row.cells.map((cell, index) => (
-                <td key={`${row.label}-${columns[index] ?? index}`}>{cell}</td>
+                <td
+                  key={`${row.label}-${columns[index] ?? index}`}
+                  className="px-4 py-3 align-top text-color-text-secondary"
+                >
+                  {cell}
+                </td>
               ))}
             </tr>
           ))}

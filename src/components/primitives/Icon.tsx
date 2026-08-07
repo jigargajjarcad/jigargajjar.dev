@@ -20,7 +20,8 @@ export type IconName =
   | 'mail'
   | 'document'
   | 'github'
-  | 'linkedin';
+  | 'linkedin'
+  | 'globe';
 
 /**
  * Brand marks — ADR-024, and the single exception to §3's stroke grammar.
@@ -43,6 +44,11 @@ const PATHS: Record<IconName, string> = {
   'arrow-up-right': 'M7 17L17 7M8 7h9v9',
   mail: 'M3 6h18v12H3zM3 7l9 6 9-6',
   document: 'M14 3H7a1 1 0 00-1 1v16a1 1 0 001 1h10a1 1 0 001-1V7zM14 3v4h4M9 13h6M9 17h4',
+  // A live deployment, on `/work/[slug]`. §7 keeps the set closed at fifteen and
+  // says "the remaining nine arrive with their consumers"; this is the eleventh
+  // and it arrived with one. Drawn in §3's stroke grammar — 24 grid, no fill,
+  // `currentColor` — unlike the two brand marks beside it.
+  globe: 'M3 12h18M12 3a15.3 15.3 0 014 9 15.3 15.3 0 01-4 9 15.3 15.3 0 01-4-9 15.3 15.3 0 014-9z',
   github:
     'M12 .5C5.37.5 0 5.87 0 12.5c0 5.3 3.44 9.8 8.21 11.39.6.11.82-.26.82-.58 0-.29-.01-1.05-.02-2.06-3.34.73-4.04-1.61-4.04-1.61-.55-1.39-1.34-1.76-1.34-1.76-1.09-.75.08-.73.08-.73 1.21.09 1.84 1.24 1.84 1.24 1.07 1.84 2.81 1.31 3.5 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016 0c2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.25 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.62-5.49 5.92.43.37.82 1.1.82 2.22 0 1.6-.02 2.9-.02 3.29 0 .32.22.7.83.58A12.01 12.01 0 0024 12.5C24 5.87 18.63.5 12 .5z',
   linkedin:
@@ -51,6 +57,7 @@ const PATHS: Record<IconName, string> = {
 
 const CIRCLES: Partial<Record<IconName, { cx: number; cy: number; r: number }>> = {
   sun: { cx: 12, cy: 12, r: 4 },
+  globe: { cx: 12, cy: 12, r: 9 },
 };
 
 export type IconSize = 'sm' | 'md' | 'lg';

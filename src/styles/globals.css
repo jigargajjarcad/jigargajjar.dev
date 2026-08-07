@@ -137,6 +137,126 @@
     letter-spacing: var(--type-heading-4-tracking);
   }
 
+  /*
+   * Prose rhythm — `TYPOGRAPHY.md` §4, implemented here for the first time.
+   *
+   * §4 specifies a complete vertical rhythm for long-form prose and **none of it
+   * had ever been written**. The case-study body rendered native markdown
+   * through the MDX map, `globals.css` resets `p` and `h1`–`h4` margins to zero,
+   * and nothing put them back: measured on `/work/orchestai`, every paragraph
+   * gap was 0 px, every space above and below all eight `<h2>` chapter headings
+   * was 0 px, and the body ran at 90 characters against a 68 cap. Eight thousand
+   * seven hundred words set with no rhythm at all.
+   *
+   * **Spacing derives from the line height of the element above, not from the
+   * component scale.** `SPACING.md` §2 draws that boundary explicitly: "prose
+   * spacing derives from line height (`TYPOGRAPHY.md` §4); everything else uses
+   * this scale. Two systems, each in its correct domain." So the unit here is
+   * one body line — `--type-body-size × --type-body-line-height` — and every
+   * value below is a multiple of it. Because the body size is a `clamp()`, the
+   * whole rhythm resolves fluidly with the viewport and needs no breakpoints.
+   *
+   * **The asymmetry is the point.** Space above a heading is always larger than
+   * space below it, so a heading groups with what it introduces rather than
+   * floating between two blocks. §4 calls this "the single most common
+   * typographic error in developer-authored interfaces".
+   *
+   * Margins are top-only. Bottom margins collapse against top margins in ways
+   * that differ by element and by browser, and the rule that wins is then hard
+   * to predict from reading the stylesheet.
+   */
+  [data-prose] {
+    --prose-line: calc(var(--type-body-size) * var(--type-body-line-height));
+  }
+
+  /* Paragraph → paragraph: 1 body line. Also the default for anything not named
+     below, so an unanticipated element is spaced rather than flush. */
+  [data-prose] > * + * {
+    margin-top: var(--prose-line);
+  }
+
+  /* Paragraph → heading 2: 3 body lines. Paragraph → heading 3: 2.
+     Each subtracts its own half-leading, which is §4's "leading trim": a heading
+     at line height 1.15 sits visually lower than its measured position, by an
+     amount that differs per heading size, so without this every heading in the
+     document is misaligned by a different amount. `1em` inside the heading is
+     the heading's own size, which is what makes one expression correct for all
+     viewports. */
+  [data-prose] > h2 {
+    margin-top: calc(var(--prose-line) * 3 - (var(--type-heading-2-line-height) - 1) / 2 * 1em);
+  }
+
+  [data-prose] > h3 {
+    margin-top: calc(var(--prose-line) * 2 - (var(--type-heading-3-line-height) - 1) / 2 * 1em);
+  }
+
+  [data-prose] > h4 {
+    margin-top: calc(var(--prose-line) * 2 - (var(--type-heading-4-line-height) - 1) / 2 * 1em);
+  }
+
+  /* Heading → its first paragraph: 0.5 body line. */
+  [data-prose] > h2 + *,
+  [data-prose] > h3 + *,
+  [data-prose] > h4 + * {
+    margin-top: calc(var(--prose-line) * 0.5);
+  }
+
+  /* Paragraph → list: 0.75 line; items 0.5 line apart. */
+  [data-prose] > ul,
+  [data-prose] > ol {
+    margin-top: calc(var(--prose-line) * 0.75);
+    padding-left: var(--space-5);
+  }
+
+  [data-prose] li + li {
+    margin-top: calc(var(--prose-line) * 0.5);
+  }
+
+  /* Paragraph → figure, table, code block: 1.5 lines *both sides*. The trailing
+     side needs its own rule because margins here are top-only. */
+  [data-prose] > figure,
+  [data-prose] > pre,
+  [data-prose] > table,
+  [data-prose] > aside,
+  [data-prose] > blockquote,
+  [data-prose] > section,
+  [data-prose] > div {
+    margin-top: calc(var(--prose-line) * 1.5);
+  }
+
+  [data-prose] > figure + *,
+  [data-prose] > pre + *,
+  [data-prose] > table + *,
+  [data-prose] > aside + *,
+  [data-prose] > blockquote + *,
+  [data-prose] > section + *,
+  [data-prose] > div + * {
+    margin-top: calc(var(--prose-line) * 1.5);
+  }
+
+  /* A heading after a block keeps its chapter spacing: the block rule above must
+     not quietly halve the space before a new chapter. */
+  [data-prose] > * + h2 {
+    margin-top: calc(var(--prose-line) * 3 - (var(--type-heading-2-line-height) - 1) / 2 * 1em);
+  }
+
+  [data-prose] > * + h3 {
+    margin-top: calc(var(--prose-line) * 2 - (var(--type-heading-3-line-height) - 1) / 2 * 1em);
+  }
+
+  /* Nested prose — inside a callout, a decision region, a list item or a
+     blockquote. The rules above are all direct-child selectors, so without this
+     a callout carrying two paragraphs sets them flush against each other. 0.75
+     line rather than a full one: these are contained blocks, and the container's
+     own padding is already doing part of the separating. */
+  [data-prose] :where(aside, dd, li, blockquote, figcaption) > * + * {
+    margin-top: calc(var(--prose-line) * 0.75);
+  }
+
+  [data-prose] > :first-child {
+    margin-top: 0;
+  }
+
   /* `TYPOGRAPHY.md` §5 — "Headings use balanced wrapping so a two-line heading
      splits evenly rather than leaving one word on line two. Prose paragraphs use
      pretty wrapping where supported."

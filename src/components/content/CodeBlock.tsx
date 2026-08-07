@@ -13,13 +13,25 @@ import { CopyButton } from './CopyButton';
  */
 export function CodeBlock({ language, children }: { language?: string; children: string }) {
   return (
-    <div>
-      {language ? <p>{language}</p> : null}
-      <CopyButton source={children} />
+    /* §8.3 — `--color-surface-sunken` behind a hairline, language label at
+       `--type-caption` top right in `--color-text-tertiary`, copy control
+       always present and focusable. */
+    <div className="relative overflow-hidden rounded-sm border-hairline border-color-border-subtle bg-color-surface-sunken">
+      <div className="flex items-center justify-between gap-4 border-b-hairline border-color-border-subtle px-4 py-2">
+        <p className="font-mono text-type-caption uppercase text-color-text-tertiary">
+          {language ?? ''}
+        </p>
+        <CopyButton source={children} />
+      </div>
       {/* A scrollable region must be keyboard-reachable (WCAG 2.1.1). Giving
           it a role and a name is what makes the tab stop legitimate rather
           than a bare tabIndex on non-interactive content. */}
-      <pre tabIndex={0} role="region" aria-label={language ? `${language} code` : 'Code'}>
+      <pre
+        tabIndex={0}
+        role="region"
+        aria-label={language ? `${language} code` : 'Code'}
+        className="m-0 overflow-x-auto p-4 font-mono text-type-code text-color-text-primary"
+      >
         <code>{children}</code>
       </pre>
     </div>

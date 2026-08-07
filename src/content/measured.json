@@ -5,7 +5,7 @@
     "homeFirstLoadBudgetKb": 120,
     "sharedRuntimeKb": 100.3,
     "sharedRuntimeCeilingKb": 105,
-    "cssKb": 6.5,
+    "cssKb": 6.8,
     "cssBudgetKb": 20,
     "routes": 12
   },
@@ -14,8 +14,8 @@
     "accessibility": 100,
     "bestPractices": 100,
     "seo": 100,
-    "lcpMs": 494,
-    "fcpMs": 214,
+    "lcpMs": 505,
+    "fcpMs": 227,
     "tbtMs": 0,
     "cls": 0.006,
     "measuredAt": "2026-08-07"
@@ -26,7 +26,7 @@
     "ciSteps": 9
   },
   "repository": {
-    "decisionRecords": 32,
+    "decisionRecords": 33,
     "caseStudies": 4,
     "caseStudyWords": 8800,
     "semanticColours": 21,

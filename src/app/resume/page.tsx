@@ -295,7 +295,7 @@ export default function ResumePage() {
             the list read as two columns of content rather than as keys and
             values. */}
         <Section heading="Technologies">
-          <dl className="grid gap-1 md:grid-cols-[18rem_1fr] md:gap-x-6">
+          <dl className="grid gap-1 md:grid-cols-[18rem_1fr] md:items-baseline md:gap-x-6">
             {technologies.map((group) => (
               <div key={group.group} className="contents">
                 <dt>
@@ -318,7 +318,7 @@ export default function ResumePage() {
             {/* Same two-column grid as Technologies, so the three metadata
                 columns on this page — dates, stacks, group labels — all begin on
                 one vertical line. */}
-            <dl className="grid gap-1 md:grid-cols-[18rem_1fr] md:gap-x-6">
+            <dl className="grid gap-1 md:grid-cols-[18rem_1fr] md:items-baseline md:gap-x-6">
               {education.map((entry) => (
                 <div key={entry.qualification} className="contents">
                   <dt>

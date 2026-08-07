@@ -156,7 +156,7 @@ export default async function CaseStudyPage({ params }: { params: Promise<{ slug
               use, so a reader crossing from either recognises the pattern. It
               was a bare `<dl>`: `dd` has no default indent once the reset
               removes its margin, so term and definition ran together. */}
-          <dl className="mt-10 grid grid-cols-1 gap-y-3 sm:grid-cols-[6rem_1fr] sm:gap-x-6">
+          <dl className="mt-10 grid grid-cols-1 gap-y-3 sm:grid-cols-[6rem_1fr] sm:items-baseline sm:gap-x-6">
             <dt>
               <Text token="mono" color="tertiary" as="span" uppercase>
                 Role

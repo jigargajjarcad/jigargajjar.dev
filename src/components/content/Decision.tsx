@@ -31,12 +31,19 @@ export function Decision({
   ];
 
   return (
-    /* §8.6 — "Contained by a 1 px border, no fill", which is what keeps it
+    /* `items-baseline` puts each label on the same baseline as the body beside
+       it. Top-aligned — which is what this was — a 14 px uppercase label and a
+       17 px body line have different first-line baselines inside boxes that both
+       start at the row top, so every label sat about six pixels high. The same
+       slip was in the case-study header, `/workflow`, `/connect` and `/resume`;
+       the home page had it right, and this brings the other six grids to it.
+
+       §8.6 — "Contained by a 1 px border, no fill", which is what keeps it
        "visually distinct from a callout": bordered-no-fill against
        filled-with-left-rule. Labels are `--type-label` uppercase at
        `--color-text-secondary`, bodies `--type-body`, in the fixed order the
        spec requires. */
-    <dl className="grid grid-cols-1 gap-y-6 border-hairline border-color-border-subtle p-6 sm:grid-cols-[10rem_1fr] sm:gap-x-6 sm:gap-y-5">
+    <dl className="grid grid-cols-1 gap-y-6 border-hairline border-color-border-subtle p-6 sm:grid-cols-[10rem_1fr] sm:items-baseline sm:gap-x-6 sm:gap-y-5">
       {REGIONS.map(([label, body]) => (
         <Fragment key={label}>
           <dt className="font-text text-type-label uppercase text-color-text-secondary">{label}</dt>

@@ -189,7 +189,7 @@ function StageDetail({ stage }: { stage: Stage }) {
       </Text>
       {/* `gap-y-3` rather than `gap-y-2`: at 18 px values on a 1.6 line height,
           8 px between rows let the four fields run together into one block. */}
-      <dl className="grid gap-x-6 gap-y-3 md:grid-cols-[7rem_1fr]">
+      <dl className="grid gap-x-6 gap-y-3 md:grid-cols-[7rem_1fr] md:items-baseline">
         {fields.map(([label, value]) => (
           <div key={label} className="contents">
             <dt>

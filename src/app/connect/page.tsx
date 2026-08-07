@@ -189,7 +189,7 @@ export default function ConnectPage() {
           <div className="mt-section-md grid gap-12 md:grid-cols-2 md:gap-x-16">
             <Section heading="Where to reach me">
               <div className="flex flex-col gap-6">
-                <dl className="grid grid-cols-1 gap-y-3 sm:grid-cols-[6rem_1fr] sm:gap-x-6">
+                <dl className="grid grid-cols-1 gap-y-3 sm:grid-cols-[6rem_1fr] sm:items-baseline sm:gap-x-6">
                   <dt>
                     <FieldLabel>Email</FieldLabel>
                   </dt>
@@ -224,7 +224,7 @@ export default function ConnectPage() {
 
             <Section heading="What to expect back">
               <div className="flex flex-col gap-6">
-                <dl className="grid grid-cols-1 gap-y-3 sm:grid-cols-[6rem_1fr] sm:gap-x-6">
+                <dl className="grid grid-cols-1 gap-y-3 sm:grid-cols-[6rem_1fr] sm:items-baseline sm:gap-x-6">
                   <dt>
                     <FieldLabel>Timezone</FieldLabel>
                   </dt>

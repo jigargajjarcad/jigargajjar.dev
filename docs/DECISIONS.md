@@ -1682,3 +1682,35 @@ Measured, the title and summary baselines were already exact at every width from
 - **One decision in ADR-028 is reversed, and the rest of it stands** — the withdrawn card, the hover treatment, the single accessible name, and identical rendering for all four entries are unaffected.
 - **Label-to-summary baseline delta is 0 on all four entries**, and the label, title and lifecycle share one left edge at 208 px.
 - **A defect can survive a measurement that was aimed at the wrong pair.** The title-to-summary baseline was checked at six widths and was correct every time; the misalignment was between the label and the summary, which nothing had measured.
+
+## ADR-035 — a link to a file is an anchor, not a route
+
+**Status:** Accepted · 2026-08-08 · Found by post-deployment validation of the production release
+
+### Context
+
+The production release of the completed portfolio deployed cleanly and rendered correctly on all ten routes. Sweeping the deployed site for console errors found one defect, on `/resume`, reproducing on 3 of 3 loads:
+
+```
+404  https://jigargajjardev.vercel.app/resume.pdf?_rsc=mmgoJztowgOdpG53
+```
+
+`Link` renders `next/link` for any non-external href, and `next/link` prefetches its target as an RSC payload. `/resume.pdf` is a file in `public/`, not a route, so on Vercel the RSC-headed request is routed to the server function, which has no such route, and returns 404. **Clicking the link always worked** — the direct URL is a healthy 200 with `content-type: application/pdf` — so the download was never broken. The page fired a failing request on every visit and looked perfect doing it.
+
+### Decision
+
+**An href whose final segment carries a file extension is rendered as a plain `<a>`.** No router, no prefetch. This is correct independently of the 404: there is no route to transition to, and putting a document download through the client router asks it to do something it cannot do.
+
+The rule sits in `Link` rather than at the call site, because any future asset link would have carried the same defect and nothing would have reported it.
+
+### Alternatives considered
+
+**Mark the PDF `external`.** Rejected: it would add `target="_blank"` and the "(opens in a new tab)" announcement, changing behaviour the design settled deliberately, to work around an unrelated cause.
+
+**Add a `download` variant.** Rejected as more surface than the problem needs. The distinction is not what the reader does with the target, it is whether the target is a route.
+
+### Consequences
+
+- **A CI gate was added and it does not cover this bug.** `tests/quality/no-failed-requests.spec.ts` asserts no route fires a 4xx or 5xx. It was run against the *unfixed* build and passed, because `next start` serves `/resume.pdf?_rsc=…` from `public/` and returns 200 — the static handler ignores the query string, and only Vercel routes the RSC request to the function. The spec is kept for the failures it does catch and its docstring states plainly what it does not, so it is not later mistaken for coverage.
+- **The real gap is production-only routing behaviour**, and the thing that closed it was sweeping the deployed site rather than any local check. That is now part of the release procedure rather than a one-off.
+- **Every local gate was green when this shipped**: 123 browser checks, 53 unit tests, full CI, Lighthouse 100/100/100/100 on all ten routes. A complete set of passing gates is evidence about what was checked, not about what is true.

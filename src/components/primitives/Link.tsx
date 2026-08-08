@@ -14,6 +14,15 @@ import { Icon } from './Icon';
  * Outbound links carry `arrow-up-right` and are announced as external. They do
  * not open in a new tab — that decision belongs to the reader (INTERACTION.md §6).
  *
+ * **A href pointing at a file is rendered as a plain anchor, never through the
+ * router** (ADR-035). `next/link` prefetches its target as an RSC payload, and a
+ * static file in `public/` is not a route, so the prefetch 404s: production
+ * logged `404 /resume.pdf?_rsc=…` on every load of `/resume`, reproducibly.
+ * Clicking still worked — the direct URL is a healthy 200 — which is why it
+ * survived local checks and only a console-error sweep of the deployed site
+ * caught it. Routing a document download through the client router was wrong
+ * regardless of the 404: there is no route to transition to.
+ *
  * `action` is the third variant, added by ADR-020. It is a navigation control
  * that carries a control's affordance — a bordered target at `--target-min`,
  * matching `Button`'s secondary variant exactly. §2.2 is explicit that a control
@@ -34,6 +43,11 @@ export function Link({
   external?: boolean;
   children: ReactNode;
 }) {
+  /* A route has no file extension; `/resume.pdf` does. Anything with one is an
+     asset, so it gets a plain anchor and no prefetch. Matching on the final
+     segment avoids treating a dotted route segment as a file. */
+  const isAsset = /\.[a-z0-9]+$/i.test(href.split('/').pop() ?? '');
+
   if (variant === 'action') {
     /*
      * ADR-024 — art direction.
@@ -74,6 +88,11 @@ export function Link({
         {children}
         <Icon name="arrow-up-right" size="sm" />
         <span className="sr-only">(opens in a new tab)</span>
+      </a>
+    ) : isAsset ? (
+      <a href={href} className={action}>
+        {children}
+        {arrow}
       </a>
     ) : (
       <NextLink href={href} className={action}>
@@ -122,7 +141,11 @@ export function Link({
       </a>
     );
   }
-  return (
+  return isAsset ? (
+    <a href={href} className={className}>
+      {children}
+    </a>
+  ) : (
     <NextLink href={href} className={className}>
       {children}
     </NextLink>
